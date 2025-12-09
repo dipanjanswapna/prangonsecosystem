@@ -1,5 +1,5 @@
-import { AppHeader } from '@/components/app-header';
-import { AppFooter } from '@/components/app-footer';
+import { DashboardHeader } from '@/components/dashboard-header';
+import { DashboardSidebar } from '@/components/dashboard-sidebar';
 
 export default function DashboardLayout({
   children,
@@ -7,14 +7,14 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen flex-col">
-      {/* The main header is included in the root layout, so we might not need another one here,
-          or we might want a specific dashboard topbar instead. For now, we'll keep it simple.
-          If a topbar is needed, it would go here. */}
-      <main className="flex-1">
-        {/* A sidebar could be added here */}
-        <div className="p-4 sm:p-6 md:p-8">{children}</div>
-      </main>
+    <div className="flex min-h-screen w-full flex-col bg-muted/40">
+      <DashboardSidebar />
+      <div className="flex flex-col sm:gap-4 sm:py-4 sm:pl-14">
+        <DashboardHeader />
+        <main className="grid flex-1 items-start gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }
