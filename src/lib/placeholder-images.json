@@ -1,3 +1,94 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "user-avatar",
+      "description": "User avatar for Dipanjan Das",
+      "imageUrl": "https://images.unsplash.com/photo-1612693624285-6e52c9012148?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxwb3J0cmFpdCUyMHBlcnNvbnxlbnwwfHx8fDE3NjUxOTMxMTl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "portrait person"
+    },
+    {
+      "id": "project-1",
+      "description": "Placeholder for project 1",
+      "imageUrl": "https://images.unsplash.com/photo-1644325349124-d1756b79dd42?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHx0ZWNobm9sb2d5JTIwYWJzdHJhY3R8ZW58MHx8fHwxNzY1MjcyMzMxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "technology abstract"
+    },
+    {
+      "id": "project-2",
+      "description": "Placeholder for project 2",
+      "imageUrl": "https://images.unsplash.com/photo-1653387137517-fbc54d488ed8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjb2RlJTIwcHJvZ3JhbW1pbmd8ZW58MHx8fHwxNzY1MjY5NzE3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "code programming"
+    },
+    {
+      "id": "project-3",
+      "description": "Placeholder for project 3",
+      "imageUrl": "https://images.unsplash.com/photo-1644088379091-d574269d422f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxkYXRhJTIwdmlzdWFsaXphdGlvbnxlbnwwfHx8fDE3NjUyMDQzNzh8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "data visualization"
+    },
+    {
+      "id": "ebook-1",
+      "description": "Placeholder for ebook 1",
+      "imageUrl": "https://images.unsplash.com/photo-1633477189729-9290b3261d0a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxib29rJTIwY292ZXJ8ZW58MHx8fHwxNzY1MjA0MDQ4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "book cover"
+    },
+    {
+      "id": "ebook-2",
+      "description": "Placeholder for ebook 2",
+      "imageUrl": "https://images.unsplash.com/photo-1651761409007-0395097c269d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxub3RlYm9vayUyMHBhcGVyfGVufDB8fHx8MTc2NTI5MTkyNXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "notebook paper"
+    },
+    {
+      "id": "ebook-3",
+      "description": "Placeholder for ebook 3",
+      "imageUrl": "https://images.unsplash.com/photo-1761746395593-5662bc22ca6b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxkZXNpZ24lMjBza2V0Y2h8ZW58MHx8fHwxNzY1MjkxOTI1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "design sketch"
+    },
+    {
+      "id": "blog-1",
+      "description": "Blog post placeholder 1",
+      "imageUrl": "https://images.unsplash.com/photo-1589578641895-56f5e660549f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHx3cml0aW5nJTIwZGVza3xlbnwwfHx8fDE3NjUyNzIxNjB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "writing desk"
+    },
+    {
+      "id": "blog-2",
+      "description": "Blog post placeholder 2",
+      "imageUrl": "https://images.unsplash.com/photo-1652799051080-363148083586?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxtb3RpdmF0aW9uYWwlMjBxdW90ZXxlbnwwfHx8fDE3NjUyOTE5MjV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "motivational quote"
+    },
+    {
+      "id": "blog-3",
+      "description": "Blog post placeholder 3",
+      "imageUrl": "https://images.unsplash.com/photo-1686573283192-1b3544c1c6cb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxrZXlib2FyZCUyMGNvZmZlZXxlbnwwfHx8fDE3NjUyOTE5MjV8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "keyboard coffee"
+    },
+    {
+      "id": "blog-4",
+      "description": "Blog post placeholder 4",
+      "imageUrl": "https://images.unsplash.com/photo-1522071820081-009f0129c71c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHx0ZWFtJTIwY29sbGFib3JhdGlvbnxlbnwwfHx8fDE3NjUxOTM0OTR8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "team collaboration"
+    },
+    {
+      "id": "donor-1",
+      "description": "Donor avatar 1",
+      "imageUrl": "https://images.unsplash.com/photo-1635131902146-6957477a4ff4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxwZXJzb24lMjBzbWlsaW5nfGVufDB8fHx8MTc2NTIyODY0NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "person smiling"
+    },
+    {
+      "id": "donor-2",
+      "description": "Donor avatar 2",
+      "imageUrl": "https://images.unsplash.com/photo-1655249493799-9cee4fe983bb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxwcm9mZXNzaW9uYWwlMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjUyMzU4NTl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "professional portrait"
+    },
+    {
+      "id": "donor-3",
+      "description": "Donor avatar 3",
+      "imageUrl": "https://images.unsplash.com/photo-1735415977319-030fb3ee6466?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxwZXJzb24lMjBoYXBweXxlbnwwfHx8fDE3NjUyNDY1NTF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "person happy"
+    },
+    {
+      "id": "donor-4",
+      "description": "Donor avatar 4",
+      "imageUrl": "https://images.unsplash.com/photo-1724435811349-32d27f4d5806?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cGVyc29uJTIwcHJvZmlsZXxlbnwwfHx8fDE3NjUyNjUyMDZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "person profile"
+    }
+  ]
 }
