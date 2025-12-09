@@ -7,6 +7,7 @@ import {
   signOut,
   signInWithPopup,
   GoogleAuthProvider,
+  sendPasswordResetEmail,
   type Auth,
   type UserCredential,
   type User,
@@ -113,4 +114,8 @@ export const signInWithGoogle = async (): Promise<UserCredential> => {
 export const logOut = async (): Promise<void> => {
   await signOut(auth);
   await clearSessionCookie();
+};
+
+export const resetPassword = async (email: string): Promise<void> => {
+  await sendPasswordResetEmail(auth, email);
 };

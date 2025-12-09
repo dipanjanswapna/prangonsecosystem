@@ -152,7 +152,15 @@ export default function LoginPage() {
             name="password"
             render={({ field }) => (
               <FormItem className="grid gap-2">
-                <FormLabel htmlFor="password">Password</FormLabel>
+                <div className="flex items-center">
+                  <FormLabel htmlFor="password">Password</FormLabel>
+                   <Link
+                    href="/auth/forgot-password"
+                    className="ml-auto inline-block text-sm underline"
+                  >
+                    Forgot your password?
+                  </Link>
+                </div>
                 <FormControl>
                   <Input
                     id="password"
