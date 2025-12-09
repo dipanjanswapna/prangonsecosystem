@@ -1,7 +1,7 @@
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { initializeApp, getApps, getApp } from 'firebase-admin/app';
+import { initializeApp, getApps, getApp, credential } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 import { serviceAccount } from './lib/service-account';
@@ -14,11 +14,7 @@ export const runtime = 'nodejs';
 // Initialize Firebase Admin SDK
 if (!getApps().length) {
   initializeApp({
-    credential: {
-      projectId: serviceAccount.project_id,
-      clientEmail: serviceAccount.client_email,
-      privateKey: serviceAccount.private_key,
-    },
+    credential: credential.cert(serviceAccount),
     databaseURL: `https://${serviceAccount.project_id}-default-rtdb.firebaseio.com`,
   });
 }
