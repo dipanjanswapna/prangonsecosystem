@@ -24,7 +24,7 @@ export function AuthLayout({
           {children}
         </div>
       </div>
-      <div className="lg:col-span-2 h-full flex items-center justify-center relative p-10 flex-col gap-8 rounded-2xl bg-muted overflow-hidden">
+      <div className="lg:col-span-2 h-full flex items-center justify-center relative p-10 flex-col gap-8 rounded-2xl bg-gradient-to-br from-pink-500 to-purple-600 text-white overflow-hidden">
         <div className="text-center">
           <h2 className="text-lg font-semibold mb-4">Advertisement</h2>
           {adImage && (
@@ -39,7 +39,7 @@ export function AuthLayout({
               />
             </a>
           )}
-          <p className="text-xs text-muted-foreground mt-4">
+          <p className="text-xs text-white/70 mt-4">
             Your ad could be here. Contact us for more info.
           </p>
         </div>
