@@ -40,7 +40,7 @@ export function UserNav() {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem asChild>
-            <Link href="/profile">
+            <Link href="/auth/profile">
               <User className="mr-2 h-4 w-4" />
               <span>Profile</span>
             </Link>
@@ -56,7 +56,7 @@ export function UserNav() {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
-          <Link href="/login">
+          <Link href="/auth/login">
             <LogOut className="mr-2 h-4 w-4" />
             <span>Log out</span>
           </Link>

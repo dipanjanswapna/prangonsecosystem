@@ -14,25 +14,17 @@ import { Button } from './ui/button';
 
 const navItems = [
   { href: '/', label: 'Home' },
-  {
-    label: 'About Us',
-    children: [
-      { href: '/blog', label: 'Blog' },
-      { href: '/ebooks', label: 'eBooks' },
-    ],
-  },
-  {
-    label: 'Connectivity',
-    children: [
-      { href: '/services', label: 'Corporate Connectivity' },
-      { href: '/ai-tools', label: 'SME Connectivity' },
-    ],
-  },
+  { href: '/about', label: 'About Us' },
+  { href: '/projects', label: 'Projects' },
+  { href: '/portfolio', label: 'Portfolio' },
+  { href: '/services', label: 'Services' },
+  { href: '/donations', label: 'Donations' },
+  { href: '/blog', label: 'Blog' },
   {
     label: 'More',
     children: [
-      { href: '/donate', label: 'Public Sector' },
-      { href: '/profile', label: 'Contact Us' },
+      { href: '/library', label: 'eBook Library' },
+      { href: '/contact', label: 'Contact Us' },
     ],
   },
 ];

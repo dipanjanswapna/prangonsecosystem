@@ -1,8 +1,9 @@
 import type { Metadata } from 'next';
 import './globals.css';
-import { AppLayout } from '@/components/app-layout';
 import { Toaster } from '@/components/ui/toaster';
-import { ThemeProvider } from '@/components/theme-provider';
+import { ThemeProvider } from '@/context/theme-provider';
+import { AppHeader } from '@/components/app-header';
+import { AppFooter } from '@/components/app-footer';
 
 export const metadata: Metadata = {
   title: 'Prangons Ecosystem',
@@ -39,7 +40,13 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <AppLayout>{children}</AppLayout>
+          <div className="flex min-h-screen flex-col">
+            <AppHeader />
+            <main className="flex-1">
+              <div className="container py-8 md:py-12">{children}</div>
+            </main>
+            <AppFooter />
+          </div>
           <Toaster />
         </ThemeProvider>
       </body>
