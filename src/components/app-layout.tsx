@@ -7,6 +7,7 @@ import { UserNav } from './user-nav';
 import { Button } from './ui/button';
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
 import { Menu } from 'lucide-react';
+import { ThemeToggle } from './theme-toggle';
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -25,7 +26,8 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
 
           <div className="flex flex-1 items-center justify-end gap-4">
-            <nav className="flex items-center gap-4">
+            <nav className="flex items-center gap-2">
+              <ThemeToggle />
               <div className="md:hidden">
                 <Sheet>
                   <SheetTrigger asChild>
