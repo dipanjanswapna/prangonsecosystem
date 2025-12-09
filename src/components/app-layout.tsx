@@ -39,13 +39,13 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="flex-1 flex justify-center md:justify-center">
             <Link
               href="/"
-              className="flex items-center gap-2"
+              className="flex items-center gap-3"
             >
-              <div className="text-center">
-                <div className="font-bold text-lg tracking-wide">redottec</div>
-                <div className="text-xs font-light flex items-center gap-1 text-muted-foreground">
-                  by prangon ecosystem
-                </div>
+              <span className="font-extrabold text-2xl tracking-tighter">DSP</span>
+              <div className="w-px h-8 bg-foreground/50"></div>
+              <div className="flex flex-col">
+                <span className="font-semibold tracking-wide leading-tight">DIPANJAN</span>
+                <span className="font-semibold tracking-wide leading-tight">PRANGON</span>
               </div>
             </Link>
           </div>
