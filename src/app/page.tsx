@@ -81,39 +81,41 @@ function CTASection() {
 export default function HomePage() {
   return (
     <div className="space-y-16 md:space-y-24">
-      <HeroCarousel />
-      <section className="flex flex-col items-center text-center pt-8 md:pt-12">
-        <h1 className="font-headline text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tighter">
-          Dipanjan Das
-        </h1>
-        <p className="mt-4 text-lg md:text-xl text-muted-foreground font-medium">
-          Full-Stack Developer, UI/UX Enthusiast, and Content Creator.
-        </p>
-        <p className="mt-4 max-w-xl md:max-w-2xl mx-auto text-foreground/80">
-          Welcome to my digital ecosystem. Here you'll find my work, my
-          thoughts, and my passion for building beautiful and functional web
-          experiences.
-        </p>
-        <div className="mt-6 flex flex-col sm:flex-row gap-4">
-          <Button asChild size="lg">
-            <Link href="/services">
-              My Services
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
-          <Button asChild variant="secondary" size="lg">
-            <a
-              href="https://github.com"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Github className="mr-2 h-4 w-4" />
-              GitHub
-            </a>
-          </Button>
-        </div>
-      </section>
-
+      <div className="grid min-h-[calc(100vh-10rem)] grid-cols-1 items-center gap-8 md:gap-12 lg:grid-cols-2">
+        <section className="flex flex-col items-center text-center lg:items-start lg:text-left">
+          <h1 className="font-headline text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tighter">
+            Dipanjan Das
+          </h1>
+          <p className="mt-4 text-lg md:text-xl text-muted-foreground font-medium">
+            Full-Stack Developer, UI/UX Enthusiast, and Content Creator.
+          </p>
+          <p className="mt-4 max-w-xl mx-auto lg:mx-0 text-foreground/80">
+            Welcome to my digital ecosystem. Here you'll find my work, my
+            thoughts, and my passion for building beautiful and functional web
+            experiences.
+          </p>
+          <div className="mt-6 flex flex-col sm:flex-row gap-4">
+            <Button asChild size="lg">
+              <Link href="/services">
+                My Services
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
+            </Button>
+            <Button asChild variant="secondary" size="lg">
+              <a
+                href="https://github.com"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Github className="mr-2 h-4 w-4" />
+                GitHub
+              </a>
+            </Button>
+          </div>
+        </section>
+        <HeroCarousel />
+      </div>
+      
       <section>
         <h2 className="font-headline text-3xl font-bold mb-8 text-center">
           My Skills
