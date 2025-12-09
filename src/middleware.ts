@@ -13,7 +13,7 @@ export const runtime = 'nodejs';
 const serviceAccount = {
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
   clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-  privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+  privateKey: (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
 };
 
 // Initialize Firebase Admin SDK
@@ -33,6 +33,7 @@ const protectedRoutes: Record<string, number> = {
   '/dashboard/manager': roleHierarchy[ROLES.MANAGER],
   '/dashboard/collaborator': roleHierarchy[ROLES.COLLABORATOR],
   '/dashboard/user': roleHierarchy[ROLES.USER],
+  '/auth/profile': roleHierarchy[ROLES.USER], // Also protect the profile page
 };
 
 export async function middleware(request: NextRequest) {
@@ -89,5 +90,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*'],
+  matcher: ['/dashboard/:path*', '/auth/profile'],
 };
