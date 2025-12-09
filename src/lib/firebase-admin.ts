@@ -18,8 +18,8 @@ if (process.env.FIREBASE_PROJECT_ID && process.env.FIREBASE_CLIENT_EMAIL && proc
             credential: cert({
                 projectId: process.env.FIREBASE_PROJECT_ID,
                 clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-                // The replace call is necessary to format the private key correctly
-                privateKey: (process.env.FIREBASE_PRIVATE_KEY || "").replace(/\\n/g, '\n'),
+                // The replace call is necessary to format the private key correctly from a single-line env var.
+                privateKey: (process.env.FIREBASE_PRIVATE_KEY).replace(/\\n/g, '\n'),
             }),
             databaseURL: `https://${process.env.FIREBASE_PROJECT_ID}-default-rtdb.firebaseio.com`,
         }, 'firebase-admin-app');
