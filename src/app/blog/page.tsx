@@ -14,8 +14,8 @@ import Image from 'next/image';
 export default function BlogPage() {
   return (
     <div className="space-y-8">
-      <div className="text-center">
-        <h1 className="font-headline text-4xl font-bold tracking-tight">
+      <div className="text-center px-4">
+        <h1 className="font-headline text-3xl md:text-4xl font-bold tracking-tight">
           Blog & Articles
         </h1>
         <p className="mt-2 text-lg text-muted-foreground">
@@ -31,7 +31,7 @@ export default function BlogPage() {
           return (
             <Card
               key={post.title}
-              className="flex flex-col overflow-hidden transition-transform transform hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary/20"
+              className="flex flex-col overflow-hidden group transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
             >
               {image && (
                 <div className="aspect-video overflow-hidden">
@@ -40,13 +40,13 @@ export default function BlogPage() {
                     alt={post.title}
                     width={600}
                     height={400}
-                    className="object-cover w-full h-full"
+                    className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
                     data-ai-hint={image.imageHint}
                   />
                 </div>
               )}
               <CardHeader>
-                <CardTitle className="font-headline text-xl">
+                <CardTitle className="font-headline text-xl group-hover:text-primary transition-colors">
                   {post.title}
                 </CardTitle>
                 <CardDescription>{post.description}</CardDescription>
@@ -54,7 +54,7 @@ export default function BlogPage() {
               <CardContent className="flex-grow">
                 <div className="flex flex-wrap gap-2">
                   {post.tags.map((tag) => (
-                    <Badge key={tag} variant="outline">
+                    <Badge key={tag} variant="secondary">
                       {tag}
                     </Badge>
                   ))}
