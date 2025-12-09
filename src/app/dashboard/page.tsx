@@ -1,43 +1,48 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
-import { FirstDraftForm } from '../ai-tools/first-draft-form';
+'use client';
 
-export default function DashboardPage() {
+import { useUser } from '@/firebase/auth/use-user';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import { Loader2 } from 'lucide-react';
+import { doc, getDoc } from 'firebase/firestore';
+import { useFirestore } from '@/firebase';
+
+export default function DashboardRedirectPage() {
+  const { user, loading } = useUser();
+  const router = useRouter();
+  const firestore = useFirestore();
+
+  useEffect(() => {
+    if (loading) {
+      return;
+    }
+    if (!user) {
+      router.push('/auth/login');
+      return;
+    }
+
+    const fetchUserRole = async () => {
+      const userDocRef = doc(firestore, 'users', user.uid);
+      const userDoc = await getDoc(userDocRef);
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        const role = userData.role || 'user';
+        // Redirect to the role-specific dashboard
+        router.push(`/dashboard/${role}`);
+      } else {
+        // Fallback or handle error if user doc doesn't exist
+        router.push('/dashboard/user');
+      }
+    };
+
+    fetchUserRole();
+  }, [user, loading, router, firestore]);
+
   return (
-    <div className="space-y-8">
-      <div className="px-4">
-        <h1 className="font-headline text-3xl md:text-4xl font-bold tracking-tight">
-          Dashboard
-        </h1>
-        <p className="mt-2 text-lg text-muted-foreground">
-          Welcome back, Dipanjan. Here are your content generation tools.
-        </p>
-      </div>
-
-      <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-        <Card className="lg:col-span-2">
-            <CardHeader>
-                <CardTitle>AI Content Tools</CardTitle>
-                <CardDescription>Quickly generate content using AI.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <FirstDraftForm />
-            </CardContent>
-        </Card>
-        <Card>
-            <CardHeader>
-                <CardTitle>Recent Activity</CardTitle>
-                <CardDescription>An overview of your recent actions.</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <p className="text-muted-foreground">No recent activity.</p>
-            </CardContent>
-        </Card>
+    <div className="flex h-screen w-full items-center justify-center">
+      <div className="flex flex-col items-center gap-4">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <p className="text-muted-foreground">Redirecting to your dashboard...</p>
       </div>
     </div>
   );

@@ -16,6 +16,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const isDashboard = (children as any)?.props?.childProp?.segment === 'dashboard';
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -45,7 +47,9 @@ export default function RootLayout({
             <div className="flex min-h-screen flex-col">
               <AppHeader />
               <main className="flex-1">
-                <div className="container py-8 md:py-12">{children}</div>
+                <div className={isDashboard ? '' : 'container py-8 md:py-12'}>
+                  {children}
+                </div>
               </main>
               <AppFooter />
             </div>
