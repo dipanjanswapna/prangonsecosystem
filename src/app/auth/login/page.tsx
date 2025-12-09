@@ -21,8 +21,7 @@ import {
 import { signIn, signInWithGoogle } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
-import { Github } from 'lucide-react'; // Placeholder for Google icon
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 
 const formSchema = z.object({
   email: z.string().email('Please enter a valid email address.'),
@@ -65,6 +64,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -162,12 +162,21 @@ export default function LoginPage() {
                   </Link>
                 </div>
                 <FormControl>
-                  <Input
-                    id="password"
-                    type="password"
-                    {...field}
-                    disabled={isLoading || isGoogleLoading}
-                  />
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      {...field}
+                      disabled={isLoading || isGoogleLoading}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground"
+                    >
+                      {showPassword ? <EyeOff /> : <Eye />}
+                    </button>
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
