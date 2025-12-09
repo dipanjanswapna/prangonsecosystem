@@ -5,7 +5,6 @@ import { ThemeProvider } from '@/context/theme-provider';
 import { AppHeader } from '@/components/app-header';
 import { AppFooter } from '@/components/app-footer';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
-import { headers } from 'next/headers';
 
 export const metadata: Metadata = {
   title: 'Prangons Ecosystem',
@@ -17,10 +16,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const heads = headers();
-  const pathname = heads.get('next-url') || '';
-  const isDashboard = pathname.startsWith('/dashboard');
-
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -47,19 +42,15 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <FirebaseClientProvider>
-            {isDashboard ? (
-              <div className="flex min-h-screen flex-col">{children}</div>
-            ) : (
-              <div className="flex min-h-screen flex-col animated-gradient">
-                <AppHeader />
-                <main className="flex-1">
-                  <div className={'container py-8 md:py-12'}>
-                    {children}
-                  </div>
-                </main>
-                <AppFooter />
-              </div>
-            )}
+            <div className="flex min-h-screen flex-col animated-gradient">
+              <AppHeader />
+              <main className="flex-1">
+                <div className={'container py-8 md:py-12'}>
+                  {children}
+                </div>
+              </main>
+              <AppFooter />
+            </div>
             <Toaster />
           </FirebaseClientProvider>
         </ThemeProvider>

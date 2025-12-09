@@ -8,7 +8,6 @@ import { roleHierarchy, ROLES } from './lib/roles';
 export const runtime = 'nodejs';
 
 const protectedRoutes: Record<string, number> = {
-    '/dashboard': roleHierarchy[ROLES.USER],
     '/auth/profile': roleHierarchy[ROLES.USER],
 };
 
@@ -19,7 +18,7 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith(path)
   )?.[1];
 
-  // If the route is not a protected dashboard route, do nothing.
+  // If the route is not a protected route, do nothing.
   if (requiredRoleLevel === undefined) {
     return NextResponse.next();
   }
@@ -73,5 +72,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/auth/profile'],
+  matcher: ['/auth/profile'],
 };

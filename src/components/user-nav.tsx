@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import Link from 'next/link';
-import { CreditCard, LogIn, LogOut, Settings, User as UserIcon } from 'lucide-react';
+import { LogIn, LogOut, Settings, User as UserIcon } from 'lucide-react';
 import { useUser } from '@/firebase/auth/use-user';
 import { logOut } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
@@ -89,15 +89,11 @@ export function UserNav() {
               <span>Profile</span>
             </Link>
           </DropdownMenuItem>
-           <DropdownMenuItem asChild>
-            <Link href="/dashboard">
-              <CreditCard className="mr-2 h-4 w-4" />
-              <span>Dashboard</span>
+          <DropdownMenuItem asChild>
+            <Link href="/auth/settings">
+              <Settings className="mr-2 h-4 w-4" />
+              <span>Settings</span>
             </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem>
-            <Settings className="mr-2 h-4 w-4" />
-            <span>Settings</span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
