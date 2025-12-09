@@ -15,14 +15,14 @@ import { Button } from './ui/button';
 const navItems = [
   { href: '/', label: 'Home' },
   { href: '/about', label: 'About Us' },
-  { href: '/projects', label: 'Projects' },
-  { href: '/portfolio', label: 'Portfolio' },
-  { href: '/services', label: 'Services' },
   { href: '/donations', label: 'Donations' },
-  { href: '/blog', label: 'Blog' },
   {
     label: 'More',
     children: [
+      { href: '/projects', label: 'Projects' },
+      { href: '/portfolio', label: 'Portfolio' },
+      { href: '/services', label: 'Services' },
+      { href: '/blog', label: 'Blog' },
       { href: '/library', label: 'eBook Library' },
       { href: '/contact', label: 'Contact Us' },
     ],
