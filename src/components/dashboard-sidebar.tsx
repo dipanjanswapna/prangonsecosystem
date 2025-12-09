@@ -44,7 +44,7 @@ export function DashboardSidebar() {
   const pathname = usePathname();
   const { user, loading: userLoading } = useUser();
   const { data: userData, loading: userDataLoading } = useDoc<{ role: Role }>(
-    user ? `users/${user.uid}` : ''
+    user?.uid ? `users/${user.uid}` : ''
   );
 
   const userRoleLevel = useMemo(() => {
