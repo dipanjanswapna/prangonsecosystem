@@ -50,21 +50,20 @@ export function MainNav({ isMobile = false }: { isMobile?: boolean }) {
   return (
     <nav
       className={cn(
-        'flex items-center gap-x-2 text-sm font-medium text-primary-foreground/90',
+        'flex items-center gap-x-1 text-sm font-medium text-primary-foreground/90',
         isMobile && 'flex-col items-start gap-2'
       )}
     >
       {navItems.map((item) =>
         item.children ? (
           <DropdownMenu key={item.label}>
-            <DropdownMenuTrigger className="flex items-center gap-1 px-4 py-2 transition-colors hover:text-primary-foreground focus:outline-none">
-              <span className="mr-2">•</span>
-              {item.label}
-              <ChevronDown className="h-4 w-4" />
+            <DropdownMenuTrigger className="group flex items-center gap-1 px-4 py-2 transition-colors focus:outline-none">
+              <span className="group-hover:text-primary-foreground transition-colors duration-300">{item.label}</span>
+              <ChevronDown className="h-4 w-4 transition-transform duration-300 group-hover:rotate-180" />
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-[#1C1C1C] border-none text-primary-foreground">
+            <DropdownMenuContent className="bg-gradient-to-r from-purple-700 via-purple-600 to-blue-600 border-none text-primary-foreground">
               {item.children.map((child) => (
-                <DropdownMenuItem key={child.href} asChild>
+                <DropdownMenuItem key={child.href} asChild className="hover:bg-primary-foreground/10 focus:bg-primary-foreground/10">
                   <Link href={child.href}>{child.label}</Link>
                 </DropdownMenuItem>
               ))}
@@ -75,14 +74,17 @@ export function MainNav({ isMobile = false }: { isMobile?: boolean }) {
             key={item.href}
             href={item.href!}
             className={cn(
-              'flex items-center gap-1 px-4 py-2 transition-colors hover:text-primary-foreground',
+              'relative px-4 py-2 transition-colors hover:text-primary-foreground',
               pathname === item.href
                 ? 'text-primary-foreground'
                 : 'text-primary-foreground/80'
             )}
           >
-            <span className="mr-2">•</span>
             {item.label}
+            {pathname === item.href && (
+               <span className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 w-4 bg-primary-foreground rounded-full"></span>
+            )}
+             <span className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 w-0 group-hover:w-4 bg-primary-foreground rounded-full transition-all duration-300"></span>
           </Link>
         )
       )}

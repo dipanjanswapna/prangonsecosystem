@@ -13,19 +13,24 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-50 w-full bg-gradient-to-r from-purple-700 via-purple-600 to-blue-600 shadow-lg">
-        <div className="container flex h-20 items-center">
-          <Link href="/" className="mr-6 flex items-center gap-2.5">
-            <div className='text-primary-foreground'>
-              <div className="font-bold text-2xl tracking-wide">axentec</div>
+        <div className="container flex h-16 items-center justify-between">
+          <div className="hidden md:flex flex-1 items-center justify-start">
+            <MainNav />
+          </div>
+
+          <Link href="/" className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2.5">
+            <div className='text-primary-foreground text-center'>
+              <div className="font-bold text-2xl tracking-wide">redottec</div>
               <div className="text-xs font-light flex items-center gap-1">
-                by <Flame className="h-3 w-3 text-red-400" /> robi axiata
+                by prangon ecosystem
               </div>
             </div>
           </Link>
-
-          <div className="hidden md:flex flex-1 items-center justify-center">
-            <MainNav />
+          
+          <div className="flex-1 md:hidden">
+             {/* Placeholder for mobile layout to balance the flexbox */}
           </div>
+
 
           <div className="flex flex-1 items-center justify-end gap-2">
             <nav className="flex items-center gap-2">
