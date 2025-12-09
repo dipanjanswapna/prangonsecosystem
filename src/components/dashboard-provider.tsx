@@ -1,59 +1,23 @@
 'use client';
 
 import { useEffect } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useUser } from '@/firebase/auth/use-user';
-import { useDoc } from '@/firebase/firestore/use-doc';
-import type { Role } from '@/lib/roles';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const { user, loading: userLoading } = useUser();
   const router = useRouter();
-  const pathname = usePathname();
-  
-  const { data: userProfile, loading: profileLoading } = useDoc<{ role: Role }>(
-    user ? `users/${user.uid}` : null
-  );
 
   useEffect(() => {
     // If auth is done and there's no user, redirect to login
     if (!userLoading && !user) {
       router.push('/auth/login');
-      return;
     }
+  }, [user, userLoading, router]);
 
-    // If we have a user but their profile is still loading, do nothing yet.
-    if (user && profileLoading) {
-      return;
-    }
-
-    // If we have a user and their profile is loaded
-    if (user && userProfile) {
-      const userRole = userProfile.role;
-      const expectedPath = `/dashboard/${userRole.toLowerCase()}`;
-
-      // If the user is on the base dashboard or a dashboard they don't have access to,
-      // redirect them to their correct dashboard page.
-      // We check if the pathname starts with `/dashboard` and is not the correct one.
-      if (pathname.startsWith('/dashboard') && !pathname.startsWith(expectedPath)) {
-         router.replace(expectedPath);
-      }
-    }
-    
-    // If the user exists but the profile does not (e.g., new registration),
-    // and they are not already on the user dashboard, redirect them.
-    if (user && !profileLoading && !userProfile) {
-        console.warn('User profile not found in Firestore, defaulting to user dashboard.');
-        if (pathname !== '/dashboard/user') {
-            router.replace('/dashboard/user');
-        }
-    }
-
-  }, [user, userLoading, userProfile, profileLoading, router, pathname]);
-
-  // Show a loading skeleton while we verify the user and their role
-  if (userLoading || profileLoading) {
+  // Show a loading skeleton while we verify the user
+  if (userLoading || !user) {
     return (
       <div className="space-y-6 p-4 sm:px-6 sm:py-4">
         <div className="flex items-center space-x-4">
@@ -77,5 +41,6 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     );
   }
 
+  // If user is authenticated, render the dashboard content
   return <>{children}</>;
 }

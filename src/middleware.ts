@@ -32,7 +32,9 @@ export async function middleware(request: NextRequest) {
   const sessionCookie = request.cookies.get('__session')?.value;
 
   if (!sessionCookie) {
-    return NextResponse.redirect(new URL('/auth/login', request.url));
+    const loginUrl = new URL('/auth/login', request.url);
+    loginUrl.searchParams.set('redirect', pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
   try {
@@ -48,19 +50,26 @@ export async function middleware(request: NextRequest) {
     const userData = userDoc.data();
     const userRole = userData?.role || ROLES.USER;
     const userRoleLevel = roleHierarchy[userRole as keyof typeof roleHierarchy] ?? 0;
+    const userDashboardUrl = new URL(`/dashboard/${userRole.toLowerCase()}`, request.url);
 
-    // If user has sufficient role level, allow access
+    // If user has sufficient role level for the requested path, allow access
     if (userRoleLevel >= requiredRoleLevel) {
-      return NextResponse.next();
+        // Special handling for the base /dashboard route
+        // Redirect to their specific role-based dashboard.
+        if (pathname === '/dashboard') {
+             return NextResponse.redirect(userDashboardUrl);
+        }
+        return NextResponse.next();
     } else {
-        // If user is trying to access a protected dashboard page they don't have access to,
+        // If user is trying to access a page they don't have permissions for,
         // redirect them to their own role's dashboard.
-        return NextResponse.redirect(new URL(`/dashboard/${userRole.toLowerCase()}`, request.url));
+        return NextResponse.redirect(userDashboardUrl);
     }
   } catch (error) {
     console.error('Middleware Error:', error);
     // If token verification fails, clear the cookie and redirect to login
-    const response = NextResponse.redirect(new URL('/auth/login', request.url));
+    const loginUrl = new URL('/auth/login', request.url);
+    const response = NextResponse.redirect(loginUrl);
     response.cookies.delete('__session');
     return response;
   }
