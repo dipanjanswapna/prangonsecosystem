@@ -125,6 +125,12 @@
       "description": "Illustration for auth pages",
       "imageUrl": "https://images.unsplash.com/photo-1644088379091-d574269d422f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8ZGF0YSUyMGFuYWx5c2lzfGVufDB8fHx8MTc2NTE3MTc2NXww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "data analysis"
+    },
+    {
+      "id": "auth-ad",
+      "description": "Placeholder for advertisement on auth pages",
+      "imageUrl": "https://images.unsplash.com/photo-1711779186295-8209afd337df?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cHJvZHVjdCUyMGFkdmVydGlzZW1lbnR8ZW58MHx8fHwxNzY1MjA2NzYwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "product advertisement"
     }
   ]
 }

@@ -11,38 +11,37 @@ export function AuthLayout({
   description: string;
   children: React.ReactNode;
 }) {
-  const authImage = PlaceHolderImages.find(
-    (img) => img.id === 'auth-illustration'
-  );
+  const adImage = PlaceHolderImages.find((img) => img.id === 'auth-ad');
 
   return (
-    <div className="min-h-[calc(100vh-10rem)] w-full lg:grid lg:grid-cols-2">
-      <div className="flex items-center justify-center py-12">
+    <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center min-h-[calc(100vh-10rem)]">
+      <div className="lg:col-span-3 flex items-center justify-center py-12">
         <div className="mx-auto grid w-[350px] gap-6">
           <div className="grid gap-2">
             <h1 className="text-3xl font-bold font-headline">{title}</h1>
-            <p className="text-balance text-muted-foreground">
-              {description}
-            </p>
+            <p className="text-balance text-muted-foreground">{description}</p>
           </div>
           {children}
         </div>
       </div>
-      <div className="hidden bg-muted lg:flex items-center justify-center relative p-10 flex-col gap-8 rounded-2xl" style={{backgroundImage: 'linear-gradient(to bottom right, #f0abfc, #a855f7, #4c1d95)'}}>
-        {authImage && (
-          <Image
-            src={authImage.imageUrl}
-            alt="Auth Illustration"
-            width="800"
-            height="600"
-            className="object-contain"
-            data-ai-hint={authImage.imageHint}
-          />
-        )}
-        <div className="text-center text-white">
-            <h2 className="text-2xl font-bold font-headline">ASG Shop CRM</h2>
-            <p>Sales Dashboard of ASG Shop</p>
-            <p className="text-sm mt-4 opacity-80">© 2021-22 Apar's Classroom</p>
+      <div className="lg:col-span-2 h-full flex items-center justify-center relative p-10 flex-col gap-8 rounded-2xl bg-muted overflow-hidden">
+        <div className="text-center">
+          <h2 className="text-lg font-semibold mb-4">Advertisement</h2>
+          {adImage && (
+            <a href="#" target="_blank" rel="noopener noreferrer">
+              <Image
+                src={adImage.imageUrl}
+                alt="Advertisement"
+                width="400"
+                height="600"
+                className="object-cover rounded-lg shadow-lg hover:opacity-90 transition-opacity"
+                data-ai-hint={adImage.imageHint}
+              />
+            </a>
+          )}
+          <p className="text-xs text-muted-foreground mt-4">
+            Your ad could be here. Contact us for more info.
+          </p>
         </div>
       </div>
     </div>
