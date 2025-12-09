@@ -1,80 +1,13 @@
-
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { adminAuth, adminFirestore } from '@/lib/firebase-admin';
-import { roleHierarchy, ROLES } from './lib/roles';
 
-export const runtime = 'nodejs';
-
-const protectedRoutes: Record<string, number> = {
-  '/dashboard': roleHierarchy[ROLES.USER],
-  '/dashboard/admin': roleHierarchy[ROLES.ADMIN],
-  '/dashboard/moderator': roleHierarchy[ROLES.MODERATOR],
-  '/dashboard/manager': roleHierarchy[ROLES.MANAGER],
-  '/dashboard/collaborator': roleHierarchy[ROLES.COLLABORATOR],
-  '/dashboard/user': roleHierarchy[ROLES.USER],
-  '/auth/profile': roleHierarchy[ROLES.USER],
-  '/dashboard/all-users': roleHierarchy[ROLES.ADMIN],
-};
-
-export async function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-
-  const requiredRoleLevel = Object.entries(protectedRoutes).find(([path]) =>
-    pathname.startsWith(path)
-  )?.[1];
-
-  // If the route is not protected, continue.
-  if (requiredRoleLevel === undefined) {
-    return NextResponse.next();
-  }
-
-  const sessionCookie = request.cookies.get('__session')?.value;
-
-  if (!sessionCookie) {
-    const loginUrl = new URL('/auth/login', request.url);
-    loginUrl.searchParams.set('redirect', pathname);
-    return NextResponse.redirect(loginUrl);
-  }
-
-  try {
-    const decodedToken = await adminAuth.verifySessionCookie(sessionCookie, true);
-    const userUid = decodedToken.uid;
-
-    const userDoc = await adminFirestore.collection('users').doc(userUid).get();
-    
-    if (!userDoc.exists) {
-      throw new Error('User not found in Firestore.');
-    }
-
-    const userData = userDoc.data();
-    const userRole = userData?.role || ROLES.USER;
-    const userRoleLevel = roleHierarchy[userRole as keyof typeof roleHierarchy] ?? 0;
-    const userDashboardUrl = new URL(`/dashboard/${userRole.toLowerCase()}`, request.url);
-
-    // If user has sufficient role level for the requested path, allow access
-    if (userRoleLevel >= requiredRoleLevel) {
-        // Special handling for the base /dashboard route
-        // Redirect to their specific role-based dashboard.
-        if (pathname === '/dashboard') {
-             return NextResponse.redirect(userDashboardUrl);
-        }
-        return NextResponse.next();
-    } else {
-        // If user is trying to access a page they don't have permissions for,
-        // redirect them to their own role's dashboard.
-        return NextResponse.redirect(userDashboardUrl);
-    }
-  } catch (error) {
-    console.error('Middleware Error:', error);
-    // If token verification fails, clear the cookie and redirect to login
-    const loginUrl = new URL('/auth/login', request.url);
-    const response = NextResponse.redirect(loginUrl);
-    response.cookies.delete('__session');
-    return response;
-  }
+// This middleware is currently disabled to rely on client-side auth checks.
+// You can re-enable it if you implement a robust server-side session verification.
+export function middleware(request: NextRequest) {
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/auth/profile'],
+  // Do not run middleware on any routes for now
+  matcher: [],
 };

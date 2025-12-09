@@ -31,6 +31,7 @@ export function UserNav() {
         description: 'You have been successfully logged out.',
       });
       router.push('/');
+      router.refresh(); // Force a refresh to clear client-side cache
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -90,9 +91,9 @@ export function UserNav() {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href="/auth/settings">
+            <Link href="/dashboard">
               <Settings className="mr-2 h-4 w-4" />
-              <span>Settings</span>
+              <span>Dashboard</span>
             </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
