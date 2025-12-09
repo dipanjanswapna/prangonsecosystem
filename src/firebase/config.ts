@@ -1,11 +1,11 @@
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 export const firebaseConfig = {
-  apiKey: 'AIzaSyBYnbO2bdjZalpJEzd2DQgRfvLuwvovHb8',
-  authDomain: 'prangonseco.firebaseapp.com',
-  databaseURL: 'https://prangonseco-default-rtdb.firebaseio.com',
-  projectId: 'prangonseco',
-  storageBucket: 'prangonseco.appspot.com',
-  messagingSenderId: '13963923532',
-  appId: '1:13963923532:web:38cca69041a058cd9424e9',
-  measurementId: 'G-YS00ZQBV8Z',
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  databaseURL: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_URL,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
