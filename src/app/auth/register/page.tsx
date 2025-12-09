@@ -45,7 +45,7 @@ export default function SignupPage() {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
     try {
-      await signUp(values.email, values.password);
+      await signUp(values.email, values.password, values.fullName);
       toast({
         title: 'Account Created!',
         description: "You've been successfully signed up. Redirecting to login...",
@@ -53,10 +53,16 @@ export default function SignupPage() {
       router.push('/auth/login');
     } catch (error: any) {
       console.error('Signup Error:', error);
+      let description = 'There was a problem with your request.';
+      if (error.code === 'auth/email-already-in-use') {
+        description = 'This email address is already in use. Please try another one.';
+      } else {
+        description = error.message;
+      }
       toast({
         variant: 'destructive',
         title: 'Uh oh! Something went wrong.',
-        description: error.message || 'There was a problem with your request.',
+        description,
       });
     } finally {
       setIsLoading(false);
