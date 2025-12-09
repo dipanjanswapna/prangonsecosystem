@@ -8,9 +8,9 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  type CarouselApi,
 } from '@/components/ui/carousel';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { cn } from '@/lib/utils';
 import Autoplay from 'embla-carousel-autoplay';
 
 const carouselItems = [
@@ -22,24 +22,42 @@ const carouselItems = [
 ];
 
 export function HeroCarousel() {
+  const [api, setApi] = React.useState<CarouselApi>();
+  const [current, setCurrent] = React.useState(0);
+
   const plugin = React.useRef(
     Autoplay({ delay: 3000, stopOnInteraction: true })
   );
 
+  React.useEffect(() => {
+    if (!api) {
+      return;
+    }
+
+    setCurrent(api.selectedScrollSnap() + 1);
+
+    api.on('select', () => {
+      setCurrent(api.selectedScrollSnap() + 1);
+    });
+  }, [api]);
+
   return (
     <section className="w-full">
       <Carousel
+        setApi={setApi}
         plugins={[plugin.current]}
         className="w-full"
         onMouseEnter={plugin.current.stop}
         onMouseLeave={plugin.current.reset}
         opts={{
           loop: true,
+          align: 'center',
         }}
       >
         <CarouselContent className="-ml-2 md:-ml-4">
           {carouselItems.map((id, index) => {
             const image = PlaceHolderImages.find((img) => img.id === id);
+            const isCenter = api?.selectedScrollSnap() === index;
             return (
               <CarouselItem
                 key={index}
@@ -69,5 +87,3 @@ export function HeroCarousel() {
     </section>
   );
 }
-
-    
