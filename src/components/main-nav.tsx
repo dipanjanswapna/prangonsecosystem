@@ -10,11 +10,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from '@/components/ui/sidebar';
+import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/', label: 'Portfolio', icon: Home },
@@ -25,25 +21,30 @@ const navItems = [
   { href: '/ai-tools', label: 'AI Tools', icon: Bot },
 ];
 
-export function MainNav() {
+export function MainNav({ isMobile = false }: { isMobile?: boolean }) {
   const pathname = usePathname();
 
   return (
-    <SidebarMenu>
+    <nav
+      className={cn(
+        'flex items-center gap-4 text-sm font-medium',
+        isMobile && 'flex-col items-start gap-2'
+      )}
+    >
       {navItems.map((item) => (
-        <SidebarMenuItem key={item.href}>
-          <SidebarMenuButton
-            asChild
-            isActive={pathname === item.href}
-            tooltip={item.label}
-          >
-            <Link href={item.href}>
-              <item.icon className="h-5 w-5" />
-              <span>{item.label}</span>
-            </Link>
-          </SidebarMenuButton>
-        </SidebarMenuItem>
+        <Link
+          key={item.href}
+          href={item.href}
+          className={cn(
+            'transition-colors hover:text-primary',
+            pathname === item.href ? 'text-foreground' : 'text-muted-foreground',
+            isMobile && 'flex items-center gap-3 rounded-md p-2 text-base'
+          )}
+        >
+          {isMobile && <item.icon className="h-5 w-5" />}
+          <span>{item.label}</span>
+        </Link>
       ))}
-    </SidebarMenu>
+    </nav>
   );
 }
