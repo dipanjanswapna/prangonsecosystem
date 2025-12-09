@@ -6,12 +6,11 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
   type CarouselApi,
 } from '@/components/ui/carousel';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Autoplay from 'embla-carousel-autoplay';
+import { cn } from '@/lib/utils';
 
 const carouselItems = [
   'carousel-1',
@@ -24,22 +23,32 @@ const carouselItems = [
 export function HeroCarousel() {
   const [api, setApi] = React.useState<CarouselApi>();
   const [current, setCurrent] = React.useState(0);
+  const [scrollSnaps, setScrollSnaps] = React.useState<number[]>([]);
 
   const plugin = React.useRef(
     Autoplay({ delay: 3000, stopOnInteraction: true })
   );
+  
+  const onSelect = React.useCallback((api: CarouselApi) => {
+    setCurrent(api.selectedScrollSnap())
+  }, [])
+
+  const scrollTo = React.useCallback(
+    (index: number) => api && api.scrollTo(index),
+    [api]
+  )
 
   React.useEffect(() => {
     if (!api) {
       return;
     }
-
-    setCurrent(api.selectedScrollSnap() + 1);
-
-    api.on('select', () => {
-      setCurrent(api.selectedScrollSnap() + 1);
-    });
-  }, [api]);
+    
+    onSelect(api);
+    setScrollSnaps(api.scrollSnapList());
+    api.on('select', onSelect);
+    api.on('reInit', onSelect);
+    
+  }, [api, onSelect]);
 
   return (
     <section className="w-full">
@@ -57,11 +66,14 @@ export function HeroCarousel() {
         <CarouselContent className="-ml-2 md:-ml-4">
           {carouselItems.map((id, index) => {
             const image = PlaceHolderImages.find((img) => img.id === id);
-            const isCenter = api?.selectedScrollSnap() === index;
+            const isCenter = current === index;
             return (
               <CarouselItem
                 key={index}
-                className="pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/3"
+                className={cn(
+                  'pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/3 transition-transform duration-300 ease-in-out',
+                  isCenter ? 'scale-100' : 'scale-90 opacity-60'
+                )}
               >
                 <div className="p-1">
                   <div className="relative aspect-video overflow-hidden rounded-lg shadow-lg group">
@@ -70,7 +82,7 @@ export function HeroCarousel() {
                         src={image.imageUrl}
                         alt={image.description}
                         fill
-                        className="object-cover transition-transform duration-300 ease-in-out group-hover:scale-105"
+                        className="object-cover"
                         data-ai-hint={image.imageHint}
                       />
                     )}
@@ -81,9 +93,20 @@ export function HeroCarousel() {
             );
           })}
         </CarouselContent>
-        <CarouselPrevious className="absolute left-4 top-1/2 -translate-y-1/2 z-10 hidden md:flex" />
-        <CarouselNext className="absolute right-4 top-1/2 -translate-y-1/2 z-10 hidden md:flex" />
       </Carousel>
+       <div className="flex justify-center gap-2 mt-4">
+          {scrollSnaps.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => scrollTo(index)}
+              className={cn(
+                'h-2 w-2 rounded-full transition-all duration-300',
+                current === index ? 'w-4 bg-primary' : 'bg-muted-foreground/50'
+              )}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          ))}
+        </div>
     </section>
   );
 }
