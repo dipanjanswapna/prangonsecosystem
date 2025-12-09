@@ -1,29 +1,36 @@
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { getApps, initializeApp, cert } from 'firebase-admin/app';
+import { initializeApp, getApps, cert, type App } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 import { roleHierarchy, ROLES } from './lib/roles';
 
 // Force the middleware to run on the Node.js runtime
-// This is required for 'firebase-admin' to work correctly.
 export const runtime = 'nodejs';
 
-// Initialize Firebase Admin SDK
-if (!getApps().length) {
-  initializeApp({
+// A helper function to initialize Firebase Admin SDK.
+// This ensures that initialization is attempted only once.
+function getFirebaseAdminApp(): App {
+  if (getApps().length > 0) {
+    return getApps()[0];
+  }
+  
+  const privateKey = (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n');
+  
+  if (!process.env.FIREBASE_PROJECT_ID || !process.env.FIREBASE_CLIENT_EMAIL || !privateKey) {
+    throw new Error('Firebase admin environment variables are not set.');
+  }
+  
+  return initializeApp({
     credential: cert({
       projectId: process.env.FIREBASE_PROJECT_ID,
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n'),
+      privateKey: privateKey,
     }),
     databaseURL: `https://${process.env.FIREBASE_PROJECT_ID}-default-rtdb.firebaseio.com`,
   });
 }
-
-const adminAuth = getAuth();
-const firestore = getFirestore();
 
 const protectedRoutes: Record<string, number> = {
   '/dashboard/admin': roleHierarchy[ROLES.ADMIN],
@@ -55,6 +62,10 @@ export async function middleware(request: NextRequest) {
   }
 
   try {
+    const adminApp = getFirebaseAdminApp();
+    const adminAuth = getAuth(adminApp);
+    const firestore = getFirestore(adminApp);
+    
     // Verify the session cookie
     const decodedToken = await adminAuth.verifySessionCookie(sessionCookie, true);
     const userUid = decodedToken.uid;
