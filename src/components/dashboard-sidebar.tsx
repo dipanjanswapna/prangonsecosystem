@@ -10,7 +10,6 @@ import {
   GitBranch,
   User,
   Settings,
-  Package2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
@@ -29,15 +28,16 @@ type NavItem = {
   label: string;
   icon: React.ElementType;
   requiredRoleLevel: number;
+  exact?: boolean;
 };
 
 const allNavItems: NavItem[] = [
-  { href: '/dashboard', label: 'Overview', icon: Home, requiredRoleLevel: roleHierarchy.user },
-  { href: '/dashboard/admin', label: 'Admin', icon: Users, requiredRoleLevel: roleHierarchy.admin },
-  { href: '/dashboard/moderator', label: 'Moderator', icon: Shield, requiredRoleLevel: roleHierarchy.moderator },
-  { href: '/dashboard/manager', label: 'Manager', icon: Briefcase, requiredRoleLevel: roleHierarchy.manager },
-  { href: '/dashboard/collaborator', label: 'Collaborator', icon: GitBranch, requiredRoleLevel: roleHierarchy.collaborator },
-  { href: '/dashboard/user', label: 'My Dashboard', icon: User, requiredRoleLevel: roleHierarchy.user },
+  { href: '/dashboard', label: 'Dashboard', icon: Home, requiredRoleLevel: roleHierarchy.user, exact: true },
+  // These links can be added back if you create specific pages for these roles under different routes
+  // { href: '/dashboard/admin', label: 'Admin', icon: Users, requiredRoleLevel: roleHierarchy.admin },
+  // { href: '/dashboard/moderator', label: 'Moderator', icon: Shield, requiredRoleLevel: roleHierarchy.moderator },
+  // { href: '/dashboard/manager', label: 'Manager', icon: Briefcase, requiredRoleLevel: roleHierarchy.manager },
+  // { href: '/dashboard/collaborator', label: 'Collaborator', icon: GitBranch, requiredRoleLevel: roleHierarchy.collaborator },
 ];
 
 export function DashboardSidebar() {
@@ -48,15 +48,23 @@ export function DashboardSidebar() {
   );
 
   const userRoleLevel = useMemo(() => {
-    if (!userData?.role) return -1;
+    if (userDataLoading || !userData?.role) return -1;
     return roleHierarchy[userData.role] ?? -1;
-  }, [userData]);
+  }, [userData, userDataLoading]);
   
   const navItems = useMemo(() => {
+    if (userRoleLevel < 0) return [];
     return allNavItems.filter(item => userRoleLevel >= item.requiredRoleLevel);
   }, [userRoleLevel]);
 
   const isLoading = userLoading || userDataLoading;
+
+  const isLinkActive = (item: NavItem) => {
+    if (item.exact) {
+      return pathname === item.href;
+    }
+    return pathname.startsWith(item.href);
+  }
 
   return (
     <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
@@ -84,7 +92,7 @@ export function DashboardSidebar() {
                     href={item.href}
                     className={cn(
                       'flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8',
-                      pathname === item.href && 'bg-accent text-accent-foreground'
+                      isLinkActive(item) && 'bg-accent text-accent-foreground'
                     )}
                   >
                     <item.icon className="h-5 w-5" />
@@ -101,7 +109,10 @@ export function DashboardSidebar() {
             <TooltipTrigger asChild>
               <Link
                 href="/auth/profile"
-                className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
+                className={cn(
+                  'flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8',
+                  pathname === '/auth/profile' && 'bg-accent text-accent-foreground'
+                )}
               >
                 <Settings className="h-5 w-5" />
                 <span className="sr-only">Settings</span>

@@ -22,15 +22,16 @@ type NavItem = {
   label: string;
   icon: React.ElementType;
   requiredRoleLevel: number;
+  exact?: boolean;
 };
 
 const allNavItems: NavItem[] = [
-  { href: '/dashboard', label: 'Overview', icon: Home, requiredRoleLevel: roleHierarchy.user },
-  { href: '/dashboard/admin', label: 'Admin', icon: Users, requiredRoleLevel: roleHierarchy.admin },
-  { href: '/dashboard/moderator', label: 'Moderator', icon: Shield, requiredRoleLevel: roleHierarchy.moderator },
-  { href: '/dashboard/manager', label: 'Manager', icon: Briefcase, requiredRoleLevel: roleHierarchy.manager },
-  { href: '/dashboard/collaborator', label: 'Collaborator', icon: GitBranch, requiredRoleLevel: roleHierarchy.collaborator },
-  { href: '/dashboard/user', label: 'My Dashboard', icon: User, requiredRoleLevel: roleHierarchy.user },
+  { href: '/dashboard', label: 'Overview', icon: Home, requiredRoleLevel: roleHierarchy.user, exact: true },
+  // These links can be added back if you create specific pages for these roles under different routes
+  // { href: '/dashboard/admin', label: 'Admin', icon: Users, requiredRoleLevel: roleHierarchy.admin },
+  // { href: '/dashboard/moderator', label: 'Moderator', icon: Shield, requiredRoleLevel: roleHierarchy.moderator },
+  // { href: '/dashboard/manager', label: 'Manager', icon: Briefcase, requiredRoleLevel: roleHierarchy.manager },
+  // { href: '/dashboard/collaborator', label: 'Collaborator', icon: GitBranch, requiredRoleLevel: roleHierarchy.collaborator },
 ];
 
 export function DashboardHeader() {
@@ -42,11 +43,12 @@ export function DashboardHeader() {
   );
 
   const userRoleLevel = useMemo(() => {
-    if (!userData?.role) return -1;
+    if (userDataLoading || !userData?.role) return -1;
     return roleHierarchy[userData.role] ?? -1;
-  }, [userData]);
+  }, [userData, userDataLoading]);
   
   const navItems = useMemo(() => {
+    if (userRoleLevel < 0) return [];
     return allNavItems.filter(item => userRoleLevel >= item.requiredRoleLevel);
   }, [userRoleLevel]);
 

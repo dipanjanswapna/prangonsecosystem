@@ -33,12 +33,8 @@ function getFirebaseAdminApp(): App {
 }
 
 const protectedRoutes: Record<string, number> = {
-  '/dashboard/admin': roleHierarchy[ROLES.ADMIN],
-  '/dashboard/moderator': roleHierarchy[ROLES.MODERATOR],
-  '/dashboard/manager': roleHierarchy[ROLES.MANAGER],
-  '/dashboard/collaborator': roleHierarchy[ROLES.COLLABORATOR],
-  '/dashboard/user': roleHierarchy[ROLES.USER],
-  '/auth/profile': roleHierarchy[ROLES.USER], // Also protect the profile page
+    '/dashboard': roleHierarchy[ROLES.USER],
+    '/auth/profile': roleHierarchy[ROLES.USER],
 };
 
 export async function middleware(request: NextRequest) {
@@ -83,10 +79,17 @@ export async function middleware(request: NextRequest) {
     // Check if the user has the required role level (or higher)
     if (userRoleLevel >= requiredRoleLevel) {
       // User is authorized, continue to the requested page
-      return NextResponse.next();
+      const requestHeaders = new Headers(request.headers);
+      requestHeaders.set('x-user-role', userRole);
+
+      return NextResponse.next({
+        request: {
+          headers: requestHeaders,
+        },
+      });
     } else {
-      // User is not authorized, redirect to their own dashboard or a general one
-      return NextResponse.redirect(new URL(`/dashboard/${userRole}`, request.url));
+      // User is not authorized, redirect to login (or a dedicated 'unauthorized' page)
+      return NextResponse.redirect(new URL('/auth/login', request.url));
     }
   } catch (error) {
     console.error('Middleware Error:', error);
