@@ -5,7 +5,7 @@ import { MainNav } from './main-nav';
 import { UserNav } from './user-nav';
 import { Button } from './ui/button';
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
-import { ArrowRight, Menu } from 'lucide-react';
+import { Menu } from 'lucide-react';
 import { ThemeToggle } from './theme-toggle';
 import { useState } from 'react';
 
@@ -41,25 +41,16 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               href="/"
               className="flex items-center gap-2"
             >
-              <span className="font-extrabold text-xl tracking-tighter">DSP</span>
-              <div className="w-px h-6 bg-foreground/50"></div>
+              <span className="font-extrabold text-lg tracking-tighter">DSP</span>
+              <div className="w-px h-5 bg-foreground/50"></div>
               <div className="flex flex-col">
-                <span className="font-semibold tracking-wide leading-tight text-xs">DIPANJAN</span>
-                <span className="font-semibold tracking-wide leading-tight text-xs">PRANGON</span>
+                <span className="font-semibold tracking-wide leading-tight text-[0.6rem]">DIPANJAN</span>
+                <span className="font-semibold tracking-wide leading-tight text-[0.6rem]">PRANGON</span>
               </div>
             </Link>
           </div>
 
           <div className="flex flex-1 items-center justify-end gap-2">
-            <Button
-              variant="outline"
-              className="hidden md:inline-flex rounded-full"
-              asChild
-            >
-              <Link href="/login">
-                Selfcare Portal <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
             <ThemeToggle />
             <UserNav />
           </div>
