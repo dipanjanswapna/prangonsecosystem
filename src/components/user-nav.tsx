@@ -11,7 +11,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Link from 'next/link';
 import { CreditCard, LogIn, LogOut, Settings, User as UserIcon } from 'lucide-react';
 import { useUser } from '@/firebase/auth/use-user';
@@ -23,7 +22,6 @@ export function UserNav() {
   const { user, loading } = useUser();
   const router = useRouter();
   const { toast } = useToast();
-  const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
 
   const handleLogout = async () => {
     try {
@@ -65,11 +63,10 @@ export function UserNav() {
             {user.photoURL ? (
               <AvatarImage src={user.photoURL} alt={user.displayName || 'User'} />
             ) : (
-               userAvatar && <AvatarImage src={userAvatar.imageUrl} alt="@dipanjan" />
+              <AvatarFallback>
+                {(user.displayName || user.email)?.charAt(0).toUpperCase() || 'U'}
+              </AvatarFallback>
             )}
-            <AvatarFallback>
-              {user.email?.charAt(0).toUpperCase() || 'U'}
-            </AvatarFallback>
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
