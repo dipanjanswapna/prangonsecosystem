@@ -4,6 +4,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/context/theme-provider';
 import { AppHeader } from '@/components/app-header';
 import { AppFooter } from '@/components/app-footer';
+import { FirebaseClientProvider } from '@/firebase/client-provider';
 
 export const metadata: Metadata = {
   title: 'Prangons Ecosystem',
@@ -40,14 +41,16 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <div className="flex min-h-screen flex-col">
-            <AppHeader />
-            <main className="flex-1">
-              <div className="container py-8 md:py-12">{children}</div>
-            </main>
-            <AppFooter />
-          </div>
-          <Toaster />
+          <FirebaseClientProvider>
+            <div className="flex min-h-screen flex-col">
+              <AppHeader />
+              <main className="flex-1">
+                <div className="container py-8 md:py-12">{children}</div>
+              </main>
+              <AppFooter />
+            </div>
+            <Toaster />
+          </FirebaseClientProvider>
         </ThemeProvider>
       </body>
     </html>
