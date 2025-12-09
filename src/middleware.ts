@@ -24,6 +24,7 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith(path)
   )?.[1];
 
+  // If the route is not protected, continue.
   if (requiredRoleLevel === undefined) {
     return NextResponse.next();
   }
@@ -39,6 +40,7 @@ export async function middleware(request: NextRequest) {
     const userUid = decodedToken.uid;
 
     const userDoc = await adminFirestore.collection('users').doc(userUid).get();
+    
     if (!userDoc.exists) {
       throw new Error('User not found in Firestore.');
     }
@@ -47,23 +49,17 @@ export async function middleware(request: NextRequest) {
     const userRole = userData?.role || ROLES.USER;
     const userRoleLevel = roleHierarchy[userRole as keyof typeof roleHierarchy] ?? 0;
 
+    // If user has sufficient role level, allow access
     if (userRoleLevel >= requiredRoleLevel) {
-      const requestHeaders = new Headers(request.headers);
-      requestHeaders.set('x-user-role', userRole);
-
-      return NextResponse.next({
-        request: {
-          headers: requestHeaders,
-        },
-      });
+      return NextResponse.next();
     } else {
-        if (pathname.startsWith('/dashboard')) {
-            return NextResponse.redirect(new URL(`/dashboard/${userRole.toLowerCase()}`, request.url));
-        }
-      return NextResponse.redirect(new URL('/auth/login', request.url));
+        // If user is trying to access a protected dashboard page they don't have access to,
+        // redirect them to their own role's dashboard.
+        return NextResponse.redirect(new URL(`/dashboard/${userRole.toLowerCase()}`, request.url));
     }
   } catch (error) {
     console.error('Middleware Error:', error);
+    // If token verification fails, clear the cookie and redirect to login
     const response = NextResponse.redirect(new URL('/auth/login', request.url));
     response.cookies.delete('__session');
     return response;
