@@ -21,10 +21,14 @@ const adminAuth = getAuth();
 // Function to create a session cookie
 export async function POST(request: Request) {
   try {
-    const { idToken } = await request.json();
+    const { idToken, rememberMe } = await request.json();
     
-    // Set session expiration to 5 days.
-    const expiresIn = 60 * 60 * 24 * 5 * 1000;
+    // Set session expiration.
+    // 14 days for "Remember me", 24 hours otherwise.
+    const expiresIn = rememberMe
+      ? 60 * 60 * 24 * 14 * 1000 // 14 days
+      : 60 * 60 * 24 * 1 * 1000; // 1 day
+
     const sessionCookie = await adminAuth.createSessionCookie(idToken, { expiresIn });
 
     const options = {

@@ -20,13 +20,13 @@ const auth = getAuth(firebaseApp);
 const firestore = getFirestore(firebaseApp);
 
 // Function to handle session cookie creation
-async function setSessionCookie(idToken: string) {
+async function setSessionCookie(idToken: string, rememberMe: boolean) {
   const response = await fetch('/api/auth/session', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ idToken }),
+    body: JSON.stringify({ idToken, rememberMe }),
   });
 
   if (!response.ok) {
@@ -60,7 +60,7 @@ export const signUp = async (email, password, fullName): Promise<UserCredential>
   return userCredential;
 };
 
-export const signIn = async (email, password): Promise<UserCredential> => {
+export const signIn = async (email, password, rememberMe): Promise<UserCredential> => {
   const userCredential = await signInWithEmailAndPassword(auth, email, password);
   const user = userCredential.user;
 
@@ -72,7 +72,7 @@ export const signIn = async (email, password): Promise<UserCredential> => {
   );
 
   const idToken = await user.getIdToken();
-  await setSessionCookie(idToken);
+  await setSessionCookie(idToken, rememberMe);
 
   return userCredential;
 };
@@ -97,7 +97,8 @@ const handleSocialSignIn = async (user: User) => {
     });
   }
   const idToken = await user.getIdToken();
-  await setSessionCookie(idToken);
+  // Social logins will default to a persistent session (remember me = true)
+  await setSessionCookie(idToken, true);
 };
 
 

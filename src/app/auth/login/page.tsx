@@ -78,7 +78,7 @@ export default function LoginPage() {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
     try {
-      await signIn(values.email, values.password);
+      await signIn(values.email, values.password, values.rememberMe);
       toast({
         title: 'Signed In Successfully!',
         description: "Welcome back! Redirecting to your dashboard...",
