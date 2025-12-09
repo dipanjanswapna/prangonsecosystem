@@ -1,6 +1,6 @@
 
 import { NextResponse } from 'next/server';
-import { initializeApp, getApps, getApp, credential } from 'firebase-admin/app';
+import { initializeApp, getApps, credential } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
 import { serviceAccount } from '@/lib/service-account';
 
