@@ -39,13 +39,13 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="flex-1 flex justify-center md:justify-center">
             <Link
               href="/"
-              className="flex items-center gap-3"
+              className="flex items-center gap-2"
             >
-              <span className="font-extrabold text-2xl tracking-tighter">DSP</span>
-              <div className="w-px h-8 bg-foreground/50"></div>
+              <span className="font-extrabold text-xl tracking-tighter">DSP</span>
+              <div className="w-px h-6 bg-foreground/50"></div>
               <div className="flex flex-col">
-                <span className="font-semibold tracking-wide leading-tight">DIPANJAN</span>
-                <span className="font-semibold tracking-wide leading-tight">PRANGON</span>
+                <span className="font-semibold tracking-wide leading-tight text-xs">DIPANJAN</span>
+                <span className="font-semibold tracking-wide leading-tight text-xs">PRANGON</span>
               </div>
             </Link>
           </div>
