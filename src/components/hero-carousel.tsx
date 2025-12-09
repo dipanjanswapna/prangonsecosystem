@@ -23,32 +23,25 @@ const carouselItems = [
 export function HeroCarousel() {
   const [api, setApi] = React.useState<CarouselApi>();
   const [current, setCurrent] = React.useState(0);
-  const [scrollSnaps, setScrollSnaps] = React.useState<number[]>([]);
+  const [count, setCount] = React.useState(0);
 
   const plugin = React.useRef(
     Autoplay({ delay: 3000, stopOnInteraction: true })
   );
   
-  const onSelect = React.useCallback((api: CarouselApi) => {
-    setCurrent(api.selectedScrollSnap())
-  }, [])
-
-  const scrollTo = React.useCallback(
-    (index: number) => api && api.scrollTo(index),
-    [api]
-  )
-
   React.useEffect(() => {
     if (!api) {
       return;
     }
-    
-    onSelect(api);
-    setScrollSnaps(api.scrollSnapList());
-    api.on('select', onSelect);
-    api.on('reInit', onSelect);
-    
-  }, [api, onSelect]);
+
+    setCount(api.scrollSnapList().length);
+    setCurrent(api.selectedScrollSnap() + 1);
+
+    api.on('select', () => {
+      setCurrent(api.selectedScrollSnap() + 1);
+    });
+  }, [api]);
+
 
   return (
     <section className="w-full">
@@ -66,13 +59,11 @@ export function HeroCarousel() {
         <CarouselContent className="-ml-2 md:-ml-4">
           {carouselItems.map((id, index) => {
             const image = PlaceHolderImages.find((img) => img.id === id);
-            const isCenter = current === index;
             return (
               <CarouselItem
                 key={index}
                 className={cn(
-                  'pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-4/5 transition-transform duration-300 ease-in-out',
-                  isCenter ? 'scale-100' : 'scale-75 opacity-60'
+                  'pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-3/5 transition-transform duration-300 ease-in-out'
                 )}
               >
                 <div className="p-1">
@@ -94,18 +85,8 @@ export function HeroCarousel() {
           })}
         </CarouselContent>
       </Carousel>
-       <div className="flex justify-center gap-2 mt-4">
-          {scrollSnaps.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => scrollTo(index)}
-              className={cn(
-                'h-2 w-2 rounded-full transition-all duration-300',
-                current === index ? 'w-4 bg-primary' : 'bg-muted-foreground/50'
-              )}
-              aria-label={`Go to slide ${index + 1}`}
-            />
-          ))}
+       <div className="text-center mt-4 font-mono text-sm text-muted-foreground">
+          {String(current).padStart(2, '0')} / {String(count).padStart(2, '0')}
         </div>
     </section>
   );
