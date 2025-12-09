@@ -24,7 +24,7 @@ export default function SignupPage() {
         <CardContent className="grid gap-4">
           <div className="grid gap-2">
             <Label htmlFor="full-name">Full Name</Label>
-            <Input id="full-name" placeholder="Dipanjan Das" required />
+            <Input id="full-name" placeholder="Dipanjan S. PRANGON" required />
           </div>
           <div className="grid gap-2">
             <Label htmlFor="email">Email</Label>

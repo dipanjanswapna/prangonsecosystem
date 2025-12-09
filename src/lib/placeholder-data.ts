@@ -43,7 +43,7 @@ export const blogPosts = [
     title: 'The Future of Web Development with AI',
     description:
       'Exploring how artificial intelligence is reshaping the landscape of web development and what it means for developers.',
-    author: 'Dipanjan Das',
+    author: 'Dipanjan S. PRANGON',
     date: '2024-07-20',
     tags: ['AI', 'Web Development', 'Future Tech'],
     imageId: 'blog-1',
@@ -52,7 +52,7 @@ export const blogPosts = [
     title: 'Mastering UI/UX: A Beginner\'s Guide',
     description:
       'A comprehensive guide to the fundamental principles of UI/UX design, with practical tips and resources.',
-    author: 'Dipanjan Das',
+    author: 'Dipanjan S. PRANGON',
     date: '2024-06-15',
     tags: ['UI/UX', 'Design', 'Beginners'],
     imageId: 'blog-2',
@@ -61,7 +61,7 @@ export const blogPosts = [
     title: 'Why I Chose Next.js for My Personal Projects',
     description:
       'A deep dive into the features and benefits of Next.js that make it my go-to framework for modern web applications.',
-    author: 'Dipanjan Das',
+    author: 'Dipanjan S. PRANGON',
     date: '2024-05-28',
     tags: ['Next.js', 'React', 'JavaScript'],
     imageId: 'blog-3',
@@ -70,7 +70,7 @@ export const blogPosts = [
     title: '10 Motivational Tips for Aspiring Developers',
     description:
       'Staying motivated is key to success. Here are 10 tips that have helped me on my journey as a developer.',
-    author: 'Dipanjan Das',
+    author: 'Dipanjan S. PRANGON',
     date: '2024-04-10',
     tags: ['Motivation', 'Career', 'Development'],
     imageId: 'blog-4',

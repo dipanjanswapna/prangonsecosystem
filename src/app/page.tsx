@@ -84,7 +84,7 @@ export default function HomePage() {
       <div className="grid min-h-[calc(100vh-10rem)] grid-cols-1 items-center gap-8 md:gap-12 lg:grid-cols-2">
         <section className="flex flex-col items-center text-center lg:items-start lg:text-left">
           <h1 className="font-headline text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tighter">
-            Dipanjan Das
+            Dipanjan S. PRANGON
           </h1>
           <p className="mt-4 text-lg md:text-xl text-muted-foreground font-medium">
             Full-Stack Developer, UI/UX Enthusiast, and Content Creator.

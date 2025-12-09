@@ -9,13 +9,13 @@ export default function AboutPage() {
       <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
         <div className="flex-shrink-0">
           <Avatar className="h-40 w-40 md:h-48 md:w-48 border-4 border-primary/20 shadow-lg">
-            {userAvatar && <AvatarImage src={userAvatar.imageUrl} alt="Dipanjan Das" />}
+            {userAvatar && <AvatarImage src={userAvatar.imageUrl} alt="Dipanjan S. PRANGON" />}
             <AvatarFallback className="text-4xl">DD</AvatarFallback>
           </Avatar>
         </div>
         <div className="text-center md:text-left">
           <h1 className="font-headline text-4xl md:text-5xl font-extrabold tracking-tight">
-            Dipanjan Das
+            Dipanjan S. PRANGON
           </h1>
           <p className="mt-2 text-xl text-muted-foreground font-medium">
             Full-Stack Developer, UI/UX Enthusiast, and Content Creator.
