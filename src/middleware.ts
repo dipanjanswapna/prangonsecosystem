@@ -1,36 +1,11 @@
 
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-import { initializeApp, getApps, cert, type App } from 'firebase-admin/app';
-import { getAuth } from 'firebase-admin/auth';
-import { getFirestore } from 'firebase-admin/firestore';
+import { adminAuth, adminFirestore } from '@/lib/firebase-admin';
 import { roleHierarchy, ROLES } from './lib/roles';
 
 // Force the middleware to run on the Node.js runtime
 export const runtime = 'nodejs';
-
-// A helper function to initialize Firebase Admin SDK.
-// This ensures that initialization is attempted only once.
-function getFirebaseAdminApp(): App {
-  if (getApps().length > 0) {
-    return getApps()[0];
-  }
-  
-  const privateKey = (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n');
-  
-  if (!process.env.FIREBASE_PROJECT_ID || !process.env.FIREBASE_CLIENT_EMAIL || !privateKey) {
-    throw new Error('Firebase admin environment variables are not set.');
-  }
-  
-  return initializeApp({
-    credential: cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: privateKey,
-    }),
-    databaseURL: `https://${process.env.FIREBASE_PROJECT_ID}-default-rtdb.firebaseio.com`,
-  });
-}
 
 const protectedRoutes: Record<string, number> = {
     '/dashboard': roleHierarchy[ROLES.USER],
@@ -58,16 +33,12 @@ export async function middleware(request: NextRequest) {
   }
 
   try {
-    const adminApp = getFirebaseAdminApp();
-    const adminAuth = getAuth(adminApp);
-    const firestore = getFirestore(adminApp);
-    
     // Verify the session cookie
     const decodedToken = await adminAuth.verifySessionCookie(sessionCookie, true);
     const userUid = decodedToken.uid;
 
     // Get user role from Firestore
-    const userDoc = await firestore.collection('users').doc(userUid).get();
+    const userDoc = await adminFirestore.collection('users').doc(userUid).get();
     if (!userDoc.exists) {
       throw new Error('User not found in Firestore.');
     }

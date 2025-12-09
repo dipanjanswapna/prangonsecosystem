@@ -1,37 +1,10 @@
 
 import { NextResponse } from 'next/server';
-import { initializeApp, getApps, cert, type App } from 'firebase-admin/app';
-import { getAuth } from 'firebase-admin/auth';
-
-// A helper function to initialize Firebase Admin SDK.
-// This ensures that initialization is attempted only once.
-function getFirebaseAdminApp(): App {
-  if (getApps().length > 0) {
-    return getApps()[0];
-  }
-
-  const privateKey = (process.env.FIREBASE_PRIVATE_KEY || '').replace(/\\n/g, '\n');
-  
-  if (!process.env.FIREBASE_PROJECT_ID || !process.env.FIREBASE_CLIENT_EMAIL || !privateKey) {
-    throw new Error('Firebase admin environment variables are not set.');
-  }
-
-  return initializeApp({
-    credential: cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: privateKey,
-    }),
-    databaseURL: `https://${process.env.FIREBASE_PROJECT_ID}-default-rtdb.firebaseio.com`,
-  });
-}
+import { adminAuth } from '@/lib/firebase-admin';
 
 // Function to create a session cookie
 export async function POST(request: Request) {
   try {
-    const adminApp = getFirebaseAdminApp();
-    const adminAuth = getAuth(adminApp);
-    
     const { idToken, rememberMe } = await request.json();
     
     // Set session expiration.
