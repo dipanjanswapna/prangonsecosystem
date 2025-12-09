@@ -3,6 +3,8 @@ import { Button } from '@/components/ui/button';
 import { skills } from '@/lib/placeholder-data';
 import { ArrowRight, Github } from 'lucide-react';
 import Link from 'next/link';
+import { HeroCarousel } from '@/components/hero-carousel';
+
 
 function WavyBackground() {
   return (
@@ -79,6 +81,7 @@ function CTASection() {
 export default function HomePage() {
   return (
     <div className="space-y-16 md:space-y-24">
+      <HeroCarousel />
       <section className="flex flex-col items-center text-center pt-8 md:pt-12">
         <h1 className="font-headline text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tighter">
           Dipanjan Das
@@ -147,3 +150,5 @@ export default function HomePage() {
     </div>
   );
 }
+
+    
