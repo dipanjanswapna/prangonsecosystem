@@ -16,6 +16,26 @@ const { firebaseApp } = initializeFirebase();
 const auth = getAuth(firebaseApp);
 const firestore = getFirestore(firebaseApp);
 
+// Function to handle session cookie creation
+async function setSessionCookie(idToken: string) {
+  const response = await fetch('/api/auth/session', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ idToken }),
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to set session cookie');
+  }
+}
+
+async function clearSessionCookie() {
+    await fetch('/api/auth/session', { method: 'DELETE' });
+}
+
+
 export const signUp = async (email, password, fullName): Promise<UserCredential> => {
   const userCredential = await createUserWithEmailAndPassword(
     auth,
@@ -48,9 +68,13 @@ export const signIn = async (email, password): Promise<UserCredential> => {
     { merge: true }
   );
 
+  const idToken = await user.getIdToken();
+  await setSessionCookie(idToken);
+
   return userCredential;
 };
 
-export const logOut = (): Promise<void> => {
-  return signOut(auth);
+export const logOut = async (): Promise<void> => {
+  await signOut(auth);
+  await clearSessionCookie();
 };
