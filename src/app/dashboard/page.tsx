@@ -13,7 +13,7 @@ export default function DashboardRedirectPage() {
   const firestore = useFirestore();
 
   useEffect(() => {
-    if (loading) {
+    if (loading || !firestore) {
       return;
     }
     if (!user) {
@@ -22,16 +22,24 @@ export default function DashboardRedirectPage() {
     }
 
     const fetchUserRole = async () => {
+      if (!user) return;
       const userDocRef = doc(firestore, 'users', user.uid);
-      const userDoc = await getDoc(userDocRef);
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-        const role = userData.role || 'user';
-        // Redirect to the role-specific dashboard
-        router.push(`/dashboard/${role}`);
-      } else {
-        // Fallback or handle error if user doc doesn't exist
-        router.push('/dashboard/user');
+      try {
+        const userDoc = await getDoc(userDocRef);
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          const role = userData.role || 'user';
+          // Redirect to the role-specific dashboard
+          router.push(`/dashboard/${role}`);
+        } else {
+          // Fallback or handle error if user doc doesn't exist
+          console.warn("User document not found in Firestore. Defaulting to user dashboard.");
+          router.push('/dashboard/user');
+        }
+      } catch (error) {
+          console.error("Error fetching user role: ", error);
+          // Handle error, maybe redirect to a generic dashboard or an error page
+          router.push('/dashboard/user');
       }
     };
 
