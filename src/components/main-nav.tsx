@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, LayoutDashboard } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { Button } from './ui/button';
+import { useUser } from '@/firebase/auth/use-user';
 
 const navItems = [
   { href: '/', label: 'Home' },
@@ -31,6 +32,7 @@ const navItems = [
 
 export function MainNav({ isMobile = false }: { isMobile?: boolean }) {
   const pathname = usePathname();
+  const { user } = useUser();
 
   const renderNavItem = (item: (typeof navItems)[0]) => {
     const isActive =
@@ -97,6 +99,27 @@ export function MainNav({ isMobile = false }: { isMobile?: boolean }) {
       )}
     >
       {navItems.map(renderNavItem)}
+       {user && (
+        <Link
+          href="/dashboard"
+          className={cn(
+            'group relative flex items-center gap-2 px-3 py-2 text-sm font-medium transition-colors hover:text-primary',
+            pathname.startsWith('/dashboard') ? 'text-primary' : 'text-foreground/80',
+            isMobile ? 'w-full text-base' : ''
+          )}
+        >
+          <LayoutDashboard className="h-4 w-4" />
+          Dashboard
+           {!isMobile && (
+          <span
+            className={cn(
+              'absolute bottom-0 left-1/2 h-0.5 -translate-x-1/2 rounded-full bg-primary transition-all duration-300',
+              pathname.startsWith('/dashboard') ? 'w-4' : 'w-0 group-hover:w-4'
+            )}
+          ></span>
+        )}
+        </Link>
+      )}
     </nav>
   );
 }
