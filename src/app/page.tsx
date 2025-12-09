@@ -14,6 +14,78 @@ import { ArrowRight, Github } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
+function WavyBackground() {
+  return (
+    <div className="absolute inset-0 overflow-hidden">
+      <div className="absolute bottom-0 left-0 right-0 h-1/2 w-full">
+        <svg
+          className="h-full w-full"
+          preserveAspectRatio="none"
+          viewBox="0 0 1440 150"
+        >
+          <defs>
+            <linearGradient id="wave-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop
+                offset="0%"
+                stopColor="hsla(var(--primary) / 0.2)"
+                stopOpacity="0.5"
+              />
+              <stop
+                offset="100%"
+                stopColor="hsla(var(--accent) / 0.2)"
+                stopOpacity="0.5"
+              />
+            </linearGradient>
+          </defs>
+          <path
+            fill="none"
+            stroke="url(#wave-gradient)"
+            strokeWidth="2"
+            d="M-200,100 C-100,20 100,180 200,100 S400,20 500,100 S700,180 800,100 S1000,20 1100,100 S1300,180 1400,100 S1600,20 1700,100"
+          />
+          <path
+            fill="none"
+            stroke="url(#wave-gradient)"
+            strokeWidth="2"
+            d="M-200,80 C-100,0 100,160 200,80 S400,0 500,80 S700,160 800,80 S1000,0 1100,80 S1300,160 1400,80 S1600,0 1700,80"
+          />
+          <path
+            fill="none"
+            stroke="url(#wave-gradient)"
+            strokeWidth="1"
+            d="M-200,120 C-100,40 100,200 200,120 S400,40 500,120 S700,200 800,120 S1000,40 1100,120 S1300,200 1400,120 S1600,40 1700,120"
+          />
+        </svg>
+      </div>
+    </div>
+  );
+}
+
+function CTASection() {
+  return (
+    <section className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-primary/20 via-background to-background py-20 md:py-28">
+      <div className="container relative z-10 text-center">
+        <p className="font-headline text-sm font-medium uppercase tracking-widest text-primary">
+          Discover
+        </p>
+        <h2 className="mt-4 font-headline text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl md:text-5xl">
+          How Our Solutions Can <br /> Elevate Your Success
+        </h2>
+        <div className="mt-8">
+          <Button asChild variant="outline" size="lg">
+            <Link href="/profile">
+              Contact With Us
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
+        </div>
+      </div>
+      <WavyBackground />
+    </section>
+  );
+}
+
+
 export default function PortfolioPage() {
   return (
     <div className="space-y-16 md:space-y-24">
@@ -123,6 +195,7 @@ export default function PortfolioPage() {
           })}
         </div>
       </section>
+      <CTASection />
     </div>
   );
 }
