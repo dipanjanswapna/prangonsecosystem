@@ -7,6 +7,10 @@ import { getFirestore } from 'firebase-admin/firestore';
 import { serviceAccount } from './lib/service-account';
 import { roleHierarchy, ROLES } from './lib/roles';
 
+// Force the middleware to run on the Node.js runtime
+// This is required for 'firebase-admin' to work correctly.
+export const runtime = 'nodejs';
+
 // Initialize Firebase Admin SDK
 if (!getApps().length) {
   initializeApp({
