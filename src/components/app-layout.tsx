@@ -6,32 +6,38 @@ import { MainNav } from './main-nav';
 import { UserNav } from './user-nav';
 import { Button } from './ui/button';
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
-import { Menu } from 'lucide-react';
+import { ArrowRight, Flame, Menu } from 'lucide-react';
 import { ThemeToggle } from './theme-toggle';
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-sm">
-        <div className="container flex h-16 items-center">
+      <header className="sticky top-0 z-50 w-full bg-gradient-to-r from-purple-700 via-purple-600 to-blue-600 shadow-lg">
+        <div className="container flex h-20 items-center">
           <Link href="/" className="mr-6 flex items-center gap-2.5">
-            <Icons.logo className="w-7 h-7 text-primary" />
-            <span className="font-headline text-xl font-semibold tracking-tight">
-              Prangon's Eco
-            </span>
+            <div className='text-primary-foreground'>
+              <div className="font-bold text-2xl tracking-wide">axentec</div>
+              <div className="text-xs font-light flex items-center gap-1">
+                by <Flame className="h-3 w-3 text-red-400" /> robi axiata
+              </div>
+            </div>
           </Link>
 
-          <div className="hidden md:flex flex-1">
+          <div className="hidden md:flex flex-1 items-center justify-center">
             <MainNav />
           </div>
 
-          <div className="flex flex-1 items-center justify-end gap-4">
+          <div className="flex flex-1 items-center justify-end gap-2">
             <nav className="flex items-center gap-2">
+              <Button variant="outline" className='hidden md:inline-flex rounded-full bg-transparent text-primary-foreground border-primary-foreground/50 hover:bg-primary-foreground/10 hover:text-primary-foreground'>
+                Selfcare Portal <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
               <ThemeToggle />
+              <UserNav />
               <div className="md:hidden">
                 <Sheet>
                   <SheetTrigger asChild>
-                    <Button variant="ghost" size="icon">
+                    <Button variant="ghost" size="icon" className='text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground'>
                       <Menu className="h-6 w-6" />
                       <span className="sr-only">Toggle Menu</span>
                     </Button>
@@ -43,7 +49,6 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                   </SheetContent>
                 </Sheet>
               </div>
-              <UserNav />
             </nav>
           </div>
         </div>
