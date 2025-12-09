@@ -75,7 +75,7 @@
     {
       "id": "donor-2",
       "description": "Donor avatar 2",
-      "imageUrl": "https://images.unsplash.com/photo-1655249493799-9cee4fe983bb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxwcm9mZXNzaW9uYWwlMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjUyMzU4NTl8MA&ixlibrb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1655249493799-9cee4fe983bb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxwcm9mZXNzaW9uYWwlMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjUyMzU4NTl8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "professional portrait"
     },
     {
@@ -119,6 +119,12 @@
       "description": "Carousel image for another course",
       "imageUrl": "https://images.unsplash.com/photo-1764720572930-eb63afd14b06?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxjbGFzc3Jvb20lMjBzZXR0aW5nfGVufDB8fHx8MTc2NTI5NDYzOXww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "classroom setting"
+    },
+    {
+      "id": "auth-illustration",
+      "description": "Illustration for auth pages",
+      "imageUrl": "https://images.unsplash.com/photo-1644088379091-d574269d422f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8ZGF0YSUyMGFuYWx5c2lzfGVufDB8fHx8MTc2NTE3MTc2NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "data analysis"
     }
   ]
 }
