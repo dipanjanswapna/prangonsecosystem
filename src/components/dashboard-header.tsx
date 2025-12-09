@@ -1,34 +1,111 @@
 'use client';
 
-import { MainNav } from './main-nav';
-import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
-import { Button } from './ui/button';
-import { Menu } from 'lucide-react';
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger
+} from '@/components/ui/sheet';
+import { Button } from '@/components/ui/button';
+import { Home, Users, Shield, Briefcase, GitBranch, User, Menu, Settings, Package2 } from 'lucide-react';
 import { ThemeToggle } from './theme-toggle';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { UserNav } from './user-nav';
+import { useUser } from '@/firebase/auth/use-user';
+import { useDoc } from '@/firebase/firestore/use-doc';
+import { roleHierarchy, type Role } from '@/lib/roles';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { cn } from '@/lib/utils';
+
+type NavItem = {
+  href: string;
+  label: string;
+  icon: React.ElementType;
+  requiredRoleLevel: number;
+};
+
+const allNavItems: NavItem[] = [
+  { href: '/dashboard', label: 'Overview', icon: Home, requiredRoleLevel: roleHierarchy.user },
+  { href: '/dashboard/admin', label: 'Admin', icon: Users, requiredRoleLevel: roleHierarchy.admin },
+  { href: '/dashboard/moderator', label: 'Moderator', icon: Shield, requiredRoleLevel: roleHierarchy.moderator },
+  { href: '/dashboard/manager', label: 'Manager', icon: Briefcase, requiredRoleLevel: roleHierarchy.manager },
+  { href: '/dashboard/collaborator', label: 'Collaborator', icon: GitBranch, requiredRoleLevel: roleHierarchy.collaborator },
+  { href: '/dashboard/user', label: 'My Dashboard', icon: User, requiredRoleLevel: roleHierarchy.user },
+];
 
 export function DashboardHeader() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const pathname = usePathname();
+  const { user, loading: userLoading } = useUser();
+  const { data: userData, loading: userDataLoading } = useDoc<{ role: Role }>(
+    user ? `users/${user.uid}` : ''
+  );
 
-  // This header is simplified for the dashboard context.
-  // We can add breadcrumbs or page titles here later.
+  const userRoleLevel = useMemo(() => {
+    if (!userData?.role) return -1;
+    return roleHierarchy[userData.role] ?? -1;
+  }, [userData]);
+  
+  const navItems = useMemo(() => {
+    return allNavItems.filter(item => userRoleLevel >= item.requiredRoleLevel);
+  }, [userRoleLevel]);
+
+  const isLoading = userLoading || userDataLoading;
 
   return (
-    <header className="sticky top-0 z-40 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
-       <div className="md:hidden flex-1">
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
+       <div className="sm:hidden">
           <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <Menu className="h-6 w-6" />
+              <Button size="icon" variant="outline">
+                <Menu className="h-5 w-5" />
                 <span className="sr-only">Toggle Menu</span>
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="sm:max-w-xs">
-              <div className="py-6" onClick={() => setIsSheetOpen(false)}>
-                {/* We'll put dashboard-specific nav here later */}
-                 <p className="p-4">Dashboard Nav</p>
-              </div>
+              <nav className="grid gap-6 text-lg font-medium">
+                <Link
+                  href="/"
+                  className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
+                  onClick={() => setIsSheetOpen(false)}
+                >
+                  <span className="font-extrabold text-sm tracking-tighter">DSP</span>
+                  <span className="sr-only">Prangons Ecosystem</span>
+                </Link>
+                {isLoading ? (
+                  <>
+                    <div className="h-8 w-32 rounded-md bg-muted animate-pulse" />
+                    <div className="h-8 w-32 rounded-md bg-muted animate-pulse" />
+                    <div className="h-8 w-32 rounded-md bg-muted animate-pulse" />
+                  </>
+                ) : (
+                  navItems.map(item => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setIsSheetOpen(false)}
+                      className={cn(
+                        "flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground",
+                        pathname === item.href && "text-foreground"
+                      )}
+                    >
+                      <item.icon className="h-5 w-5" />
+                      {item.label}
+                    </Link>
+                  ))
+                )}
+                 <Link
+                    href="/auth/profile"
+                    onClick={() => setIsSheetOpen(false)}
+                    className={cn(
+                      "flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground",
+                       pathname === "/auth/profile" && "text-foreground"
+                    )}
+                  >
+                    <Settings className="h-5 w-5" />
+                    Settings
+                  </Link>
+              </nav>
             </SheetContent>
           </Sheet>
         </div>
