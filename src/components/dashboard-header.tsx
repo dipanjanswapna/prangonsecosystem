@@ -38,7 +38,7 @@ export function DashboardHeader() {
   const pathname = usePathname();
   const { user, loading: userLoading } = useUser();
   const { data: userData, loading: userDataLoading } = useDoc<{ role: Role }>(
-    user?.uid ? `users/${user.uid}` : ''
+    user?.uid ? `users/${user.uid}` : null
   );
 
   const userRoleLevel = useMemo(() => {
