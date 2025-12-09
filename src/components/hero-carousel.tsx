@@ -71,8 +71,8 @@ export function HeroCarousel() {
               <CarouselItem
                 key={index}
                 className={cn(
-                  'pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-1/3 transition-transform duration-300 ease-in-out',
-                  isCenter ? 'scale-100' : 'scale-90 opacity-60'
+                  'pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-2/5 transition-transform duration-300 ease-in-out',
+                  isCenter ? 'scale-100' : 'scale-75 opacity-60'
                 )}
               >
                 <div className="p-1">
