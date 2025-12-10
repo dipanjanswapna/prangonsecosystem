@@ -133,7 +133,7 @@ export default function DonatePage() {
      if (!selectedGateway) {
         toast({ variant: 'destructive', title: 'Payment Method Required', description: 'Please select a payment method.' });
         return;
-    }
+     }
      if (isCorporateMatch && !corporateName) {
         toast({ variant: 'destructive', title: 'Company Name Required', description: 'Please enter your company\'s name for the match.' });
         return;
