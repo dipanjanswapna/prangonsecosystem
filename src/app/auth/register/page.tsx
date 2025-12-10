@@ -264,7 +264,6 @@ export default function SignupPage() {
                     </SelectItem>
                     <SelectItem value={ROLES.MANAGER}>Manager</SelectItem>
                     <SelectItem value={ROLES.MODERATOR}>Moderator</SelectItem>
-                    <SelectItem value={ROLES.ADMIN}>Admin</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
