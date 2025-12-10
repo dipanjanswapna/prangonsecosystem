@@ -1,7 +1,7 @@
 'use client';
 
 import { notFound, useRouter } from 'next/navigation';
-import { campaigns, sampleDonation } from '@/lib/placeholder-data';
+import { campaigns } from '@/lib/placeholder-data';
 import {
   Card,
   CardContent,
@@ -19,6 +19,8 @@ import Image from 'next/image';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { saveDonation } from '@/lib/donations';
+import { useUser } from '@/firebase/auth/use-user';
 
 function GatewayIcon({ name, src, isSelected, onClick }: { name: string; src: string; isSelected: boolean; onClick: () => void }) {
   return (
@@ -35,14 +37,15 @@ function GatewayIcon({ name, src, isSelected, onClick }: { name: string; src: st
 }
 
 export default function DonatePage({ params }: { params: { slug: string } }) {
+  const { user } = useUser();
   const router = useRouter();
   const { toast } = useToast();
   const campaign = campaigns.find((c) => c.slug === params.slug);
 
   const [amount, setAmount] = useState('');
   const [selectedGateway, setSelectedGateway] = useState<string | null>(null);
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [name, setName] = useState(user?.displayName || '');
+  const [email, setEmail] = useState(user?.email || '');
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -63,8 +66,9 @@ export default function DonatePage({ params }: { params: { slug: string } }) {
     setAmount(String(value));
   };
   
-  const handleProceedToPay = () => {
-    if (!amount || Number(amount) < 0.01) {
+  const handleProceedToPay = async () => {
+    const donationAmount = Number(amount);
+    if (isNaN(donationAmount) || donationAmount < 0.01) {
         toast({ variant: 'destructive', title: 'Invalid Amount', description: 'Please enter a valid donation amount.' });
         return;
     }
@@ -83,19 +87,38 @@ export default function DonatePage({ params }: { params: { slug: string } }) {
 
     setIsLoading(true);
 
-    // Simulate payment processing
-    setTimeout(() => {
-        toast({
-            title: 'Donation Successful!',
-            description: 'Thank you for your generous contribution. Redirecting to your invoice...',
-        });
+    try {
+      const donationData = {
+        userId: user?.uid || null,
+        campaignId: String(campaign.id),
+        campaignTitle: campaign.title,
+        amount: donationAmount,
+        currency: 'BDT',
+        gateway: selectedGateway,
+        status: 'pending', // Status is pending until payment is confirmed
+        isAnonymous,
+        donorName: isAnonymous ? 'Anonymous' : name,
+        donorEmail: isAnonymous ? null : email,
+      };
 
-        // In a real app, you would get the donationId from the backend response
-        const newDonationId = sampleDonation.id; 
-        
-        router.push(`/donations/invoice/${newDonationId}`);
-        setIsLoading(false);
-    }, 2000);
+      const newDonationId = await saveDonation(donationData);
+
+      toast({
+          title: 'Processing Donation...',
+          description: 'Thank you for your contribution! Redirecting to invoice...',
+      });
+      
+      router.push(`/donations/invoice/${newDonationId}`);
+
+    } catch (error) {
+      console.error("Donation failed:", error);
+      toast({
+        variant: 'destructive',
+        title: 'Donation Failed',
+        description: 'Could not save your donation. Please try again.',
+      });
+      setIsLoading(false);
+    }
   };
 
   return (
