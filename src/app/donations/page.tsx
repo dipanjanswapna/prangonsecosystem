@@ -1,122 +1,83 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
-import { donors } from '@/lib/placeholder-data';
+import { campaigns } from '@/lib/placeholder-data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { Heart } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
 
-export default function DonatePage() {
-  const goal = 5000;
-  const raised = donors.reduce((acc, donor) => acc + donor.amount, 0);
-  const progress = (raised / goal) * 100;
-
+export default function DonationsPage() {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-      <div className="lg:col-span-2 space-y-8">
-        <div className="text-center lg:text-left">
-          <h1 className="font-headline text-4xl font-bold tracking-tight">
-            Support ONGON Bangladesh
-          </h1>
-          <p className="mt-2 text-lg text-muted-foreground">
-            Your contribution makes a difference. Help us empower communities.
-          </p>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="font-headline">Make a Donation</CardTitle>
-            <CardDescription>
-              Every donation, big or small, brings us closer to our goal.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <Label>Donation Progress</Label>
-              <Progress value={progress} className="h-3" />
-              <div className="flex justify-between text-sm text-muted-foreground">
-                <span>${raised.toLocaleString()} raised</span>
-                <span>${goal.toLocaleString()} goal</span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {[25, 50, 100, 250].map((amount) => (
-                <Button key={amount} variant="outline" size="lg">
-                  ${amount}
-                </Button>
-              ))}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="custom-amount">Or enter a custom amount</Label>
-              <div className="flex items-center gap-2">
-                <span className="text-xl font-semibold">$</span>
-                <Input
-                  id="custom-amount"
-                  type="number"
-                  placeholder="5.00"
-                  className="text-lg"
-                />
-              </div>
-            </div>
-
-            <Button size="lg" className="w-full">
-              <Heart className="mr-2 h-5 w-5" />
-              Donate Now
-            </Button>
-          </CardContent>
-        </Card>
+    <div className="space-y-8">
+      <div className="text-center px-4">
+        <h1 className="font-headline text-3xl md:text-4xl font-bold tracking-tight">
+          Support Our Campaigns
+        </h1>
+        <p className="mt-2 text-lg text-muted-foreground max-w-2xl mx-auto">
+          Your contribution makes a difference. Help us empower communities
+          across Bangladesh.
+        </p>
       </div>
-
-      <div className="space-y-6">
-        <h2 className="font-headline text-2xl font-bold text-center lg:text-left">
-          Donor Wall
-        </h2>
-        <div className="space-y-4">
-          {donors.map((donor, index) => {
-            const image = PlaceHolderImages.find(
-              (img) => img.id === donor.imageId
-            );
-            return (
-              <div
-                key={index}
-                className="flex items-center gap-4 p-3 bg-card rounded-lg"
-              >
-                <Avatar>
-                  {image && (
-                    <AvatarImage
-                      src={image.imageUrl}
-                      alt={donor.name}
-                      data-ai-hint={image.imageHint}
-                    />
-                  )}
-                  <AvatarFallback>
-                    {donor.name.charAt(0)}
-                    {donor.name.split(' ')[1]?.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-grow">
-                  <p className="font-semibold">{donor.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    donated ${donor.amount}
-                  </p>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {campaigns.map((campaign) => {
+          const image = PlaceHolderImages.find(
+            (img) => img.id === campaign.imageId
+          );
+          const progress = (campaign.raised / campaign.goal) * 100;
+          return (
+            <Card
+              key={campaign.id}
+              className="flex flex-col overflow-hidden group transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
+            >
+              {image && (
+                <div className="aspect-video overflow-hidden">
+                  <Image
+                    src={image.imageUrl}
+                    alt={campaign.title}
+                    width={600}
+                    height={400}
+                    className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
+                    data-ai-hint={image.imageHint}
+                  />
                 </div>
-                <div className="text-xs text-muted-foreground">
-                  {donor.date}
+              )}
+              <CardHeader>
+                <CardTitle className="font-headline text-xl group-hover:text-primary transition-colors">
+                  {campaign.title}
+                </CardTitle>
+                <CardDescription>{campaign.description}</CardDescription>
+              </CardHeader>
+              <CardContent className="flex-grow space-y-4">
+                <div>
+                  <Progress value={progress} className="h-2" />
+                  <div className="flex justify-between text-sm text-muted-foreground mt-2">
+                    <span className="font-semibold">
+                      ${campaign.raised.toLocaleString()}
+                    </span>
+                    <span className="text-right">
+                      ${campaign.goal.toLocaleString()} Goal
+                    </span>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              </CardContent>
+              <CardFooter>
+                 <Button asChild className="w-full">
+                  <Link href={`/donations/${campaign.slug}`}>
+                    Donate Now <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </CardFooter>
+            </Card>
+          );
+        })}
       </div>
     </div>
   );

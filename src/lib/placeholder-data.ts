@@ -143,3 +143,33 @@ export const donors = [
   { name: 'Alex T.', amount: 25, imageId: 'donor-3', date: 'July 18, 2024' },
   { name: 'Emily R.', amount: 75, imageId: 'donor-4', date: 'July 17, 2024' },
 ];
+
+export const campaigns = [
+    {
+        id: 1,
+        title: 'Winter Clothing Drive',
+        slug: 'winter-clothing-drive',
+        description: 'Help provide warm clothing to underprivileged communities during the harsh winter months.',
+        goal: 5000,
+        raised: 2800,
+        imageId: 'project-1'
+    },
+    {
+        id: 2,
+        title: 'Education for All',
+        slug: 'education-for-all',
+        description: 'Support children\'s education by providing books, stationery, and school fees.',
+        goal: 10000,
+        raised: 4500,
+        imageId: 'project-2'
+    },
+    {
+        id: 3,
+        title: 'Emergency Medical Fund',
+        slug: 'emergency-medical-fund',
+        description: 'Contribute to our fund for providing emergency medical assistance to those in need.',
+        goal: 7500,
+        raised: 6000,
+        imageId: 'project-3'
+    }
+]
