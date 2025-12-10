@@ -1,6 +1,6 @@
 'use client';
 
-import { Home, Package, ShieldCheck, Briefcase, PenTool, User, Users, Settings, HandHeart, FileDown } from 'lucide-react';
+import { Home, Package, ShieldCheck, Briefcase, PenTool, User, Users, Settings, HandHeart, FileDown, UserCheck } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useUser } from '@/firebase/auth/use-user';
@@ -13,10 +13,10 @@ export const navItems = {
   [ROLES.ADMIN]: [
     { href: '/dashboard/admin', icon: Home, label: 'Dashboard' },
     { href: '/dashboard/all-users', icon: Users, label: 'Users' },
+    { href: '/dashboard/admin/volunteers', icon: UserCheck, label: 'Volunteers' },
     { href: '/dashboard/admin/campaigns', icon: HandHeart, label: 'Campaigns' },
     { href: '/dashboard/admin/donations', icon: Package, label: 'Donations' },
     { href: '/dashboard/admin/reports', icon: FileDown, label: 'Reports' },
-
   ],
   [ROLES.MODERATOR]: [
     { href: '/dashboard/moderator', icon: Home, label: 'Dashboard' },
@@ -30,6 +30,11 @@ export const navItems = {
   ],
   [ROLES.COLLABORATOR]: [
     { href: '/dashboard/collaborator', icon: Home, label: 'Dashboard' },
+    { href: '#', icon: PenTool, label: 'Tasks' },
+    { href: '/auth/profile', icon: User, label: 'Profile' },
+  ],
+   [ROLES.VOLUNTEER]: [
+    { href: '/dashboard/volunteer', icon: Home, label: 'Dashboard' },
     { href: '#', icon: PenTool, label: 'Tasks' },
     { href: '/auth/profile', icon: User, label: 'Profile' },
   ],

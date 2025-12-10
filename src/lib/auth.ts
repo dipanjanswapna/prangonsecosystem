@@ -46,9 +46,16 @@ export const signUp = async (email:string, password:string, fullName:string, rol
   
   await updateFirebaseProfile(user, { displayName: fullName });
 
-  const isPrivilegedRole = ![ROLES.USER, ROLES.ADMIN].includes(role);
+  const isPrivilegedRole = ![ROLES.USER, ROLES.ADMIN, ROLES.VOLUNTEER].includes(role);
   const status = isPrivilegedRole ? 'pending' : 'approved';
   const profileStatus = isPrivilegedRole ? 'incomplete' : 'complete';
+  
+  let volunteerStatus = 'none';
+  if (role === ROLES.VOLUNTEER) {
+    volunteerStatus = 'pending';
+    role = ROLES.USER; // Volunteers are fundamentally users with an extra flag
+  }
+
 
   // Create a user document in Firestore
   await setDoc(doc(firestore, 'users', user.uid), {
@@ -58,6 +65,8 @@ export const signUp = async (email:string, password:string, fullName:string, rol
     role: role,
     status: status,
     profile_status: profileStatus,
+    isVolunteer: volunteerStatus !== 'none',
+    volunteerStatus: volunteerStatus,
     createdAt: serverTimestamp(),
     lastLogin: serverTimestamp(),
     photoURL: user.photoURL,
@@ -66,6 +75,7 @@ export const signUp = async (email:string, password:string, fullName:string, rol
     level: 'Bronze',
     points: 0,
     badges: [],
+    skills: [],
   });
 
   return userCredential;
@@ -103,6 +113,8 @@ const handleSocialSignIn = async (user: User, refCode?: string) => {
       role: role,
       status: 'approved',
       profile_status: 'complete',
+      isVolunteer: false,
+      volunteerStatus: 'none',
       createdAt: serverTimestamp(),
       lastLogin: serverTimestamp(),
       referralCode: nanoid(),
@@ -110,6 +122,7 @@ const handleSocialSignIn = async (user: User, refCode?: string) => {
       level: 'Bronze',
       points: 0,
       badges: [],
+      skills: [],
     });
   } else {
     // If user already exists, just update their last login
@@ -144,6 +157,12 @@ export const updateUserRoleAndStatus = async (uid: string, role: Role, status: '
     const userDocRef = doc(firestore, 'users', uid);
     await updateDoc(userDocRef, { role, status });
 };
+
+export const updateUserVolunteerStatus = async (uid: string, volunteerStatus: 'pending' | 'approved' | 'rejected') => {
+    const userDocRef = doc(firestore, 'users', uid);
+    await updateDoc(userDocRef, { volunteerStatus: volunteerStatus, isVolunteer: volunteerStatus === 'approved' });
+};
+
 
 export const updateUserProfileStatus = async (uid: string, profileStatus: 'incomplete' | 'pending_review' | 'complete') => {
     const userDocRef = doc(firestore, 'users', uid);

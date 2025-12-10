@@ -3,6 +3,7 @@ export const ROLES = {
   MODERATOR: 'moderator',
   MANAGER: 'manager',
   COLLABORATOR: 'collaborator',
+  VOLUNTEER: 'volunteer',
   USER: 'user',
 } as const;
 
@@ -13,5 +14,6 @@ export const roleHierarchy = {
   [ROLES.MODERATOR]: 3,
   [ROLES.MANAGER]: 2,
   [ROLES.COLLABORATOR]: 1,
+  [ROLES.VOLUNTEER]: 0,
   [ROLES.USER]: 0,
 };

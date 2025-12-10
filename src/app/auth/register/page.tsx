@@ -259,6 +259,7 @@ export default function SignupPage() {
                   </FormControl>
                   <SelectContent>
                     <SelectItem value={ROLES.USER}>User</SelectItem>
+                    <SelectItem value={ROLES.VOLUNTEER}>Volunteer</SelectItem>
                     <SelectItem value={ROLES.COLLABORATOR}>
                       Collaborator
                     </SelectItem>
