@@ -70,6 +70,14 @@ export function ProfileUpdateForm({ userProfile, userId }: ProfileUpdateFormProp
   
   const form = useForm({
     resolver: zodResolver(validationSchema),
+    defaultValues: {
+      specialization: '',
+      experienceYears: 0,
+      department: '',
+      teamSize: 1,
+      skills: '',
+      portfolioLink: '',
+    },
   });
 
   const onSubmit = async (values: z.infer<typeof validationSchema>) => {
