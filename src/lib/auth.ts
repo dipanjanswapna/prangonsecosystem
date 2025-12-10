@@ -44,8 +44,9 @@ export const signUp = async (email:string, password:string, fullName:string, rol
   
   await updateProfile(user, { displayName: fullName });
 
-  // Admins and Users are approved by default. Other roles require admin approval.
-  const status = (role === ROLES.USER || role === ROLES.ADMIN) ? 'approved' : 'pending';
+  const isPrivilegedRole = ![ROLES.USER, ROLES.ADMIN].includes(role);
+  const status = isPrivilegedRole ? 'pending' : 'approved';
+  const profileStatus = isPrivilegedRole ? 'incomplete' : 'complete';
 
   // Create a user document in Firestore
   await setDoc(doc(firestore, 'users', user.uid), {
@@ -54,6 +55,7 @@ export const signUp = async (email:string, password:string, fullName:string, rol
     name: fullName,
     role: role,
     status: status,
+    profile_status: profileStatus,
     createdAt: serverTimestamp(),
     lastLogin: serverTimestamp(),
     photoURL: user.photoURL
@@ -83,12 +85,10 @@ const handleSocialSignIn = async (user: User) => {
   const userDoc = await getDoc(userDocRef);
 
   if (!userDoc.exists()) {
-    // If user does not exist, create a new document.
     // IMPORTANT: Use your actual admin email here.
     const isAdmin = user.email === 'dipanjansarkarprangon@gmail.com'; 
     const role = isAdmin ? ROLES.ADMIN : ROLES.USER;
 
-    // For new social sign-ups (admin or user), status is always 'approved'.
     await setDoc(userDocRef, {
       uid: user.uid,
       email: user.email,
@@ -96,6 +96,7 @@ const handleSocialSignIn = async (user: User) => {
       photoURL: user.photoURL,
       role: role,
       status: 'approved',
+      profile_status: 'complete',
       createdAt: serverTimestamp(),
       lastLogin: serverTimestamp(),
     });
@@ -104,8 +105,7 @@ const handleSocialSignIn = async (user: User) => {
     await setDoc(userDocRef, { lastLogin: serverTimestamp() }, { merge: true });
   }
   
-  // Create session AFTER firestore doc is guaranteed to exist or be updated.
-  await createSession(user, true); // Remember Me is true for social logins by default
+  await createSession(user, true);
 };
 
 
@@ -121,7 +121,6 @@ export const logOut = async (): Promise<void> => {
   await signOut(auth);
   // Fetch to clear the session cookie on the server
   await fetch('/api/auth/session', { method: 'DELETE' });
-  // Force a hard reload to clear all client-side state and re-evaluate auth
   window.location.href = '/';
 };
 
@@ -133,4 +132,18 @@ export const resetPassword = async (email: string): Promise<void> => {
 export const updateUserRoleAndStatus = async (uid: string, role: Role, status: 'pending' | 'approved' | 'rejected') => {
     const userDocRef = doc(firestore, 'users', uid);
     await setDoc(userDocRef, { role, status }, { merge: true });
+};
+
+export const updateUserProfileStatus = async (uid: string, profileStatus: 'incomplete' | 'pending_review' | 'complete') => {
+    const userDocRef = doc(firestore, 'users', uid);
+    await setDoc(userDocRef, { profile_status: profileStatus }, { merge: true });
+};
+
+export const updateUserProfile = async (uid: string, data: any) => {
+    const userDocRef = doc(firestore, 'users', uid);
+    await setDoc(userDocRef, { 
+        ...data,
+        profile_status: 'pending_review',
+        profileUpdatedAt: serverTimestamp(),
+     }, { merge: true });
 };

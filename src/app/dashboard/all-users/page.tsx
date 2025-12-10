@@ -34,7 +34,7 @@ import { MoreHorizontal } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import type { Timestamp } from 'firebase/firestore';
 import { ROLES, type Role } from '@/lib/roles';
-import { updateUserRoleAndStatus } from '@/lib/auth';
+import { updateUserRoleAndStatus, updateUserProfileStatus } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
 
 interface User {
@@ -43,6 +43,7 @@ interface User {
   email: string;
   role: Role;
   status: 'pending' | 'approved' | 'rejected';
+  profile_status?: 'incomplete' | 'pending_review' | 'complete';
   photoURL?: string;
   createdAt: Timestamp;
 }
@@ -51,22 +52,41 @@ export default function AllUsersPage() {
   const { data: users, loading } = useCollection<User>('users');
   const { toast } = useToast();
 
-  const handleUpdateUser = async (
+  const handleUpdateUserStatus = async (
     uid: string,
-    role: Role,
     status: 'pending' | 'approved' | 'rejected'
   ) => {
     try {
-      await updateUserRoleAndStatus(uid, role, status);
+      // This function only updates the main `status`, not the profile_status
+      await updateUserRoleAndStatus(uid, users.find(u=>u.id===uid)!.role, status);
       toast({
-        title: 'User Updated',
-        description: `User has been successfully updated.`,
+        title: 'User Status Updated',
+        description: `User has been successfully ${status}.`,
       });
     } catch (error: any) {
       toast({
         variant: 'destructive',
         title: 'Update Failed',
-        description: error.message || 'Could not update user.',
+        description: error.message || 'Could not update user status.',
+      });
+    }
+  };
+
+  const handleUpdateUserProfileStatus = async (
+    uid: string,
+    profileStatus: 'incomplete' | 'pending_review' | 'complete'
+  ) => {
+    try {
+      await updateUserProfileStatus(uid, profileStatus);
+      toast({
+        title: 'Profile Status Updated',
+        description: `User profile status set to ${profileStatus}.`,
+      });
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Update Failed',
+        description: error.message || 'Could not update profile status.',
       });
     }
   };
@@ -74,10 +94,13 @@ export default function AllUsersPage() {
   const getStatusVariant = (status: string) => {
     switch (status) {
       case 'approved':
+      case 'complete':
         return 'secondary';
       case 'pending':
+      case 'pending_review':
         return 'default';
       case 'rejected':
+      case 'incomplete':
         return 'destructive';
       default:
         return 'outline';
@@ -99,7 +122,8 @@ export default function AllUsersPage() {
             <TableRow>
               <TableHead>User</TableHead>
               <TableHead className="hidden sm:table-cell">Role</TableHead>
-              <TableHead className="hidden md:table-cell">Status</TableHead>
+              <TableHead className="hidden md:table-cell">Account Status</TableHead>
+              <TableHead className="hidden md:table-cell">Profile Status</TableHead>
               <TableHead className="hidden md:table-cell">Created At</TableHead>
               <TableHead>
                 <span className="sr-only">Actions</span>
@@ -123,6 +147,9 @@ export default function AllUsersPage() {
                       <Skeleton className="h-6 w-16" />
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
+                      <Skeleton className="h-6 w-20" />
+                    </TableCell>
+                     <TableCell className="hidden md:table-cell">
                       <Skeleton className="h-6 w-20" />
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
@@ -157,6 +184,11 @@ export default function AllUsersPage() {
                         {user.status}
                       </Badge>
                     </TableCell>
+                     <TableCell className="hidden md:table-cell">
+                      <Badge variant={getStatusVariant(user.profile_status || 'N/A')}>
+                        {user.profile_status || 'N/A'}
+                      </Badge>
+                    </TableCell>
                     <TableCell className="hidden md:table-cell">
                       {user.createdAt
                         ? new Date(
@@ -177,45 +209,37 @@ export default function AllUsersPage() {
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                          <DropdownMenuLabel>Account Actions</DropdownMenuLabel>
                           <DropdownMenuItem
                             onClick={() =>
-                              handleUpdateUser(user.id, user.role, 'approved')
+                              handleUpdateUserStatus(user.id, 'approved')
                             }
                           >
-                            Approve
+                            Approve Account
                           </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() =>
-                              handleUpdateUser(user.id, user.role, 'rejected')
+                              handleUpdateUserStatus(user.id, 'rejected')
                             }
                           >
-                            Reject
+                            Reject Account
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuSub>
-                            <DropdownMenuSubTrigger>
-                              Change Role
-                            </DropdownMenuSubTrigger>
-                            <DropdownMenuPortal>
-                              <DropdownMenuSubContent>
-                                {Object.values(ROLES).map((role) => (
-                                  <DropdownMenuItem
-                                    key={role}
-                                    onClick={() =>
-                                      handleUpdateUser(
-                                        user.id,
-                                        role,
-                                        user.status
-                                      )
-                                    }
-                                  >
-                                    {role.charAt(0).toUpperCase() + role.slice(1)}
-                                  </DropdownMenuItem>
-                                ))}
-                              </DropdownMenuSubContent>
-                            </DropdownMenuPortal>
-                          </DropdownMenuSub>
+                           <DropdownMenuLabel>Profile Actions</DropdownMenuLabel>
+                             <DropdownMenuItem
+                            onClick={() =>
+                              handleUpdateUserProfileStatus(user.id, 'complete')
+                            }
+                          >
+                            Approve Profile
+                          </DropdownMenuItem>
+                           <DropdownMenuItem
+                            onClick={() =>
+                              handleUpdateUserProfileStatus(user.id, 'incomplete')
+                            }
+                          >
+                            Request Profile Update
+                          </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem className="text-red-600">
                             Delete User

@@ -12,21 +12,15 @@ import { AlertTriangle, Clock } from 'lucide-react';
 import { Button } from './ui/button';
 import { logOut } from '@/lib/auth';
 
-const protectedRoutes = ['/dashboard', '/auth/profile'];
+const protectedRoutes = ['/dashboard', '/auth/profile', '/auth/update-profile'];
 
 interface UserProfile {
   role: Role;
   status: 'pending' | 'approved' | 'rejected';
+  profile_status: 'incomplete' | 'pending_review' | 'complete';
 }
 
-function AccessDenied({ status }: { status: 'pending' | 'rejected' }) {
-    const router = useRouter();
-    
-    const handleLogoutAndRedirect = async () => {
-      await logOut();
-      // logOut function handles the redirection.
-    };
-
+function AccessDenied({ status, onLogout }: { status: 'pending' | 'rejected', onLogout: () => void }) {
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-10rem)]">
       <Card className="w-full max-w-md">
@@ -48,7 +42,7 @@ function AccessDenied({ status }: { status: 'pending' | 'rejected' }) {
           </CardDescription>
         </CardHeader>
         <CardContent className="text-center">
-            <Button onClick={handleLogoutAndRedirect}>
+            <Button onClick={onLogout}>
                 Back to Home
             </Button>
         </CardContent>
@@ -69,7 +63,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
 
   useEffect(() => {
-    if (isLoading) return; // Wait for user and profile data to be loaded
+    if (isLoading) return;
 
     if (!user) {
       if (isProtectedRoute) {
@@ -77,35 +71,59 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       }
       return;
     }
-    
-    if (userProfile && userProfile.status === 'approved') {
+
+    if (userProfile) {
+      // 1. Initial admin approval check
+      if (userProfile.status !== 'approved') {
+        if (pathname !== '/dashboard/access-denied') { // prevent redirect loop
+          // You could create a specific page for this or just show the component
+        }
+        return;
+      }
+      
+      const isPrivilegedRole = ![ROLES.USER, ROLES.ADMIN].includes(userProfile.role);
+
+      // 2. Profile completion check for specific roles
+      if (isPrivilegedRole && userProfile.profile_status === 'incomplete') {
+        if (pathname !== '/auth/update-profile') {
+          router.replace('/auth/update-profile');
+        }
+        return;
+      }
+      
+      // 3. Final approval check after profile submission
+       if (isPrivilegedRole && userProfile.profile_status === 'pending_review') {
+         if (pathname !== '/dashboard/access-denied') {
+            // You can show a specific "pending review" page here
+         }
+         return;
+       }
+
+
+      // 4. Role-based dashboard routing
       const userRole = userProfile.role || ROLES.USER;
       const expectedDashboardPath = `/dashboard/${userRole.toLowerCase()}`;
       
-      // Redirect from the generic /dashboard page to the role-specific one
       if (pathname === '/dashboard' || pathname === '/dashboard/') {
         router.replace(expectedDashboardPath);
         return;
       }
       
-      // Security check: if user is on a dashboard page that doesn't match their role, redirect them.
-      // This prevents a 'user' from accessing '/dashboard/admin', for example.
       const isDashboardPage = pathname.startsWith('/dashboard/');
       if (isDashboardPage && !pathname.startsWith(expectedDashboardPath)) {
-        // Exception for admin viewing all users page
-        if(userRole === ROLES.ADMIN && pathname === '/dashboard/all-users'){
-            return;
+        if(!(userRole === ROLES.ADMIN && pathname === '/dashboard/all-users')) {
+           router.replace(expectedDashboardPath);
         }
-        router.replace(expectedDashboardPath);
-        return;
       }
     }
   }, [user, userProfile, isLoading, router, pathname, isProtectedRoute]);
 
+  const handleLogout = async () => {
+    await logOut();
+  };
 
-  // While loading, show a skeleton UI for any protected route
   if (isLoading && isProtectedRoute) {
-     return (
+    return (
       <div className="space-y-6 p-4 sm:px-6 sm:py-4">
         <Skeleton className="h-16 w-full" />
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -119,33 +137,15 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // After loading, if on a protected route and user is present
-  if (isProtectedRoute && user) {
-     if (userProfile) {
-        // If the user's registration is not approved, show the relevant 'Access Denied' or 'Pending' page.
-        if (userProfile.status !== 'approved') {
-             return <AccessDenied status={userProfile.status} />;
-        }
-        // If approved, render the children (the actual dashboard page)
-        return <>{children}</>;
-     }
-     
-     // If user is logged in but profile is still loading, continue showing skeleton.
-     // This prevents a flash of incorrect content.
-     return (
-        <div className="space-y-6 p-4 sm:px-6 sm:py-4">
-            <Skeleton className="h-16 w-full" />
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              <Skeleton className="h-32 w-full" />
-              <Skeleton className="h-32 w-full" />
-              <Skeleton className="h-32 w-full" />
-              <Skeleton className="h-32 w-full" />
-            </div>
-            <Skeleton className="h-80 w-full" />
-        </div>
-     );
+  if (isProtectedRoute && user && userProfile) {
+    if (userProfile.status !== 'approved') {
+      return <AccessDenied status={userProfile.status} onLogout={handleLogout} />;
+    }
+     if (userProfile.profile_status === 'pending_review') {
+        // A dedicated component for this state would be better.
+        return <AccessDenied status="pending" onLogout={handleLogout} />;
+    }
   }
-  
-  // If not a protected route, just render the children
+
   return <>{children}</>;
 }
