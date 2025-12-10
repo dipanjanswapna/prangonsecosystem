@@ -13,7 +13,7 @@ const navItems = {
   [ROLES.ADMIN]: [
     { href: '/dashboard/admin', icon: Home, label: 'Dashboard' },
     { href: '/dashboard/all-users', icon: Users, label: 'Users' },
-    { href: '#', icon: Package, label: 'Analytics' },
+    { href: '/dashboard/admin/donations', icon: Package, label: 'Donations' },
     { href: '#', icon: Settings, label: 'Settings' },
     { href: '/auth/profile', icon: User, label: 'Profile' },
   ],

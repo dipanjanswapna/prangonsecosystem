@@ -17,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { ArrowUpRight, Users } from 'lucide-react';
+import { ArrowUpRight, DollarSign, Users } from 'lucide-react';
 import Link from 'next/link';
 
 export default function AdminDashboard() {
@@ -49,6 +49,7 @@ export default function AdminDashboard() {
         <Card>
           <CardHeader className="flex flex:row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">$45,231.89</div>
@@ -60,10 +61,10 @@ export default function AdminDashboard() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Donations</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
+            <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">$2,350</div>
+            <div className="text-2xl font-bold">৳2,35,000</div>
             <p className="text-xs text-muted-foreground">
               +5.1% from last month
             </p>
@@ -86,13 +87,13 @@ export default function AdminDashboard() {
       <Card>
         <CardHeader className="flex flex-row items-center">
           <div className="grid gap-2">
-            <CardTitle>Recent Sign-ups</CardTitle>
+            <CardTitle>Recent Donations</CardTitle>
             <CardDescription>
-              Here are the most recent users who have joined.
+              Here are the most recent donations received.
             </CardDescription>
           </div>
           <Button asChild size="sm" className="ml-auto gap-1">
-            <Link href="/dashboard/all-users">
+            <Link href="/dashboard/admin/donations">
               View All
               <ArrowUpRight className="h-4 w-4" />
             </Link>
@@ -102,9 +103,10 @@ export default function AdminDashboard() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>User</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Joined On</TableHead>
+                <TableHead>Donor</TableHead>
+                <TableHead>Campaign</TableHead>
+                <TableHead className="text-right">Amount</TableHead>
+                <TableHead>Date</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -115,8 +117,9 @@ export default function AdminDashboard() {
                     liam@example.com
                   </div>
                 </TableCell>
-                <TableCell>user</TableCell>
-                <TableCell>2023-07-12</TableCell>
+                <TableCell>Winter Clothing Drive</TableCell>
+                 <TableCell className="text-right">৳5,000</TableCell>
+                <TableCell>2024-07-22</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>
@@ -125,8 +128,9 @@ export default function AdminDashboard() {
                     olivia@example.com
                   </div>
                 </TableCell>
-                <TableCell>moderator</TableCell>
-                <TableCell>2023-08-05</TableCell>
+                <TableCell>Education for All</TableCell>
+                <TableCell className="text-right">৳10,000</TableCell>
+                <TableCell>2024-07-21</TableCell>
               </TableRow>
             </TableBody>
           </Table>
