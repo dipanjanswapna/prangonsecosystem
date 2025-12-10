@@ -4,8 +4,8 @@ This document outlines the step-by-step plan to build a full-featured authentica
 
 ## Phase 1: Core Authentication
 
-### 1.1: Firebase Setup & Basic Authentication (Current Step)
-- **Status:** In Progress
+### 1.1: Firebase Setup & Basic Authentication
+- **Status:** Completed
 - **Features:**
   - Integrate Firebase SDK.
   - Set up environment variables for Firebase config.
@@ -15,14 +15,14 @@ This document outlines the step-by-step plan to build a full-featured authentica
   - Update UI to reflect authentication state (e.g., show user avatar or login button).
 
 ### 1.2: Social & Passwordless Login
-- **Status:** Pending
+- **Status:** Completed
 - **Features:**
   - Add "Sign in with Google" button.
   - Implement Google social login flow.
   - Implement "Forgot Password" functionality with email-based reset links.
 
 ### 1.3: UI/UX Refinements
-- **Status:** Pending
+- **Status:** Completed
 - **Features:**
   - Add "Show/hide password" toggle.
   - Implement "Remember Me" functionality.
@@ -31,21 +31,21 @@ This document outlines the step-by-step plan to build a full-featured authentica
 ## Phase 2: Role-Based Access Control (RBAC)
 
 ### 2.1: User Schema and Role Definition
-- **Status:** Pending
+- **Status:** Completed
 - **Features:**
   - Define user schema in Firestore to store user data, including a `role` field.
   - Create a roles configuration file (`lib/roles.ts`).
   - Assign a default role ('user') to new users upon registration.
 
 ### 2.2: Middleware & Route Protection
-- **Status:** Pending
+- **Status:** Completed
 - **Features:**
   - Create Next.js middleware (`middleware.ts`) to protect dashboard routes.
   - Implement logic to check JWT/session and user role.
   - Redirect unauthorized users.
 
 ### 2.3: Role-Based Dashboards
-- **Status:** Pending
+- **Status:** Completed
 - **Features:**
   - Create basic page structure for each role dashboard:
     - `/dashboard/admin`
@@ -58,14 +58,14 @@ This document outlines the step-by-step plan to build a full-featured authentica
 ## Phase 3: Dashboard UI & Features
 
 ### 3.1: Dashboard Layout
-- **Status:** Pending
+- **Status:** Completed
 - **Features:**
   - Create a reusable `Sidebar` component.
   - Create a `Topbar` component integrated with `UserNav`.
   - Make sidebar navigation items dynamic based on user role.
 
 ### 3.2: Role-Specific Features (Initial)
-- **Status:** Pending
+- **Status:** Completed
 - **Features:**
   - **Admin:** Build a basic user management table to view all users.
   - **Moderator:** Create a placeholder component for content moderation.
@@ -82,7 +82,7 @@ This document outlines the step-by-step plan to build a full-featured authentica
   - Set up advanced security rules for Firestore.
 
 ### 4.2: Profile Management
-- **Status:** Pending
+- **Status:** Completed
 - **Features:**
   - Allow users to update their profile information (name, photo).
   - Implement "Change Password" functionality for logged-in users.
@@ -91,21 +91,21 @@ This document outlines the step-by-step plan to build a full-featured authentica
 
 ### Authentication & Access Control
 - [x] Email/password login
-- [ ] Social login (Google)
+- [x] Social login (Google)
 - [ ] OTP-based login
 - [ ] Magic link login
 - [ ] 2FA (TOTP)
-- [ ] Password reset
+- [x] Password reset
 - [ ] Account lock
-- [ ] Session timeout
-- [ ] Remember Me toggle
-- [ ] Role assignment
-- [ ] Role-based routing
+- [x] Session timeout
+- [x] Remember Me toggle
+- [x] Role assignment
+- [x] Role-based routing
 
 ### Security
 - [x] Secure session management (Firebase handles this)
 - [ ] CSRF protection (Next.js provides some protection)
-- [ ] Brute-force protection (Firebase Auth built-in)
+- [x] Brute-force protection (Firebase Auth built-in)
 - [ ] Rate limiting
 - [x] Email verification (Can be enabled in Firebase)
 - [ ] Password strength meter
@@ -117,4 +117,4 @@ This document outlines the step-by-step plan to build a full-featured authentica
 - [x] Show/hide password
 - [x] Inline error messages
 - [x] Loading states
-- [ ] Keyboard accessibility
+- [x] Keyboard accessibility
