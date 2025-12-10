@@ -28,6 +28,7 @@ interface Campaign {
   goal: number;
   raised: number;
   imageUrl: string;
+  voteOptions?: string[];
 }
 
 interface Donation {
@@ -238,7 +239,9 @@ export default function CampaignDetailsPage() {
               )}
             </CardContent>
           </Card>
-          <VoteCard campaignId={campaign.id} />
+          {campaign.voteOptions && campaign.voteOptions.length > 0 && (
+            <VoteCard campaignId={campaign.id} voteOptions={campaign.voteOptions} />
+          )}
         </div>
       </div>
     </div>

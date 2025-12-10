@@ -45,6 +45,7 @@
         "status": { "type": "string", "enum": ["draft", "active", "completed", "archived"], "description": "Current status of the campaign." },
         "category": { "type": "string", "enum": ["Seasonal", "Emergency", "Regular"], "description": "The category of the campaign." },
         "tags": { "type": "array", "items": { "type": "string" } },
+        "voteOptions": { "type": "array", "items": { "type": "string" }, "description": "List of categories or items that users can vote on for this campaign." },
         "qrCodeUrl": { "type": "string", "format": "uri", "description": "URL of the campaign's QR code image." },
         "shortLink": { "type": "string", "format": "uri", "description": "A shortened link for sharing the campaign." },
         "createdBy": { "type": "string", "description": "UID of the admin who created the campaign." },
@@ -129,7 +130,7 @@
       "properties": {
         "userId": { "type": "string", "description": "The UID of the user who voted." },
         "campaignId": { "type": "string", "description": "The ID of the campaign the vote is for." },
-        "category": { "type": "string", "enum": ["education", "health", "logistics", "food", "shelter"], "description": "The category the user voted for." },
+        "category": { "type": "string", "description": "The category the user voted for. This is now a dynamic value." },
         "votedAt": { "type": "string", "format": "date-time", "description": "Timestamp of when the vote was cast." }
       },
       "required": ["userId", "campaignId", "category", "votedAt"]

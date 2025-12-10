@@ -13,30 +13,23 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useUser } from '@/firebase/auth/use-user';
 import { useCollection } from '@/firebase/firestore/use-collection';
 import { useToast } from '@/hooks/use-toast';
-import { castVote, type VoteCategory } from '@/lib/votes';
+import { castVote } from '@/lib/votes';
 import { cn } from '@/lib/utils';
 import { Check, Vote } from 'lucide-react';
 import { useMemo } from 'react';
 
 interface VoteCardProps {
   campaignId: string;
+  voteOptions: string[];
 }
 
 interface Vote {
   id: string;
   userId: string;
-  category: VoteCategory;
+  category: string;
 }
 
-const voteCategories: { id: VoteCategory; label: string }[] = [
-  { id: 'food', label: 'Food & Nutrition' },
-  { id: 'shelter', label: 'Shelter & Housing' },
-  { id: 'health', label: 'Health & Medical' },
-  { id: 'education', label: 'Education' },
-  { id: 'logistics', label: 'Logistics' },
-];
-
-export function VoteCard({ campaignId }: VoteCardProps) {
+export function VoteCard({ campaignId, voteOptions }: VoteCardProps) {
   const { user, loading: userLoading } = useUser();
   const { toast } = useToast();
   const { data: votes, loading: votesLoading } = useCollection<Vote>(
@@ -51,10 +44,10 @@ export function VoteCard({ campaignId }: VoteCardProps) {
   );
 
   const voteCounts = useMemo(() => {
-    const counts = voteCategories.reduce((acc, cat) => {
-      acc[cat.id] = 0;
+    const counts = voteOptions.reduce((acc, option) => {
+      acc[option] = 0;
       return acc;
-    }, {} as Record<VoteCategory, number>);
+    }, {} as Record<string, number>);
 
     votes.forEach((vote) => {
       if (counts[vote.category] !== undefined) {
@@ -63,11 +56,11 @@ export function VoteCard({ campaignId }: VoteCardProps) {
     });
 
     return counts;
-  }, [votes]);
+  }, [votes, voteOptions]);
 
   const totalVotes = votes.length;
 
-  const handleVote = async (category: VoteCategory) => {
+  const handleVote = async (category: string) => {
     if (!user) {
       toast({
         variant: 'destructive',
@@ -80,9 +73,7 @@ export function VoteCard({ campaignId }: VoteCardProps) {
       await castVote(user.uid, campaignId, category);
       toast({
         title: 'Vote Cast!',
-        description: `Your vote for "${
-          voteCategories.find((c) => c.id === category)?.label
-        }" has been recorded.`,
+        description: `Your vote for "${category}" has been recorded.`,
       });
     } catch (error: any) {
       toast({
@@ -127,15 +118,15 @@ export function VoteCard({ campaignId }: VoteCardProps) {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        {voteCategories.map((category) => {
-          const count = voteCounts[category.id] || 0;
+        {voteOptions.map((option) => {
+          const count = voteCounts[option] || 0;
           const percentage = totalVotes > 0 ? (count / totalVotes) * 100 : 0;
-          const isUserVotedForThis = userVote?.category === category.id;
+          const isUserVotedForThis = userVote?.category === option;
 
           return (
-            <div key={category.id} className="space-y-2">
+            <div key={option} className="space-y-2">
               <div className="flex justify-between items-center text-sm">
-                <span className="font-medium">{category.label}</span>
+                <span className="font-medium capitalize">{option}</span>
                 <span className="text-muted-foreground">
                   {count} votes ({percentage.toFixed(0)}%)
                 </span>
@@ -145,7 +136,7 @@ export function VoteCard({ campaignId }: VoteCardProps) {
                 <Button
                   size="sm"
                   variant={isUserVotedForThis ? 'secondary' : 'outline'}
-                  onClick={() => handleVote(category.id)}
+                  onClick={() => handleVote(option)}
                   disabled={!user}
                   className={cn(isUserVotedForThis && "font-bold")}
                 >

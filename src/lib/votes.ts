@@ -11,12 +11,11 @@ import { initializeFirebase } from '@/firebase';
 const { firebaseApp } = initializeFirebase();
 const firestore = getFirestore(firebaseApp);
 
-export type VoteCategory = 'education' | 'health' | 'logistics' | 'food' | 'shelter';
 
 export const castVote = async (
   userId: string,
   campaignId: string,
-  category: VoteCategory
+  category: string
 ) => {
   if (!userId) {
     throw new Error('You must be logged in to vote.');

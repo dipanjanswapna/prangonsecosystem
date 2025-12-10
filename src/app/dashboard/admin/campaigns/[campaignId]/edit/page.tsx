@@ -44,6 +44,7 @@ const formSchema = z.object({
   goal: z.coerce.number().min(1000, 'Goal must be at least ৳1000.'),
   category: z.enum(['Seasonal', 'Emergency', 'Regular']).default('Regular'),
   imageUrl: z.string().url('Please enter a valid image URL.'),
+  voteOptions: z.string().optional().describe('Comma-separated list of voting options for the campaign.'),
 });
 
 interface Campaign {
@@ -52,6 +53,7 @@ interface Campaign {
   goal: number;
   category: 'Seasonal' | 'Emergency' | 'Regular';
   imageUrl: string;
+  voteOptions?: string[] | string;
 }
 
 export default function EditCampaignPage() {
@@ -73,12 +75,19 @@ export default function EditCampaignPage() {
       goal: 10000,
       category: 'Regular',
       imageUrl: '',
+      voteOptions: '',
     },
   });
 
   useEffect(() => {
     if (campaign) {
-      form.reset(campaign);
+      const voteOptionsString = Array.isArray(campaign.voteOptions)
+        ? campaign.voteOptions.join(', ')
+        : campaign.voteOptions || '';
+      form.reset({
+        ...campaign,
+        voteOptions: voteOptionsString,
+      });
     }
   }, [campaign, form]);
 
@@ -117,6 +126,7 @@ export default function EditCampaignPage() {
             <Skeleton className="h-10 w-full" />
             <Skeleton className="h-10 w-full" />
           </div>
+          <Skeleton className="h-10 w-full" />
           <Skeleton className="h-10 w-full" />
           <Skeleton className="h-12 w-32" />
         </CardContent>
@@ -219,6 +229,25 @@ export default function EditCampaignPage() {
                       {...field}
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="voteOptions"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Voting Options</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="e.g., Blankets, Food, Medicine"
+                      {...field}
+                    />
+                  </FormControl>
+                   <CardDescription>
+                    Optional. Enter comma-separated values for users to vote on.
+                  </CardDescription>
                   <FormMessage />
                 </FormItem>
               )}

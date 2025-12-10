@@ -22,13 +22,20 @@ interface CampaignData {
   goal: number;
   category: 'Seasonal' | 'Emergency' | 'Regular';
   imageUrl: string;
+  voteOptions?: string;
 }
 
 export const createCampaign = async (data: CampaignData) => {
   try {
     const campaignCollection = collection(firestore, 'campaigns');
+    
+    const voteOptionsArray = data.voteOptions
+      ? data.voteOptions.split(',').map(s => s.trim()).filter(Boolean)
+      : [];
+
     await addDoc(campaignCollection, {
       ...data,
+      voteOptions: voteOptionsArray,
       slug: `${data.title
         .toLowerCase()
         .replace(/[^a-z0-9\s-]/g, '') // remove special characters
@@ -51,7 +58,16 @@ export const updateCampaign = async (
 ) => {
   try {
     const campaignDocRef = doc(firestore, 'campaigns', campaignId);
-    await updateDoc(campaignDocRef, data);
+    
+    const updateData: Partial<any> = { ...data };
+
+    if (typeof data.voteOptions === 'string') {
+      updateData.voteOptions = data.voteOptions
+        ? data.voteOptions.split(',').map(s => s.trim()).filter(Boolean)
+        : [];
+    }
+
+    await updateDoc(campaignDocRef, updateData);
   } catch (error) {
     console.error('Error updating campaign: ', error);
     throw new Error('Could not update campaign.');

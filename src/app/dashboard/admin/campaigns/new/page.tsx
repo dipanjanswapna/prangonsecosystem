@@ -42,6 +42,7 @@ const formSchema = z.object({
   goal: z.coerce.number().min(1000, 'Goal must be at least ৳1000.'),
   category: z.enum(['Seasonal', 'Emergency', 'Regular']).default('Regular'),
   imageUrl: z.string().url('Please enter a valid image URL.'),
+  voteOptions: z.string().optional().describe('Comma-separated list of voting options for the campaign.'),
 });
 
 export default function NewCampaignPage() {
@@ -57,6 +58,7 @@ export default function NewCampaignPage() {
       goal: 10000,
       category: 'Regular',
       imageUrl: '',
+      voteOptions: '',
     },
   });
 
@@ -176,6 +178,25 @@ export default function NewCampaignPage() {
                       {...field}
                     />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+             <FormField
+              control={form.control}
+              name="voteOptions"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Voting Options</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="e.g., Blankets, Food, Medicine"
+                      {...field}
+                    />
+                  </FormControl>
+                   <CardDescription>
+                    Optional. Enter comma-separated values for users to vote on.
+                  </CardDescription>
                   <FormMessage />
                 </FormItem>
               )}
