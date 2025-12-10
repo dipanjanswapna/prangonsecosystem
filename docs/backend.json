@@ -75,7 +75,7 @@
         "isCorporateMatch": { "type": "boolean", "default": false, "description": "Indicates if the donation is part of a corporate matching program." },
         "corporateName": { "type": "string", "description": "Name of the matching corporation, if applicable." }
       },
-      "required": ["campaignId", "campaignTitle", "amount", "gateway", "status", "donorName", "invoiceId"]
+      "required": ["campaignId", "campaignTitle", "amount", "gateway", "status", "donorName", "invoiceId", "frequency"]
     },
     "Invoice": {
         "title": "Donation Invoice",
@@ -121,6 +121,18 @@
             "spentAt": { "type": "string", "format": "date-time" }
         },
         "required": ["campaignId", "category", "description", "cost", "spentAt"]
+    },
+    "Vote": {
+      "title": "Community Vote",
+      "description": "Represents a single vote cast by a user for a specific campaign category.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "The UID of the user who voted." },
+        "campaignId": { "type": "string", "description": "The ID of the campaign the vote is for." },
+        "category": { "type": "string", "enum": ["education", "health", "logistics", "food", "shelter"], "description": "The category the user voted for." },
+        "votedAt": { "type": "string", "format": "date-time", "description": "Timestamp of when the vote was cast." }
+      },
+      "required": ["userId", "campaignId", "category", "votedAt"]
     }
   },
   "auth": {
@@ -154,6 +166,10 @@
     "/allocations/{allocationId}": {
         "schema": { "$ref": "#/entities/Allocation" },
         "description": "Stores the mapping of donations to usage items for transparency."
+    },
+    "/votes/{voteId}": {
+      "schema": { "$ref": "#/entities/Vote" },
+      "description": "Stores all votes cast by users for different campaign fund allocations."
     }
   }
 }

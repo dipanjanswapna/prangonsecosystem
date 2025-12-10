@@ -18,6 +18,7 @@ import { useCollection } from '@/firebase/firestore/use-collection';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Timestamp } from 'firebase/firestore';
 import { CampaignUsageReport } from './usage-report';
+import { VoteCard } from './vote-card';
 
 interface Campaign {
   id: string;
@@ -237,6 +238,7 @@ export default function CampaignDetailsPage() {
               )}
             </CardContent>
           </Card>
+          <VoteCard campaignId={campaign.id} />
         </div>
       </div>
     </div>
