@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
-import { HandHeart, Loader2 } from 'lucide-react';
+import { Building, HandHeart, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -22,6 +22,7 @@ import { cn } from '@/lib/utils';
 import { saveDonation } from '@/lib/donations';
 import { useUser } from '@/firebase/auth/use-user';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Separator } from '@/components/ui/separator';
 
 function GatewayIcon({ name, src, isSelected, onClick }: { name: string; src: string; isSelected: boolean; onClick: () => void }) {
   return (
@@ -51,6 +52,8 @@ export default function DonatePage() {
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [donationFrequency, setDonationFrequency] = useState('one-time');
+  const [isCorporateMatch, setIsCorporateMatch] = useState(false);
+  const [corporateName, setCorporateName] = useState('');
 
   if (!campaign) {
     notFound();
@@ -87,6 +90,10 @@ export default function DonatePage() {
         toast({ variant: 'destructive', title: 'Payment Method Required', description: 'Please select a payment method.' });
         return;
     }
+     if (isCorporateMatch && !corporateName) {
+        toast({ variant: 'destructive', title: 'Company Name Required', description: 'Please enter your company\'s name for the match.' });
+        return;
+     }
 
     setIsLoading(true);
 
@@ -102,6 +109,8 @@ export default function DonatePage() {
         isAnonymous,
         donorName: isAnonymous ? 'Anonymous' : name,
         donorEmail: isAnonymous ? null : email,
+        isCorporateMatch: isCorporateMatch,
+        corporateName: isCorporateMatch ? corporateName : undefined,
       };
 
       const newDonationId = await saveDonation(donationData);
@@ -210,6 +219,34 @@ export default function DonatePage() {
                 </Label>
             </div>
           </div>
+          
+          <Separator />
+          
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+                <Building className="h-5 w-5 text-muted-foreground" />
+                <Label className="text-lg font-medium">Corporate Matching</Label>
+            </div>
+            <div className="flex items-center space-x-2 p-4 bg-muted/50 rounded-lg">
+                <Checkbox id="corporate-match" checked={isCorporateMatch} onCheckedChange={(checked) => setIsCorporateMatch(checked as boolean)} />
+                <div className="grid gap-1.5 leading-none">
+                    <Label htmlFor="corporate-match" className="text-sm font-medium">
+                        My company will match my donation.
+                    </Label>
+                    <p className="text-sm text-muted-foreground">
+                        Double your impact! Check this box if your employer offers a donation matching program.
+                    </p>
+                </div>
+            </div>
+            {isCorporateMatch && (
+                <div className="space-y-2 pl-4 pt-2">
+                    <Label htmlFor="corporate-name">Company Name</Label>
+                    <Input id="corporate-name" placeholder="e.g., Acme Corporation" value={corporateName} onChange={(e) => setCorporateName(e.target.value)} />
+                </div>
+            )}
+          </div>
+          
+          <Separator />
           
           <div className="space-y-4">
              <Label className="text-lg font-medium">Select Payment Method</Label>

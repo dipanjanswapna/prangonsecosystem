@@ -19,6 +19,8 @@ interface DonationData {
     isAnonymous: boolean;
     donorName: string;
     donorEmail: string | null;
+    isCorporateMatch?: boolean;
+    corporateName?: string;
 }
 
 const getDonorLevel = (points: number): 'Bronze' | 'Silver' | 'Gold' | 'Platinum' => {

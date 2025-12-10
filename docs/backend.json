@@ -65,6 +65,8 @@
         "status": { "type": "string", "enum": ["pending", "success", "failed", "refunded"] },
         "invoiceId": { "type": "string", "description": "ID of the generated invoice." },
         "isAnonymous": { "type": "boolean", "default": false },
+        "isCorporateMatch": { "type": "boolean", "default": false, "description": "Indicates if the donation is part of a corporate matching program." },
+        "corporateName": { "type": "string", "description": "Name of the matching corporation, if applicable." },
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["campaignId", "amount", "gateway", "status", "createdAt"]
