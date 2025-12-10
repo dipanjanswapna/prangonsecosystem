@@ -1,6 +1,6 @@
 'use client';
 
-import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, serverTimestamp, doc, runTransaction, increment } from 'firebase/firestore';
 import { initializeFirebase } from '@/firebase';
 import { customAlphabet } from 'nanoid'
 
@@ -23,16 +23,35 @@ interface DonationData {
 
 export const saveDonation = async (data: DonationData): Promise<string> => {
     try {
-        const donationCollection = collection(firestore, 'donations');
-        const newDonationRef = await addDoc(donationCollection, {
-            ...data,
-            id: nanoid(), // Add a user-friendly ID
-            createdAt: serverTimestamp(),
-            // invoiceId will be generated after payment success
+        const newDonationId = await runTransaction(firestore, async (transaction) => {
+            // 1. Define references
+            const newDonationRef = doc(collection(firestore, 'donations'));
+            
+            // 2. Create the new donation document
+            transaction.set(newDonationRef, {
+                ...data,
+                id: nanoid(), // Add a user-friendly ID
+                createdAt: serverTimestamp(),
+            });
+
+            // 3. If the user is logged in and not anonymous, update their points
+            if (data.userId && !data.isAnonymous) {
+                const userRef = doc(firestore, 'users', data.userId);
+                // Simple point system: 1 point per 1 unit of currency
+                const pointsEarned = Math.floor(data.amount);
+                
+                transaction.update(userRef, {
+                    points: increment(pointsEarned)
+                });
+            }
+            
+            return newDonationRef.id;
         });
-        return newDonationRef.id;
+
+        return newDonationId;
+
     } catch (error) {
-        console.error("Error saving donation: ", error);
-        throw new Error("Could not save donation to the database.");
+        console.error("Error saving donation and updating points: ", error);
+        throw new Error("Could not process your donation.");
     }
 };
