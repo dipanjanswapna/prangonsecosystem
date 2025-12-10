@@ -31,6 +31,7 @@ export const createCampaign = async (data: CampaignData) => {
       ...data,
       slug: `${data.title
         .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '') // remove special characters
         .replace(/\s+/g, '-')
         .slice(0, 50)}-${nanoid()}`,
       raised: 0,

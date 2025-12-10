@@ -11,7 +11,6 @@ import {
 } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { ArrowRight, ShoppingCart, Leaf, Siren } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -21,6 +20,7 @@ import { useRouter } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
 import { useCollection } from '@/firebase/firestore/use-collection';
 import { Skeleton } from '@/components/ui/skeleton';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 interface Campaign {
     id: string;
@@ -29,7 +29,7 @@ interface Campaign {
     description: string;
     goal: number;
     raised: number;
-    imageId: string;
+    imageUrl: string;
     status: 'draft' | 'active' | 'completed' | 'archived';
     category?: 'Seasonal' | 'Emergency' | 'Regular';
 }
@@ -118,6 +118,8 @@ export default function DonationsPage() {
       router.push(`/donations/pool?${query}`);
     }
   };
+  
+  const defaultImage = PlaceHolderImages.find(p => p.id === 'project-1');
 
   return (
     <div className="space-y-8">
@@ -135,9 +137,6 @@ export default function DonationsPage() {
              Array.from({ length: 3 }).map((_, i) => <CampaignCardSkeleton key={i} />)
         ) : (
             campaigns.map((campaign) => {
-            const image = PlaceHolderImages.find(
-                (img) => img.id === campaign.imageId
-            );
             const progress = (campaign.raised / campaign.goal) * 100;
             const isSelected = selectedCampaigns.includes(campaign.id);
             return (
@@ -149,18 +148,15 @@ export default function DonationsPage() {
                 )}
                 >
                 <CampaignCategoryBadge category={campaign.category} />
-                {image && (
-                    <div className="aspect-video overflow-hidden">
-                    <Image
-                        src={image.imageUrl}
-                        alt={campaign.title}
-                        width={600}
-                        height={400}
-                        className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
-                        data-ai-hint={image.imageHint}
-                    />
-                    </div>
-                )}
+                <div className="aspect-video overflow-hidden bg-muted">
+                  <Image
+                      src={campaign.imageUrl || defaultImage?.imageUrl || ''}
+                      alt={campaign.title}
+                      width={600}
+                      height={400}
+                      className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
+                  />
+                </div>
                 <CardHeader>
                     <div className="flex justify-between items-start gap-2">
                     <CardTitle className="group-hover:text-primary transition-colors">

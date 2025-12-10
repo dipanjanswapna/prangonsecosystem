@@ -26,7 +26,7 @@ interface Campaign {
   description: string;
   goal: number;
   raised: number;
-  imageId: string;
+  imageUrl: string;
 }
 
 const CampaignDetailsSkeleton = () => (
@@ -85,6 +85,7 @@ export default function CampaignDetailsPage() {
     params.slug
   );
   const campaign = campaigns[0];
+  const defaultImage = PlaceHolderImages.find(p => p.id === 'project-1');
 
   if (loading) {
     return <CampaignDetailsSkeleton />;
@@ -94,7 +95,6 @@ export default function CampaignDetailsPage() {
     notFound();
   }
 
-  const image = PlaceHolderImages.find((img) => img.id === campaign.imageId);
   const progress = (campaign.raised / campaign.goal) * 100;
 
   return (
@@ -102,17 +102,14 @@ export default function CampaignDetailsPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-6">
           <Card className="overflow-hidden">
-            {image && (
-              <div className="aspect-video relative">
-                <Image
-                  src={image.imageUrl}
-                  alt={campaign.title}
-                  fill
-                  className="object-cover"
-                  data-ai-hint={image.imageHint}
-                />
-              </div>
-            )}
+            <div className="aspect-video relative bg-muted">
+              <Image
+                src={campaign.imageUrl || defaultImage?.imageUrl || ''}
+                alt={campaign.title}
+                fill
+                className="object-cover"
+              />
+            </div>
             <CardHeader>
               <CardTitle className="font-headline text-3xl md:text-4xl">
                 {campaign.title}
