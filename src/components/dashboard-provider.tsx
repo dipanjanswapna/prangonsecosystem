@@ -69,12 +69,23 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
 
   useEffect(() => {
-    if (!isProtectedRoute) return;
+    if (isLoading) return;
 
-    if (!userLoading && !user) {
-      router.replace('/auth/login');
+    if (!user) {
+      if(isProtectedRoute) {
+        router.replace('/auth/login');
+      }
+      return;
     }
-  }, [user, userLoading, isProtectedRoute, router]);
+
+    if (userProfile && userProfile.status === 'approved') {
+        const userRole = userProfile.role || ROLES.USER;
+        const expectedDashboardPath = `/dashboard/${userRole.toLowerCase()}`;
+        if (pathname === '/dashboard' || pathname === '/dashboard/') {
+            router.replace(expectedDashboardPath);
+        }
+    }
+  }, [user, userProfile, isLoading, profileLoading, router, pathname, isProtectedRoute]);
 
   if (isLoading && isProtectedRoute) {
      return (
@@ -94,11 +105,10 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   if (isProtectedRoute && user) {
      if (userProfile) {
         if (userProfile.status === 'approved') {
-            const userRole = userProfile.role || ROLES.USER;
-            const expectedDashboardPath = `/dashboard/${userRole.toLowerCase()}`;
+            // If we are at the root dashboard path, the useEffect will handle redirection.
+            // While redirecting, show a loader.
             if (pathname === '/dashboard' || pathname === '/dashboard/') {
-                router.replace(expectedDashboardPath);
-                return ( // Show loader while redirecting
+                 return (
                     <div className="space-y-6 p-4 sm:px-6 sm:py-4">
                         <Skeleton className="h-16 w-full" />
                         <Skeleton className="h-80 w-full" />
@@ -110,7 +120,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
              return <AccessDenied status={userProfile.status} />;
         }
      }
-     // If user exists but profile is still loading (briefly), keep showing loader.
+     // If user exists but profile is still loading (or just finished loading and useEffect hasn't run), keep showing loader.
      return (
         <div className="space-y-6 p-4 sm:px-6 sm:py-4">
             <Skeleton className="h-16 w-full" />
