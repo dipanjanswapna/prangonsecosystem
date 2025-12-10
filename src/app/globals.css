@@ -66,8 +66,12 @@
     @apply bg-background text-foreground;
   }
   
-  body:has(.dashboard-active) .hide-on-dashboard {
+  :has(.dashboard-active) .hide-on-dashboard {
     display: none;
+  }
+  
+  :has(.auth-page-active) .hide-on-auth {
+      display: none;
   }
 
   .animated-gradient {
