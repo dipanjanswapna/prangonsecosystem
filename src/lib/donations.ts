@@ -1,6 +1,6 @@
 'use client';
 
-import { getFirestore, collection, addDoc, serverTimestamp, doc, runTransaction, increment } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, serverTimestamp, doc, runTransaction, increment, type DocumentSnapshot } from 'firebase/firestore';
 import { initializeFirebase } from '@/firebase';
 import { customAlphabet } from 'nanoid'
 
@@ -21,27 +21,36 @@ interface DonationData {
     donorEmail: string | null;
 }
 
+const getDonorLevel = (points: number): 'Bronze' | 'Silver' | 'Gold' | 'Platinum' => {
+    if (points >= 10000) return 'Platinum';
+    if (points >= 5000) return 'Gold';
+    if (points >= 1000) return 'Silver';
+    return 'Bronze';
+};
+
 export const saveDonation = async (data: DonationData): Promise<string> => {
     try {
         const newDonationId = await runTransaction(firestore, async (transaction) => {
-            // 1. Define references
             const newDonationRef = doc(collection(firestore, 'donations'));
             
-            // 2. Create the new donation document
             transaction.set(newDonationRef, {
                 ...data,
-                id: nanoid(), // Add a user-friendly ID
+                id: nanoid(),
                 createdAt: serverTimestamp(),
             });
 
-            // 3. If the user is logged in and not anonymous, update their points
             if (data.userId && !data.isAnonymous) {
                 const userRef = doc(firestore, 'users', data.userId);
-                // Simple point system: 1 point per 1 unit of currency
                 const pointsEarned = Math.floor(data.amount);
                 
+                const userDoc: DocumentSnapshot = await transaction.get(userRef);
+                const currentPoints = userDoc.data()?.points || 0;
+                const newTotalPoints = currentPoints + pointsEarned;
+                const newLevel = getDonorLevel(newTotalPoints);
+                
                 transaction.update(userRef, {
-                    points: increment(pointsEarned)
+                    points: increment(pointsEarned),
+                    level: newLevel,
                 });
             }
             
@@ -51,7 +60,7 @@ export const saveDonation = async (data: DonationData): Promise<string> => {
         return newDonationId;
 
     } catch (error) {
-        console.error("Error saving donation and updating points: ", error);
+        console.error("Error saving donation and updating points/level: ", error);
         throw new Error("Could not process your donation.");
     }
 };
