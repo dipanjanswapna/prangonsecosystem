@@ -4,10 +4,17 @@ import { Rocket, Gem, HandHeart } from 'lucide-react';
 
 const updates = [
     {
+        date: 'July 29, 2024',
+        title: 'Goal Achieved: Winter Clothing Drive!',
+        description: 'Amazing news! Thanks to your incredible generosity, the Winter Clothing Drive has successfully reached its goal of ৳50,000. This means hundreds of warm clothing kits will be distributed to families in need. Thank you for making a difference!',
+        icon: HandHeart,
+        tag: 'Goal Achieved'
+    },
+    {
         date: 'July 28, 2024',
         title: 'New Feature: Comprehensive Donation System',
         description: 'We are thrilled to launch our brand new donation system! You can now support various campaigns, track your contributions, and see the impact you are making in real-time. This system includes dynamic campaign pages, a secure donation process, and automated invoice generation.',
-        icon: HandHeart,
+        icon: Rocket,
         tag: 'New'
     },
     {
@@ -53,7 +60,7 @@ export default function WhatsNewPage() {
                         <CardHeader>
                             <div className="flex items-center justify-between">
                                 <p className="text-sm text-muted-foreground">{update.date}</p>
-                                <Badge variant={update.tag === 'New' ? 'default' : 'secondary'}>{update.tag}</Badge>
+                                <Badge variant={update.tag === 'New' ? 'default' : update.tag === 'Goal Achieved' ? 'secondary' : 'outline'}>{update.tag}</Badge>
                             </div>
                             <CardTitle className="font-headline pt-2">{update.title}</CardTitle>
                         </CardHeader>
