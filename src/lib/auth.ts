@@ -23,6 +23,17 @@ const auth = getAuth(firebaseApp);
 const firestore = getFirestore(firebaseApp);
 
 
+const createSession = async (user: User, rememberMe: boolean): Promise<void> => {
+    const idToken = await user.getIdToken();
+    await fetch('/api/auth/session', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ idToken, rememberMe }),
+    });
+};
+
 export const signUp = async (email:string, password:string, fullName:string, role: Role): Promise<UserCredential> => {
   const userCredential = await createUserWithEmailAndPassword(
     auth,
@@ -34,7 +45,7 @@ export const signUp = async (email:string, password:string, fullName:string, rol
   await updateProfile(user, { displayName: fullName });
 
   // Admins and Users are approved by default. Other roles require admin approval.
-  const status = role === ROLES.USER || role === ROLES.ADMIN ? 'approved' : 'pending';
+  const status = (role === ROLES.USER || role === ROLES.ADMIN) ? 'approved' : 'pending';
 
   // Create a user document in Firestore
   await setDoc(doc(firestore, 'users', user.uid), {
@@ -62,16 +73,7 @@ export const signIn = async (email:string, password:string, rememberMe:boolean):
     { merge: true }
   );
   
-  const idToken = await user.getIdToken();
-  
-  await fetch('/api/auth/session', {
-      method: 'POST',
-      headers: {
-          'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ idToken, rememberMe }),
-  });
-
+  await createSession(user, rememberMe);
 
   return userCredential;
 };
@@ -79,9 +81,8 @@ export const signIn = async (email:string, password:string, rememberMe:boolean):
 const handleSocialSignIn = async (user: User) => {
   const userDocRef = doc(firestore, 'users', user.uid);
   const userDoc = await getDoc(userDocRef);
-  const idToken = await user.getIdToken();
 
-  // If user already exists, just update their last login and create session
+  // If user already exists, just update their last login
   if (userDoc.exists()) {
     await setDoc(userDocRef, { lastLogin: serverTimestamp() }, { merge: true });
   } else {
@@ -103,12 +104,9 @@ const handleSocialSignIn = async (user: User) => {
     });
   }
 
-  // Create session for both new and existing social login users
-  await fetch('/api/auth/session', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ idToken, rememberMe: true }),
-  });
+  // IMPORTANT: Create session AFTER the firestore document has been created/updated.
+  // This ensures the role and status are available for the DashboardProvider check.
+  await createSession(user, true);
 };
 
 
