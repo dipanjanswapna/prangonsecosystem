@@ -13,11 +13,13 @@ const DashboardLayout: FC<DashboardLayoutProps> = ({ children }) => {
   return (
     <DashboardProvider>
       <div className="dashboard-active flex min-h-screen w-full flex-col bg-muted/40">
-        <DashboardHeader />
-        <main className="flex-1 p-4 sm:p-6 pb-20 md:pb-6 md:gap-8">
-            {children}
-        </main>
-        <DashboardBottomNav />
+        <div className="flex flex-col sm:gap-4 sm:py-4">
+          <DashboardHeader />
+          <main className="flex-1 p-4 sm:p-6 pb-20 md:pb-20 md:gap-8">
+              {children}
+          </main>
+          <DashboardBottomNav />
+        </div>
       </div>
     </DashboardProvider>
   );
