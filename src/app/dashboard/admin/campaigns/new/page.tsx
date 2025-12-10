@@ -33,6 +33,7 @@ import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { createCampaign } from '@/lib/campaigns';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const formSchema = z.object({
   title: z.string().min(10, 'Title must be at least 10 characters.'),
@@ -41,7 +42,7 @@ const formSchema = z.object({
   category: z
     .enum(['Seasonal', 'Emergency', 'Regular'])
     .default('Regular'),
-  imageUrl: z.string().url('Please provide a valid image URL.'),
+  imageId: z.string().min(1, 'Please select a cover image.'),
 });
 
 export default function NewCampaignPage() {
@@ -56,7 +57,7 @@ export default function NewCampaignPage() {
       description: '',
       goal: 10000,
       category: 'Regular',
-      imageUrl: '',
+      imageId: '',
     },
   });
 
@@ -166,13 +167,27 @@ export default function NewCampaignPage() {
             </div>
              <FormField
                 control={form.control}
-                name="imageUrl"
+                name="imageId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Cover Image URL</FormLabel>
-                     <FormControl>
-                        <Input placeholder="https://example.com/image.png" {...field} />
-                    </FormControl>
+                    <FormLabel>Cover Image</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a cover image" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {PlaceHolderImages.map((image) => (
+                           <SelectItem key={image.id} value={image.id}>
+                            {image.description}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     <FormMessage />
                   </FormItem>
                 )}

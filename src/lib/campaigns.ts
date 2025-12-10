@@ -18,7 +18,7 @@ interface CampaignData {
   description: string;
   goal: number;
   category: 'Seasonal' | 'Emergency' | 'Regular';
-  imageUrl: string;
+  imageId: string;
 }
 
 export const createCampaign = async (data: CampaignData) => {
@@ -31,7 +31,6 @@ export const createCampaign = async (data: CampaignData) => {
       status: 'active',
       createdAt: serverTimestamp(),
       createdBy: 'admin', // In a real app, this would be the current user's UID
-      imageId: '', // This is now overridden by imageUrl, but kept for schema consistency if needed
     });
   } catch (error) {
     console.error('Error creating campaign: ', error);
