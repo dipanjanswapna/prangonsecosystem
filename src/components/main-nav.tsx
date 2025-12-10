@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronDown, LayoutDashboard, PlusCircle } from 'lucide-react';
+import { ChevronDown, LayoutDashboard, PlusCircle, Trophy } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -25,6 +25,8 @@ const navItems = [
       { href: '/services', label: 'Services' },
       { href: '/blog', label: 'Blog' },
       { href: '/library', label: 'eBook Library' },
+      { href: '/donor-wall', label: 'Donor Wall' },
+      { href: '/leaderboard', label: 'Leaderboard' },
       { href: '/contact', label: 'Contact Us' },
       { href: '/whats-new', label: "What's New" },
     ],
