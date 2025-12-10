@@ -22,10 +22,10 @@ interface UserProfile {
 function AccessDenied({ status }: { status: 'pending' | 'rejected' }) {
     const router = useRouter();
     
-    const handleLogoutAndRedirect = () => {
-      logOut().then(() => {
-        router.push('/');
-      });
+    const handleLogoutAndRedirect = async () => {
+      await logOut();
+      router.push('/');
+      router.refresh();
     };
 
   return (
@@ -67,66 +67,64 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   const isLoading = userLoading || profileLoading;
+  const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
 
   useEffect(() => {
-    const isProtected = protectedRoutes.some((route) =>
-      pathname.startsWith(route)
-    );
-    if (!isProtected || isLoading) {
+    // Don't do anything if it's not a protected route or if we are still loading.
+    if (!isProtectedRoute || isLoading) {
       return;
     }
 
+    // If loading is finished and there's no user, redirect to login.
     if (!user) {
       router.push('/auth/login?redirect=' + pathname);
       return;
     }
     
+    // If there is a user profile and their status is not 'approved', block access.
+    // The AccessDenied component will be rendered below.
     if (userProfile?.status && userProfile.status !== 'approved') {
-        // The AccessDenied component will be shown, so no need to redirect.
         return;
     }
 
+    // If user is logged in, profile is loaded, and status is approved...
     if (userProfile) {
       const userRole = userProfile.role || ROLES.USER;
       const expectedDashboardPath = `/dashboard/${userRole.toLowerCase()}`;
-
+      
+      // If they land on the base /dashboard, redirect them to their specific role dashboard.
       if (pathname === '/dashboard' || pathname === '/dashboard/') {
         router.replace(expectedDashboardPath);
       }
+    } else if (user && !userProfile && !profileLoading) {
+      // This is a fallback case. If the user exists but the profile document doesn't,
+      // something is wrong. For safety, redirect to a default dashboard, but this indicates
+      // an issue in the user creation flow.
+      router.replace(`/dashboard/${ROLES.USER}`);
     }
-  }, [user, userProfile, isLoading, router, pathname]);
+  }, [user, userProfile, isLoading, profileLoading, router, pathname, isProtectedRoute]);
 
-  const isProtected = protectedRoutes.some((route) =>
-    pathname.startsWith(route)
-  );
-
-  if (isLoading && isProtected) {
+  // While loading, show a skeleton UI on protected routes.
+  if (isLoading && isProtectedRoute) {
     return (
       <div className="space-y-6 p-4 sm:px-6 sm:py-4">
-        <div className="flex items-center space-x-4">
-          <Skeleton className="h-12 w-12 rounded-full" />
-          <div className="space-y-2">
-            <Skeleton className="h-4 w-[250px]" />
-            <Skeleton className="h-4 w-[200px]" />
-          </div>
+        <Skeleton className="h-16 w-full" />
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <Skeleton className="h-32 w-full" />
+          <Skeleton className="h-32 w-full" />
+          <Skeleton className="h-32 w-full" />
+          <Skeleton className="h-32 w-full" />
         </div>
-        <div className="space-y-4">
-          <Skeleton className="h-12 w-1/4" />
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Skeleton className="h-32 w-full" />
-            <Skeleton className="h-32 w-full" />
-            <Skeleton className="h-32 w-full" />
-            <Skeleton className="h-32 w-full" />
-          </div>
-          <Skeleton className="h-64 w-full" />
-        </div>
+        <Skeleton className="h-80 w-full" />
       </div>
     );
   }
 
-  if (isProtected && user && userProfile && userProfile.status !== 'approved') {
+  // If on a protected route and the user profile is loaded and status is not 'approved', show AccessDenied.
+  if (isProtectedRoute && user && userProfile && userProfile.status !== 'approved') {
     return <AccessDenied status={userProfile.status} />;
   }
   
+  // Otherwise, render the children components.
   return <>{children}</>;
 }

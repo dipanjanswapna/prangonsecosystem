@@ -33,6 +33,7 @@ export const signUp = async (email:string, password:string, fullName:string, rol
   
   await updateProfile(user, { displayName: fullName });
 
+  // Admins and Users are approved by default. Other roles require admin approval.
   const status = role === ROLES.USER || role === ROLES.ADMIN ? 'approved' : 'pending';
 
   // Create a user document in Firestore
@@ -61,8 +62,6 @@ export const signIn = async (email:string, password:string, rememberMe:boolean):
     { merge: true }
   );
   
-  // This part is now handled by the session creation API
-  // No need to call createSessionCookie here from the client
   const idToken = await user.getIdToken();
   
   await fetch('/api/auth/session', {
@@ -80,30 +79,31 @@ export const signIn = async (email:string, password:string, rememberMe:boolean):
 const handleSocialSignIn = async (user: User) => {
   const userDocRef = doc(firestore, 'users', user.uid);
   const userDoc = await getDoc(userDocRef);
-
   const idToken = await user.getIdToken();
 
+  // If user already exists, just update their last login and create session
   if (userDoc.exists()) {
-    // User already exists, just update last login
     await setDoc(userDocRef, { lastLogin: serverTimestamp() }, { merge: true });
   } else {
-    // Determine role based on email - this is a simple example
-    const isAdmin = user.email === 'example@admin.com'; // Replace with actual admin email logic
+    // For new social sign-ins, determine role.
+    // Explicitly check if the email is an admin email. Otherwise, default to USER.
+    const isAdmin = user.email === 'example@admin.com'; // IMPORTANT: Use your actual admin email
     const role = isAdmin ? ROLES.ADMIN : ROLES.USER;
 
-    // New user, create a document
+    // For new social sign-ups (admin or user), status is always 'approved'.
     await setDoc(userDocRef, {
       uid: user.uid,
       email: user.email,
       name: user.displayName,
       photoURL: user.photoURL,
       role: role,
-      status: 'approved', // Social sign-ins are auto-approved
+      status: 'approved',
       createdAt: serverTimestamp(),
       lastLogin: serverTimestamp(),
     });
   }
 
+  // Create session for both new and existing social login users
   await fetch('/api/auth/session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
