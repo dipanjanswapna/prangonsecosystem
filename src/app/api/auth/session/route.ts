@@ -18,9 +18,10 @@ export async function POST(request: Request) {
     const options = {
       name: '__session',
       value: sessionCookie,
-      maxAge: expiresIn,
+      maxAge: expiresIn / 1000, // maxAge is in seconds
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === 'production',
+      path: '/',
     };
 
     const response = NextResponse.json({ status: 'success' });
@@ -41,6 +42,7 @@ export async function DELETE() {
       name: '__session',
       value: '',
       maxAge: -1, // Expire the cookie immediately
+      path: '/',
     };
     
     const response = NextResponse.json({ status: 'success' });

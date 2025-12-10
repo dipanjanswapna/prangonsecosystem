@@ -24,7 +24,7 @@ const firestore = getFirestore(firebaseApp);
 
 
 const createSession = async (user: User, rememberMe: boolean): Promise<void> => {
-    const idToken = await user.getIdToken();
+    const idToken = await user.getIdToken(true); // Force refresh the token
     await fetch('/api/auth/session', {
         method: 'POST',
         headers: {
@@ -82,11 +82,8 @@ const handleSocialSignIn = async (user: User) => {
   const userDocRef = doc(firestore, 'users', user.uid);
   const userDoc = await getDoc(userDocRef);
 
-  if (userDoc.exists()) {
-    // If user already exists, just update their last login
-    await setDoc(userDocRef, { lastLogin: serverTimestamp() }, { merge: true });
-  } else {
-    // For new social sign-ins, determine role.
+  if (!userDoc.exists()) {
+    // If user does not exist, create a new document.
     // IMPORTANT: Use your actual admin email here.
     const isAdmin = user.email === 'dipanjansarkarprangon@gmail.com'; 
     const role = isAdmin ? ROLES.ADMIN : ROLES.USER;
@@ -102,10 +99,13 @@ const handleSocialSignIn = async (user: User) => {
       createdAt: serverTimestamp(),
       lastLogin: serverTimestamp(),
     });
+  } else {
+    // If user already exists, just update their last login
+    await setDoc(userDocRef, { lastLogin: serverTimestamp() }, { merge: true });
   }
   
-  // Create session AFTER firestore doc is guaranteed to exist.
-  await createSession(user, true);
+  // Create session AFTER firestore doc is guaranteed to exist or be updated.
+  await createSession(user, true); // Remember Me is true for social logins by default
 };
 
 

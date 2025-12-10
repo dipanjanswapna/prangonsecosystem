@@ -24,7 +24,7 @@ function AccessDenied({ status }: { status: 'pending' | 'rejected' }) {
     
     const handleLogoutAndRedirect = async () => {
       await logOut();
-      // No need to push router, logout logic already handles redirection via page refresh
+      // logOut function handles the redirection.
     };
 
   return (
@@ -69,28 +69,16 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
 
   useEffect(() => {
-    // If it's not a protected route, do nothing.
-    if (!isProtectedRoute) {
+    // The server-side middleware now handles the primary redirection for unauthenticated users.
+    // This client-side logic is for role-based redirection and handling pending/rejected statuses.
+    if (isLoading || !isProtectedRoute || !user) {
       return;
     }
     
-    // If user data is still loading, wait.
-    if (isLoading) {
-      return;
-    }
-
-    // After loading, if there's no user, redirect to login.
-    if (!user) {
-      router.push('/auth/login?redirect=' + pathname);
-      return;
-    }
-    
-    // If there is a user, but the profile hasn't loaded or doesn't exist, wait. 
-    // This state should be brief. If it persists, it indicates a Firestore issue.
     if (!userProfile) {
-        // Fallback for safety, but this indicates a potential issue in user creation.
-        // It's better to show loading until the profile is confirmed.
-        return;
+      // This state should be brief. If it persists, it might mean the Firestore doc
+      // hasn't been created yet. We show loading until it's available.
+      return;
     }
 
     // If the profile is loaded and the status is approved, handle role-based redirection.
@@ -106,8 +94,8 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
 
   }, [user, userProfile, isLoading, router, pathname, isProtectedRoute]);
 
-  // While loading, show a skeleton UI on protected routes.
-  if (isProtectedRoute && (isLoading || (user && !userProfile))) {
+  // While loading user and profile data, show a skeleton UI.
+  if (isLoading && isProtectedRoute) {
     return (
       <div className="space-y-6 p-4 sm:px-6 sm:py-4">
         <Skeleton className="h-16 w-full" />
