@@ -73,7 +73,7 @@ export function DashboardBottomNav() {
             key={item.label}
             className={cn(
               "inline-flex flex-col items-center justify-center px-5 hover:bg-muted/50 group",
-              pathname.startsWith(item.href) ? "text-primary" : "text-muted-foreground"
+              pathname.startsWith(item.href) && item.href !== '#' ? "text-primary" : "text-muted-foreground"
             )}
           >
             <item.icon className="w-5 h-5 mb-1" />
