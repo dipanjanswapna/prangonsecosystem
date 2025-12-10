@@ -99,7 +99,7 @@ export function MainNav({ isMobile = false }: { isMobile?: boolean }) {
       )}
     >
       {navItems.map(renderNavItem)}
-       {user && (
+       {user && isMobile && (
         <Link
           href="/dashboard"
           className={cn(
@@ -110,14 +110,6 @@ export function MainNav({ isMobile = false }: { isMobile?: boolean }) {
         >
           <LayoutDashboard className="h-4 w-4" />
           Dashboard
-           {!isMobile && (
-          <span
-            className={cn(
-              'absolute bottom-0 left-1/2 h-0.5 -translate-x-1/2 rounded-full bg-primary transition-all duration-300',
-              pathname.startsWith('/dashboard') ? 'w-4' : 'w-0 group-hover:w-4'
-            )}
-          ></span>
-        )}
         </Link>
       )}
     </nav>

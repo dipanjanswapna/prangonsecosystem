@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import Link from 'next/link';
-import { LogIn, LogOut, Settings, User as UserIcon } from 'lucide-react';
+import { LogIn, LogOut, LayoutDashboard, User as UserIcon } from 'lucide-react';
 import { useUser } from '@/firebase/auth/use-user';
 import { logOut } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
@@ -92,7 +92,7 @@ export function UserNav() {
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link href="/dashboard">
-              <Settings className="mr-2 h-4 w-4" />
+              <LayoutDashboard className="mr-2 h-4 w-4" />
               <span>Dashboard</span>
             </Link>
           </DropdownMenuItem>
