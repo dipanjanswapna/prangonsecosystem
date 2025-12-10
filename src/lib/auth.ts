@@ -36,7 +36,7 @@ const createSession = async (user: User, rememberMe: boolean): Promise<void> => 
     });
 };
 
-export const signUp = async (email:string, password:string, fullName:string, role: Role, refCode?: string): Promise<UserCredential> => {
+export const signUp = async (email:string, password:string, fullName:string, role: Role, refCode?: string | null): Promise<UserCredential> => {
   const userCredential = await createUserWithEmailAndPassword(
     auth,
     email,
@@ -96,7 +96,7 @@ export const signIn = async (email:string, password:string, rememberMe:boolean):
   return userCredential;
 };
 
-const handleSocialSignIn = async (user: User, refCode?: string) => {
+const handleSocialSignIn = async (user: User, refCode?: string | null) => {
   const userDocRef = doc(firestore, 'users', user.uid);
   const userDoc = await getDoc(userDocRef);
 
@@ -133,7 +133,7 @@ const handleSocialSignIn = async (user: User, refCode?: string) => {
 };
 
 
-export const signInWithGoogle = async (refCode?: string): Promise<UserCredential> => {
+export const signInWithGoogle = async (refCode?: string | null): Promise<UserCredential> => {
   const provider = new GoogleAuthProvider();
   const userCredential = await signInWithPopup(auth, provider);
   await handleSocialSignIn(userCredential.user, refCode);

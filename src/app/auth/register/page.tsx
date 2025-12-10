@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/form';
 import { signUp, signInWithGoogle } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useUser } from '@/firebase/auth/use-user';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -67,10 +67,13 @@ function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-export default function SignupPage() {
+function RegisterForm() {
   const { user, loading: userLoading } = useUser();
   const { toast } = useToast();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const refCode = searchParams.get('ref');
+
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -94,7 +97,7 @@ export default function SignupPage() {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
     try {
-      await signUp(values.email, values.password, values.fullName, values.role);
+      await signUp(values.email, values.password, values.fullName, values.role, refCode);
       toast({
         title: 'Account Created!',
         description:
@@ -125,7 +128,7 @@ export default function SignupPage() {
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
     try {
-      await signInWithGoogle();
+      await signInWithGoogle(refCode);
       toast({
         title: 'Account Created Successfully!',
         description: 'Welcome! Redirecting to your dashboard...',
@@ -317,4 +320,13 @@ export default function SignupPage() {
       </div>
     </AuthLayout>
   );
+}
+
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <RegisterForm />
+    </Suspense>
+  )
 }
