@@ -30,6 +30,19 @@ import { MoreHorizontal, Edit, Trash2, PlusCircle } from 'lucide-react';
 import type { Timestamp } from 'firebase/firestore';
 import { Progress } from '@/components/ui/progress';
 import Link from 'next/link';
+import { useState } from 'react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
+import { deleteCampaign } from '@/lib/campaigns';
 
 interface Campaign {
   id: string;
@@ -43,6 +56,9 @@ interface Campaign {
 
 export default function AdminCampaignsPage() {
   const { data: campaigns, loading } = useCollection<Campaign>('campaigns');
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [campaignToDelete, setCampaignToDelete] = useState<Campaign | null>(null);
+  const { toast } = useToast();
 
   const getStatusVariant = (status: string) => {
     switch (status) {
@@ -55,6 +71,32 @@ export default function AdminCampaignsPage() {
         return 'outline';
       default:
         return 'destructive';
+    }
+  };
+  
+  const openDeleteDialog = (campaign: Campaign) => {
+    setCampaignToDelete(campaign);
+    setIsAlertOpen(true);
+  };
+  
+  const handleDeleteCampaign = async () => {
+    if (!campaignToDelete) return;
+
+    try {
+      await deleteCampaign(campaignToDelete.id);
+      toast({
+        title: 'Campaign Deleted',
+        description: `"${campaignToDelete.title}" has been permanently deleted.`,
+      });
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Deletion Failed',
+        description: error.message || 'Could not delete the campaign.',
+      });
+    } finally {
+      setIsAlertOpen(false);
+      setCampaignToDelete(null);
     }
   };
 
@@ -70,8 +112,8 @@ export default function AdminCampaignsPage() {
           </div>
           <Button asChild>
             <Link href="/dashboard/admin/campaigns/new">
-                <PlusCircle className="mr-2 h-4 w-4" />
-                New Campaign
+              <PlusCircle className="mr-2 h-4 w-4" />
+              New Campaign
             </Link>
           </Button>
         </CardHeader>
@@ -115,7 +157,7 @@ export default function AdminCampaignsPage() {
                   ))
                 : campaigns.map((campaign) => (
                     <TableRow key={campaign.id}>
-                      <TableCell className='font-medium'>{campaign.title}</TableCell>
+                      <TableCell className="font-medium">{campaign.title}</TableCell>
                       <TableCell className="hidden md:table-cell">
                         <Badge
                           variant={getStatusVariant(campaign.status)}
@@ -125,16 +167,21 @@ export default function AdminCampaignsPage() {
                         </Badge>
                       </TableCell>
                       <TableCell className="hidden sm:table-cell">
-                        <div className='flex items-center gap-2'>
-                           <Progress value={(campaign.raised / campaign.goal) * 100} className="h-2 w-24" />
-                           <span>{((campaign.raised / campaign.goal) * 100).toFixed(0)}%</span>
+                        <div className="flex items-center gap-2">
+                          <Progress
+                            value={(campaign.raised / campaign.goal) * 100}
+                            className="h-2 w-24"
+                          />
+                          <span>
+                            {((campaign.raised / campaign.goal) * 100).toFixed(0)}%
+                          </span>
                         </div>
                       </TableCell>
                       <TableCell className="hidden lg:table-cell font-semibold">
                         ৳{campaign.goal.toLocaleString()}
                       </TableCell>
                       <TableCell className="hidden xl:table-cell font-semibold">
-                         ৳{campaign.raised.toLocaleString()}
+                        ৳{campaign.raised.toLocaleString()}
                       </TableCell>
                       <TableCell>
                         <DropdownMenu>
@@ -150,14 +197,16 @@ export default function AdminCampaignsPage() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                            <DropdownMenuItem disabled>
-                              <Edit className="mr-2 h-4 w-4" />
-                              Edit
+                            <DropdownMenuItem asChild>
+                              <Link href={`/dashboard/admin/campaigns/${campaign.id}/edit`}>
+                                <Edit className="mr-2 h-4 w-4" />
+                                Edit
+                              </Link>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                               className="text-red-600 focus:text-red-600"
-                              disabled
+                              onClick={() => openDeleteDialog(campaign)}
                             >
                               <Trash2 className="mr-2 h-4 w-4" />
                               Delete
@@ -171,6 +220,27 @@ export default function AdminCampaignsPage() {
           </Table>
         </CardContent>
       </Card>
+      
+       <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              campaign <span className="font-bold">"{campaignToDelete?.title}"</span>.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteCampaign}
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+            >
+              Yes, delete campaign
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

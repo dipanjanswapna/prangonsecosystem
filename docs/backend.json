@@ -48,9 +48,9 @@
         "createdBy": { "type": "string", "description": "UID of the admin who created the campaign." },
         "startDate": { "type": "string", "format": "date-time" },
         "endDate": { "type": "string", "format": "date-time" },
-        "imageId": { "type": "string", "description": "ID of the placeholder image for the campaign." }
+        "imageUrl": { "type": "string", "format": "uri", "description": "URL of the campaign's cover image." }
       },
-      "required": ["title", "slug", "description", "goal", "status", "createdBy", "imageId"]
+      "required": ["title", "slug", "description", "goal", "status", "createdBy", "imageUrl"]
     },
     "Donation": {
       "title": "Donation Record",

@@ -27,12 +27,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
-import { useRouter } from 'next/navigation';
-import { createCampaign } from '@/lib/campaigns';
+import { useRouter, useParams } from 'next/navigation';
+import { updateCampaign } from '@/lib/campaigns';
+import { useDoc } from '@/firebase/firestore/use-doc';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const formSchema = z.object({
   title: z.string().min(10, 'Title must be at least 10 characters.'),
@@ -44,10 +46,24 @@ const formSchema = z.object({
   imageUrl: z.string().url('Please enter a valid image URL.'),
 });
 
-export default function NewCampaignPage() {
+interface Campaign {
+  title: string;
+  description: string;
+  goal: number;
+  category: 'Seasonal' | 'Emergency' | 'Regular';
+  imageUrl: string;
+}
+
+export default function EditCampaignPage() {
   const { toast } = useToast();
   const router = useRouter();
+  const params = useParams();
+  const campaignId = params.campaignId as string;
   const [isLoading, setIsLoading] = useState(false);
+
+  const { data: campaign, loading: campaignLoading } = useDoc<Campaign>(
+    `campaigns/${campaignId}`
+  );
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -60,25 +76,52 @@ export default function NewCampaignPage() {
     },
   });
 
+  useEffect(() => {
+    if (campaign) {
+      form.reset(campaign);
+    }
+  }, [campaign, form]);
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     try {
-      await createCampaign(values);
+      await updateCampaign(campaignId, values);
       toast({
-        title: 'Campaign Created!',
-        description: `${values.title} is now live and accepting donations.`,
+        title: 'Campaign Updated!',
+        description: `Changes to "${values.title}" have been saved.`,
       });
       router.push('/dashboard/admin/campaigns');
     } catch (error) {
-      console.error('Error creating campaign:', error);
+      console.error('Error updating campaign:', error);
       toast({
         variant: 'destructive',
         title: 'An error occurred.',
-        description: 'Failed to create campaign. Please try again.',
+        description: 'Failed to update campaign. Please try again.',
       });
     } finally {
       setIsLoading(false);
     }
+  }
+
+  if (campaignLoading) {
+    return (
+      <Card>
+        <CardHeader>
+          <Skeleton className="h-8 w-1/2" />
+          <Skeleton className="h-4 w-3/4 mt-2" />
+        </CardHeader>
+        <CardContent className="space-y-6">
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-24 w-full" />
+          <div className="grid grid-cols-2 gap-6">
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-12 w-32" />
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
@@ -86,9 +129,9 @@ export default function NewCampaignPage() {
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <CardHeader>
-            <CardTitle>Create New Campaign</CardTitle>
+            <CardTitle>Edit Campaign</CardTitle>
             <CardDescription>
-              Fill out the details below to launch a new fundraising campaign.
+              Update the details for the campaign "{campaign?.title}".
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -146,7 +189,7 @@ export default function NewCampaignPage() {
                     <FormLabel>Category</FormLabel>
                     <Select
                       onValueChange={field.onChange}
-                      defaultValue={field.value}
+                      value={field.value}
                     >
                       <FormControl>
                         <SelectTrigger>
@@ -184,7 +227,7 @@ export default function NewCampaignPage() {
               {isLoading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : null}
-              Create Campaign
+              Save Changes
             </Button>
           </CardContent>
         </form>
