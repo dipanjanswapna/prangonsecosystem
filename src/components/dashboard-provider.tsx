@@ -69,34 +69,15 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
 
   useEffect(() => {
-    // The server-side middleware now handles the primary redirection for unauthenticated users.
-    // This client-side logic is for role-based redirection and handling pending/rejected statuses.
-    if (isLoading || !isProtectedRoute || !user) {
-      return;
-    }
-    
-    if (!userProfile) {
-      // This state should be brief. If it persists, it might mean the Firestore doc
-      // hasn't been created yet. We show loading until it's available.
-      return;
-    }
+    if (!isProtectedRoute) return;
 
-    // If the profile is loaded and the status is approved, handle role-based redirection.
-    if (userProfile.status === 'approved') {
-        const userRole = userProfile.role || ROLES.USER;
-        const expectedDashboardPath = `/dashboard/${userRole.toLowerCase()}`;
-        
-        // If they land on the base /dashboard, redirect them to their specific role dashboard.
-        if (pathname === '/dashboard' || pathname === '/dashboard/') {
-            router.replace(expectedDashboardPath);
-        }
+    if (!userLoading && !user) {
+      router.replace('/auth/login');
     }
+  }, [user, userLoading, isProtectedRoute, router]);
 
-  }, [user, userProfile, isLoading, router, pathname, isProtectedRoute]);
-
-  // While loading user and profile data, show a skeleton UI.
   if (isLoading && isProtectedRoute) {
-    return (
+     return (
       <div className="space-y-6 p-4 sm:px-6 sm:py-4">
         <Skeleton className="h-16 w-full" />
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -110,11 +91,39 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // If on a protected route and the user profile is loaded and status is not 'approved', show AccessDenied.
-  if (isProtectedRoute && user && userProfile && userProfile.status !== 'approved') {
-    return <AccessDenied status={userProfile.status} />;
+  if (isProtectedRoute && user) {
+     if (userProfile) {
+        if (userProfile.status === 'approved') {
+            const userRole = userProfile.role || ROLES.USER;
+            const expectedDashboardPath = `/dashboard/${userRole.toLowerCase()}`;
+            if (pathname === '/dashboard' || pathname === '/dashboard/') {
+                router.replace(expectedDashboardPath);
+                return ( // Show loader while redirecting
+                    <div className="space-y-6 p-4 sm:px-6 sm:py-4">
+                        <Skeleton className="h-16 w-full" />
+                        <Skeleton className="h-80 w-full" />
+                    </div>
+                );
+            }
+            return <>{children}</>;
+        } else {
+             return <AccessDenied status={userProfile.status} />;
+        }
+     }
+     // If user exists but profile is still loading (briefly), keep showing loader.
+     return (
+        <div className="space-y-6 p-4 sm:px-6 sm:py-4">
+            <Skeleton className="h-16 w-full" />
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Skeleton className="h-32 w-full" />
+            <Skeleton className="h-32 w-full" />
+            <Skeleton className="h-32 w-full" />
+            <Skeleton className="h-32 w-full" />
+            </div>
+            <Skeleton className="h-80 w-full" />
+        </div>
+     );
   }
   
-  // If not a protected route, or if all checks passed, render the children.
   return <>{children}</>;
 }
