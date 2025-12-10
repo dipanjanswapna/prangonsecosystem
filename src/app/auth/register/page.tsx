@@ -98,7 +98,7 @@ export default function SignupPage() {
       toast({
         title: 'Account Created!',
         description:
-          values.role === ROLES.USER
+          values.role === ROLES.USER || values.role === ROLES.ADMIN
             ? "You've been successfully signed up. Redirecting to login..."
             : 'Your registration is pending admin approval. We will notify you via email.',
       });
@@ -264,6 +264,7 @@ export default function SignupPage() {
                     </SelectItem>
                     <SelectItem value={ROLES.MANAGER}>Manager</SelectItem>
                     <SelectItem value={ROLES.MODERATOR}>Moderator</SelectItem>
+                    <SelectItem value={ROLES.ADMIN}>Admin</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />

@@ -33,7 +33,7 @@ export const signUp = async (email:string, password:string, fullName:string, rol
   
   await updateProfile(user, { displayName: fullName });
 
-  const status = role === ROLES.USER ? 'approved' : 'pending';
+  const status = role === ROLES.USER || role === ROLES.ADMIN ? 'approved' : 'pending';
 
   // Create a user document in Firestore
   await setDoc(doc(firestore, 'users', user.uid), {
