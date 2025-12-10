@@ -33,27 +33,27 @@ const getDonorLevel = (points: number): 'Bronze' | 'Silver' | 'Gold' | 'Platinum
 export const saveDonation = async (data: DonationData): Promise<string> => {
     try {
         const newDonationId = await runTransaction(firestore, async (transaction) => {
-            const newDonationRef = doc(collection(firestore, 'donations'));
-            const campaignRef = doc(firestore, 'campaigns', data.campaignId);
             let userRef;
             let userDoc: DocumentSnapshot | null = null;
             
             // --- READ PHASE ---
-            // If the donation is tied to a user and not anonymous, read the user's document first.
             if (data.userId && !data.isAnonymous) {
                 userRef = doc(firestore, 'users', data.userId);
                 userDoc = await transaction.get(userRef);
             }
 
             // --- WRITE PHASE ---
+            const newDonationRef = doc(collection(firestore, 'donations'));
+            const campaignRef = doc(firestore, 'campaigns', data.campaignId);
             const invoiceId = `ONGN-${nanoid()}`;
+
             const donationPayload: any = {
                 ...data,
                 invoiceId: invoiceId,
                 createdAt: serverTimestamp(),
                 status: 'success', // Simulating successful payment for now
             };
-
+            
             if (data.isCorporateMatch && data.corporateName) {
                 donationPayload.corporateName = data.corporateName;
             }
@@ -68,7 +68,8 @@ export const saveDonation = async (data: DonationData): Promise<string> => {
 
             // Write 3: If user doc was read, update user's points and level.
             if (userRef && userDoc && userDoc.exists()) {
-                const pointsEarned = Math.floor(data.amount); // 1 BDT = 1 Point
+                // 1 BDT = 1 Point
+                const pointsEarned = Math.floor(data.amount);
                 const currentPoints = userDoc.data()?.points || 0;
                 const newTotalPoints = currentPoints + pointsEarned;
                 const newLevel = getDonorLevel(newTotalPoints);

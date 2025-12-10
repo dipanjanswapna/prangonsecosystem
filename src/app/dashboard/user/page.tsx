@@ -90,9 +90,9 @@ export default function UserDashboard() {
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <Trophy className="h-5 w-5 text-amber-500" />
-                        My Status
+                        My Status & Rewards
                     </CardTitle>
-                    <CardDescription>Your current level, points, and progress.</CardDescription>
+                    <CardDescription>Your current level, points, and progress toward the next reward. (1 Point = 1 BDT Discount)</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

@@ -25,7 +25,9 @@
         "skills": { "type": "string", "description": "Collaborator's listed skills." },
         "portfolioLink": { "type": "string", "format": "uri", "description": "Link to the collaborator's portfolio." },
         "referralCode": { "type": "string", "description": "Unique code for referring new users." },
-        "referredBy": { "type": "string", "description": "The UID of the user who referred this user." }
+        "referredBy": { "type": "string", "description": "The UID of the user who referred this user." },
+        "lastGiftClaimedAt": { "type": "string", "format": "date-time", "description": "Timestamp of when the user last claimed a gift by resetting their points." },
+        "pointsExpireAt": { "type": "string", "format": "date-time", "description": "Timestamp indicating when the user's points will expire (e.g., 1 year after earning)." }
       },
       "required": ["uid", "name", "email", "role", "status", "profile_status", "createdAt", "referralCode"]
     },

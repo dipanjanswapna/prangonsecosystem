@@ -186,3 +186,12 @@ export const deleteUserAccount = async (uid: string) => {
 
   return await response.json();
 };
+
+export const resetUserPoints = async (uid: string) => {
+    const userDocRef = doc(firestore, 'users', uid);
+    await updateDoc(userDocRef, {
+        points: 0,
+        level: 'Bronze',
+        lastGiftClaimedAt: serverTimestamp(),
+    });
+};

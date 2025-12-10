@@ -27,7 +27,7 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Trash2, View, FileDown, Gem, Star } from 'lucide-react';
+import { MoreHorizontal, Trash2, View, FileDown, Gem, Star, Gift } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import type { Timestamp } from 'firebase/firestore';
 import { ROLES, type Role } from '@/lib/roles';
@@ -35,6 +35,7 @@ import {
   updateUserRoleAndStatus,
   updateUserProfileStatus,
   deleteUserAccount,
+  resetUserPoints,
 } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -53,6 +54,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from '@/components/ui/dialog';
 import { unparse } from 'papaparse';
 
@@ -82,7 +84,9 @@ export default function AllUsersPage() {
   const { data: users, loading } = useCollection<User>('users');
   const { toast } = useToast();
   const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [isResetAlertOpen, setIsResetAlertOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [userToReset, setUserToReset] = useState<User | null>(null);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
@@ -134,6 +138,11 @@ export default function AllUsersPage() {
     setIsAlertOpen(true);
   };
   
+  const openResetDialog = (user: User) => {
+    setUserToReset(user);
+    setIsResetAlertOpen(true);
+  }
+  
   const openDetailsDialog = (user: User) => {
     setSelectedUser(user);
     setIsDetailsOpen(true);
@@ -160,6 +169,27 @@ export default function AllUsersPage() {
       setUserToDelete(null);
     }
   };
+  
+  const handleResetPoints = async () => {
+    if (!userToReset) return;
+    try {
+      await resetUserPoints(userToReset.id);
+      toast({
+        title: 'Points Reset Successful',
+        description: `${userToReset.name}'s points have been reset to 0.`
+      });
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Reset Failed',
+        description: error.message || 'Could not reset user points.'
+      });
+    } finally {
+        setIsResetAlertOpen(false);
+        setUserToReset(null);
+        setIsDetailsOpen(false);
+    }
+  }
 
   const getStatusVariant = (status: string) => {
     switch (status) {
@@ -428,6 +458,26 @@ export default function AllUsersPage() {
         </AlertDialogContent>
       </AlertDialog>
       
+       <AlertDialog open={isResetAlertOpen} onOpenChange={setIsResetAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Reset User Points?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will reset <span className="font-bold">{userToReset?.name}'s</span> points to 0 and their level to Bronze. This action is usually performed after a gift has been claimed. Are you sure you want to continue?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleResetPoints}
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+            >
+              Yes, Reset Points
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      
       <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
@@ -437,60 +487,76 @@ export default function AllUsersPage() {
             </DialogDescription>
           </DialogHeader>
           {selectedUser && (
-            <div className="grid gap-4 py-4 text-sm">
-                <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
-                    <p className="text-muted-foreground">Full Name</p>
-                    <p className="font-medium">{selectedUser.name}</p>
+            <>
+                <div className="grid gap-4 py-4 text-sm">
+                    <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
+                        <p className="text-muted-foreground">Full Name</p>
+                        <p className="font-medium">{selectedUser.name}</p>
+                    </div>
+                    <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
+                        <p className="text-muted-foreground">Email</p>
+                        <p className="font-medium break-all">{selectedUser.email}</p>
+                    </div>
+                    <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
+                        <p className="text-muted-foreground">Role</p>
+                        <p className="font-medium capitalize">{selectedUser.role}</p>
+                    </div>
+                    <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
+                        <p className="text-muted-foreground">Points</p>
+                        <p className="font-medium">{selectedUser.points?.toLocaleString() || 0}</p>
+                    </div>
+                    <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
+                        <p className="text-muted-foreground">Level</p>
+                        <p className="font-medium">{selectedUser.level || 'Bronze'}</p>
+                    </div>
+                    {selectedUser.role === ROLES.MODERATOR && (
+                        <>
+                            <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
+                                <p className="text-muted-foreground">Specialization</p>
+                                <p className="font-medium">{selectedUser.specialization || 'N/A'}</p>
+                            </div>
+                            <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
+                                <p className="text-muted-foreground">Experience</p>
+                                <p className="font-medium">{selectedUser.experienceYears} years</p>
+                            </div>
+                        </>
+                    )}
+                    {selectedUser.role === ROLES.MANAGER && (
+                        <>
+                            <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
+                                <p className="text-muted-foreground">Department</p>
+                                <p className="font-medium">{selectedUser.department || 'N/A'}</p>
+                            </div>
+                            <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
+                                <p className="text-muted-foreground">Team Size</p>
+                                <p className="font-medium">{selectedUser.teamSize}</p>
+                            </div>
+                        </>
+                    )}
+                    {selectedUser.role === ROLES.COLLABORATOR && (
+                        <>
+                            <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
+                                <p className="text-muted-foreground">Skills</p>
+                                <p className="font-medium whitespace-pre-wrap">{selectedUser.skills || 'N/A'}</p>
+                            </div>
+                            <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
+                                <p className="text-muted-foreground">Portfolio</p>
+                                <a href={selectedUser.portfolioLink} target="_blank" rel="noopener noreferrer" className="font-medium text-primary hover:underline break-all">{selectedUser.portfolioLink || 'N/A'}</a>
+                            </div>
+                        </>
+                    )}
+                    <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
+                        <p className="text-muted-foreground">Profile Submitted On</p>
+                        <p className="font-medium">{selectedUser.profileUpdatedAt ? new Date(selectedUser.profileUpdatedAt.seconds * 1000).toLocaleString() : 'N/A'}</p>
+                    </div>
                 </div>
-                 <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
-                    <p className="text-muted-foreground">Email</p>
-                    <p className="font-medium break-all">{selectedUser.email}</p>
-                </div>
-                <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
-                    <p className="text-muted-foreground">Role</p>
-                    <p className="font-medium capitalize">{selectedUser.role}</p>
-                </div>
-                {selectedUser.role === ROLES.MODERATOR && (
-                    <>
-                        <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
-                            <p className="text-muted-foreground">Specialization</p>
-                            <p className="font-medium">{selectedUser.specialization || 'N/A'}</p>
-                        </div>
-                         <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
-                            <p className="text-muted-foreground">Experience</p>
-                            <p className="font-medium">{selectedUser.experienceYears} years</p>
-                        </div>
-                    </>
-                )}
-                 {selectedUser.role === ROLES.MANAGER && (
-                    <>
-                        <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
-                            <p className="text-muted-foreground">Department</p>
-                            <p className="font-medium">{selectedUser.department || 'N/A'}</p>
-                        </div>
-                         <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
-                            <p className="text-muted-foreground">Team Size</p>
-                            <p className="font-medium">{selectedUser.teamSize}</p>
-                        </div>
-                    </>
-                )}
-                {selectedUser.role === ROLES.COLLABORATOR && (
-                    <>
-                        <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
-                            <p className="text-muted-foreground">Skills</p>
-                            <p className="font-medium whitespace-pre-wrap">{selectedUser.skills || 'N/A'}</p>
-                        </div>
-                         <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
-                            <p className="text-muted-foreground">Portfolio</p>
-                            <a href={selectedUser.portfolioLink} target="_blank" rel="noopener noreferrer" className="font-medium text-primary hover:underline break-all">{selectedUser.portfolioLink || 'N/A'}</a>
-                        </div>
-                    </>
-                )}
-                 <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
-                    <p className="text-muted-foreground">Profile Submitted On</p>
-                    <p className="font-medium">{selectedUser.profileUpdatedAt ? new Date(selectedUser.profileUpdatedAt.seconds * 1000).toLocaleString() : 'N/A'}</p>
-                </div>
-            </div>
+                <DialogFooter className="pt-4 border-t">
+                    <Button variant="destructive" onClick={() => openResetDialog(selectedUser)}>
+                        <Gift className="mr-2 h-4 w-4" />
+                        Reset Points (Claim Gift)
+                    </Button>
+                </DialogFooter>
+            </>
           )}
         </DialogContent>
       </Dialog>
