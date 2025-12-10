@@ -33,7 +33,7 @@ export default function AdminDashboard() {
         </CardHeader>
       </Card>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Users</CardTitle>
@@ -47,7 +47,7 @@ export default function AdminDashboard() {
           </CardContent>
         </Card>
         <Card>
-          <CardHeader className="flex flex:row items-center justify-between space-y-0 pb-2">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
              <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -85,7 +85,7 @@ export default function AdminDashboard() {
       </div>
 
       <Card>
-        <CardHeader className="flex flex-row items-center">
+        <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <div className="grid gap-2">
             <CardTitle>Recent Donations</CardTitle>
             <CardDescription>
@@ -104,33 +104,33 @@ export default function AdminDashboard() {
             <TableHeader>
               <TableRow>
                 <TableHead>Donor</TableHead>
-                <TableHead>Campaign</TableHead>
+                <TableHead className="hidden sm:table-cell">Campaign</TableHead>
                 <TableHead className="text-right">Amount</TableHead>
-                <TableHead>Date</TableHead>
+                <TableHead className="hidden md:table-cell">Date</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               <TableRow>
                 <TableCell>
                   <div className="font-medium">Liam Johnson</div>
-                  <div className="hidden text-sm text-muted-foreground md:inline">
+                  <div className="text-sm text-muted-foreground md:hidden">
                     liam@example.com
                   </div>
                 </TableCell>
-                <TableCell>Winter Clothing Drive</TableCell>
+                <TableCell className="hidden sm:table-cell">Winter Clothing Drive</TableCell>
                  <TableCell className="text-right">৳5,000</TableCell>
-                <TableCell>2024-07-22</TableCell>
+                <TableCell className="hidden md:table-cell">2024-07-22</TableCell>
               </TableRow>
               <TableRow>
                 <TableCell>
                   <div className="font-medium">Olivia Smith</div>
-                  <div className="hidden text-sm text-muted-foreground md:inline">
+                   <div className="text-sm text-muted-foreground md:hidden">
                     olivia@example.com
                   </div>
                 </TableCell>
-                <TableCell>Education for All</TableCell>
+                <TableCell className="hidden sm:table-cell">Education for All</TableCell>
                 <TableCell className="text-right">৳10,000</TableCell>
-                <TableCell>2024-07-21</TableCell>
+                <TableCell className="hidden md:table-cell">2024-07-21</TableCell>
               </TableRow>
             </TableBody>
           </Table>

@@ -217,13 +217,13 @@ export default function CollaboratorDashboard() {
                     <CardTitle>My Tools</CardTitle>
                     <CardDescription>All the tools you need for your creative workflow.</CardDescription>
                 </CardHeader>
-                <CardContent className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <CardContent className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {features.map((feature) => (
-                        <div key={feature.title} className="flex flex-col items-center text-center p-4 rounded-lg hover:bg-muted transition-colors cursor-pointer">
+                        <div key={feature.title} className="flex flex-col items-center text-center p-2 md:p-4 rounded-lg hover:bg-muted transition-colors cursor-pointer">
                             <div className="p-3 bg-primary/10 rounded-full mb-2">
-                               <feature.icon className="h-6 w-6 text-primary" />
+                               <feature.icon className="h-5 w-5 md:h-6 md:w-6 text-primary" />
                             </div>
-                            <p className="text-sm font-semibold">{feature.title}</p>
+                            <p className="text-xs md:text-sm font-semibold">{feature.title}</p>
                         </div>
                     ))}
                 </CardContent>

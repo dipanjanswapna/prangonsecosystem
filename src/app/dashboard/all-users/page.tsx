@@ -192,10 +192,10 @@ export default function AllUsersPage() {
                 <TableHead className="hidden md:table-cell">
                   Account Status
                 </TableHead>
-                <TableHead className="hidden md:table-cell">
+                <TableHead className="hidden lg:table-cell">
                   Profile Status
                 </TableHead>
-                <TableHead className="hidden md:table-cell">
+                <TableHead className="hidden xl:table-cell">
                   Created At
                 </TableHead>
                 <TableHead>
@@ -222,10 +222,10 @@ export default function AllUsersPage() {
                       <TableCell className="hidden md:table-cell">
                         <Skeleton className="h-6 w-20" />
                       </TableCell>
-                      <TableCell className="hidden md:table-cell">
+                      <TableCell className="hidden lg:table-cell">
                         <Skeleton className="h-6 w-20" />
                       </TableCell>
-                      <TableCell className="hidden md:table-cell">
+                      <TableCell className="hidden xl:table-cell">
                         <Skeleton className="h-6 w-24" />
                       </TableCell>
                       <TableCell>
@@ -235,18 +235,20 @@ export default function AllUsersPage() {
                   ))
                 : users.map((user) => (
                     <TableRow key={user.id}>
-                      <TableCell className="font-medium flex items-center gap-3">
-                        <Avatar>
-                          <AvatarImage src={user.photoURL} alt={user.name} />
-                          <AvatarFallback>
-                            {user.name?.charAt(0).toUpperCase() || 'U'}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div>{user.name}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {user.email}
-                          </div>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-3">
+                            <Avatar>
+                            <AvatarImage src={user.photoURL} alt={user.name} />
+                            <AvatarFallback>
+                                {user.name?.charAt(0).toUpperCase() || 'U'}
+                            </AvatarFallback>
+                            </Avatar>
+                            <div>
+                                <div className="font-medium">{user.name}</div>
+                                <div className="text-sm text-muted-foreground break-all">
+                                    {user.email}
+                                </div>
+                            </div>
                         </div>
                       </TableCell>
                       <TableCell className="hidden sm:table-cell">
@@ -257,14 +259,14 @@ export default function AllUsersPage() {
                           {user.status}
                         </Badge>
                       </TableCell>
-                      <TableCell className="hidden md:table-cell">
+                      <TableCell className="hidden lg:table-cell">
                         <Badge
                           variant={getStatusVariant(user.profile_status || 'N/A')}
                         >
                           {user.profile_status || 'N/A'}
                         </Badge>
                       </TableCell>
-                      <TableCell className="hidden md:table-cell">
+                      <TableCell className="hidden xl:table-cell">
                         {user.createdAt
                           ? new Date(
                               user.createdAt.seconds * 1000
@@ -381,25 +383,25 @@ export default function AllUsersPage() {
           </DialogHeader>
           {selectedUser && (
             <div className="grid gap-4 py-4 text-sm">
-                <div className="grid grid-cols-[150px_1fr] items-center gap-4">
+                <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
                     <p className="text-muted-foreground">Full Name</p>
                     <p className="font-medium">{selectedUser.name}</p>
                 </div>
-                 <div className="grid grid-cols-[150px_1fr] items-center gap-4">
+                 <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
                     <p className="text-muted-foreground">Email</p>
-                    <p className="font-medium">{selectedUser.email}</p>
+                    <p className="font-medium break-all">{selectedUser.email}</p>
                 </div>
-                <div className="grid grid-cols-[150px_1fr] items-center gap-4">
+                <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
                     <p className="text-muted-foreground">Role</p>
                     <p className="font-medium capitalize">{selectedUser.role}</p>
                 </div>
                 {selectedUser.role === ROLES.MODERATOR && (
                     <>
-                        <div className="grid grid-cols-[150px_1fr] items-center gap-4">
+                        <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
                             <p className="text-muted-foreground">Specialization</p>
                             <p className="font-medium">{selectedUser.specialization || 'N/A'}</p>
                         </div>
-                         <div className="grid grid-cols-[150px_1fr] items-center gap-4">
+                         <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
                             <p className="text-muted-foreground">Experience</p>
                             <p className="font-medium">{selectedUser.experienceYears} years</p>
                         </div>
@@ -407,11 +409,11 @@ export default function AllUsersPage() {
                 )}
                  {selectedUser.role === ROLES.MANAGER && (
                     <>
-                        <div className="grid grid-cols-[150px_1fr] items-center gap-4">
+                        <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
                             <p className="text-muted-foreground">Department</p>
                             <p className="font-medium">{selectedUser.department || 'N/A'}</p>
                         </div>
-                         <div className="grid grid-cols-[150px_1fr] items-center gap-4">
+                         <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
                             <p className="text-muted-foreground">Team Size</p>
                             <p className="font-medium">{selectedUser.teamSize}</p>
                         </div>
@@ -419,17 +421,17 @@ export default function AllUsersPage() {
                 )}
                 {selectedUser.role === ROLES.COLLABORATOR && (
                     <>
-                        <div className="grid grid-cols-[150px_1fr] items-center gap-4">
+                        <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
                             <p className="text-muted-foreground">Skills</p>
                             <p className="font-medium whitespace-pre-wrap">{selectedUser.skills || 'N/A'}</p>
                         </div>
-                         <div className="grid grid-cols-[150px_1fr] items-center gap-4">
+                         <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
                             <p className="text-muted-foreground">Portfolio</p>
-                            <a href={selectedUser.portfolioLink} target="_blank" rel="noopener noreferrer" className="font-medium text-primary hover:underline">{selectedUser.portfolioLink || 'N/A'}</a>
+                            <a href={selectedUser.portfolioLink} target="_blank" rel="noopener noreferrer" className="font-medium text-primary hover:underline break-all">{selectedUser.portfolioLink || 'N/A'}</a>
                         </div>
                     </>
                 )}
-                 <div className="grid grid-cols-[150px_1fr] items-center gap-4">
+                 <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
                     <p className="text-muted-foreground">Profile Submitted On</p>
                     <p className="font-medium">{selectedUser.profileUpdatedAt ? new Date(selectedUser.profileUpdatedAt.seconds * 1000).toLocaleString() : 'N/A'}</p>
                 </div>

@@ -77,7 +77,7 @@ export default function UserDonationsPage() {
       </Card>
       
       {loading && (
-         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <DonationSkeleton />
             <DonationSkeleton />
             <DonationSkeleton />
@@ -96,9 +96,9 @@ export default function UserDonationsPage() {
       )}
 
       {!loading && donations.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {donations.map((donation) => (
-            <Card key={donation.id}>
+            <Card key={donation.id} className="flex flex-col">
               <CardHeader>
                 <CardTitle>{donation.campaignTitle}</CardTitle>
                 <CardDescription>
@@ -108,7 +108,7 @@ export default function UserDonationsPage() {
                   ).toLocaleDateString()}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="flex justify-between items-center">
+              <CardContent className="flex-grow flex justify-between items-center">
                 <div className="text-2xl font-bold">
                   ৳{donation.amount.toFixed(2)}
                 </div>
@@ -120,7 +120,7 @@ export default function UserDonationsPage() {
                 </Badge>
               </CardContent>
               <CardFooter>
-                <Button asChild variant="outline">
+                <Button asChild variant="outline" className="w-full">
                   <Link href={`/donations/invoice/${donation.id}`}>
                     View Invoice <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>

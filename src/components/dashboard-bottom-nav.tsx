@@ -47,7 +47,7 @@ export function DashboardBottomNav() {
   const items = navItems[userRole] || navItems[ROLES.USER];
 
   return (
-    <div className="fixed bottom-0 left-0 z-50 w-full h-16 bg-background border-t">
+    <div className="md:hidden fixed bottom-0 left-0 z-50 w-full h-16 bg-background border-t">
       <div className="w-full h-full overflow-x-auto whitespace-nowrap">
         <div className="flex justify-around items-center h-full min-w-max mx-auto px-2">
             {items.map((item) => {
@@ -58,7 +58,7 @@ export function DashboardBottomNav() {
                 href={item.href}
                 className={cn(
                     buttonVariants({ variant: 'ghost', size: 'lg' }),
-                    'flex flex-col items-center justify-center h-full rounded-none group text-muted-foreground pt-2 px-4 w-20',
+                    'flex flex-col items-center justify-center h-full rounded-none group text-muted-foreground pt-2 px-2 w-20',
                     isActive && 'text-primary'
                 )}
                 >
