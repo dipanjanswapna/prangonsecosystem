@@ -19,6 +19,7 @@ interface DonationData {
     isAnonymous: boolean;
     donorName: string;
     donorEmail: string | null;
+    frequency: 'one-time' | 'monthly';
     isCorporateMatch?: boolean;
     corporateName?: string;
 }
@@ -68,7 +69,7 @@ export const saveDonation = async (data: DonationData): Promise<string> => {
 
             // Write 3: If user doc was read, update user's points and level.
             if (userRef && userDoc && userDoc.exists()) {
-                const pointsEarned = Math.floor(data.amount / 1);
+                const pointsEarned = Math.floor(data.amount / 100);
                 const currentPoints = userDoc.data()?.points || 0;
                 const newTotalPoints = currentPoints + pointsEarned;
                 const newLevel = getDonorLevel(newTotalPoints);

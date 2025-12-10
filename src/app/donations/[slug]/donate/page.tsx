@@ -61,7 +61,7 @@ export default function DonatePage() {
   const [email, setEmail] = useState(user?.email || '');
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [donationFrequency, setDonationFrequency] = useState('one-time');
+  const [donationFrequency, setDonationFrequency] = useState<'one-time' | 'monthly'>('one-time');
   const [isCorporateMatch, setIsCorporateMatch] = useState(false);
   const [corporateName, setCorporateName] = useState('');
 
@@ -156,6 +156,7 @@ export default function DonatePage() {
         isAnonymous,
         donorName: isAnonymous ? 'Anonymous' : name,
         donorEmail: isAnonymous ? null : email,
+        frequency: donationFrequency,
         isCorporateMatch: isCorporateMatch,
         corporateName: isCorporateMatch ? corporateName : null,
       };
@@ -198,7 +199,8 @@ export default function DonatePage() {
             <RadioGroup
               defaultValue="one-time"
               className="grid grid-cols-2 gap-4"
-              onValueChange={setDonationFrequency}
+              value={donationFrequency}
+              onValueChange={(value: 'one-time' | 'monthly') => setDonationFrequency(value)}
             >
               <div>
                 <RadioGroupItem value="one-time" id="one-time" className="peer sr-only" />
