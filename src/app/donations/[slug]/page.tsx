@@ -1,6 +1,5 @@
 'use client';
 import { notFound, useParams } from 'next/navigation';
-import { donors } from '@/lib/placeholder-data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import {
@@ -18,6 +17,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useCollection } from '@/firebase/firestore/use-collection';
 import { Skeleton } from '@/components/ui/skeleton';
+import type { Timestamp } from 'firebase/firestore';
 
 interface Campaign {
   id: string;
@@ -28,6 +28,14 @@ interface Campaign {
   raised: number;
   imageUrl: string;
 }
+
+interface Donation {
+  id: string;
+  donorName: string;
+  amount: number;
+  createdAt: Timestamp;
+}
+
 
 const CampaignDetailsSkeleton = () => (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -85,6 +93,19 @@ export default function CampaignDetailsPage() {
     params.slug
   );
   const campaign = campaigns[0];
+  const { data: donations, loading: donationsLoading } = useCollection<Donation>(
+    'donations',
+    undefined,
+    undefined,
+    { field: 'createdAt', direction: 'desc' },
+    5,
+    [
+      ['campaignId', '==', campaign?.id || ''],
+      ['status', '==', 'success'],
+      ['isAnonymous', '==', false]
+    ]
+  );
+  
   const defaultImage = PlaceHolderImages.find(p => p.id === 'project-1');
 
   if (loading) {
@@ -186,25 +207,35 @@ export default function CampaignDetailsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {donors.map((donor, index) => {
-                const donorImage = PlaceHolderImages.find(d => d.id === donor.imageId);
-                return (
-                <div key={index} className="flex items-center gap-4">
+              {donationsLoading ? (
+                 Array.from({ length: 4 }).map((_, i) => (
+                    <div key={i} className="flex items-center gap-4">
+                        <Skeleton className="h-12 w-12 rounded-full" />
+                        <div className="flex-grow space-y-2">
+                            <Skeleton className="h-4 w-3/4" />
+                            <Skeleton className="h-4 w-1/2" />
+                        </div>
+                    </div>
+                ))
+              ) : donations.length > 0 ? (
+                donations.map((donor) => (
+                <div key={donor.id} className="flex items-center gap-4">
                   <Avatar>
-                    {donorImage && <AvatarImage src={donorImage.imageUrl} alt={donor.name} />}
-                    <AvatarFallback>{donor.name.charAt(0)}</AvatarFallback>
+                    <AvatarFallback>{donor.donorName.charAt(0)}</AvatarFallback>
                   </Avatar>
                   <div className="flex-grow">
-                    <p className="font-semibold">{donor.name}</p>
+                    <p className="font-semibold">{donor.donorName}</p>
                     <p className="text-sm text-muted-foreground">
                       Donated ৳{donor.amount}
                     </p>
                   </div>
-                  <Badge variant="secondary">
-                    {new Date(donor.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                   <Badge variant="secondary">
+                    {new Date(donor.createdAt.seconds * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                   </Badge>
                 </div>
-              )})}
+              ))) : (
+                <p className="text-sm text-muted-foreground">Be the first to donate to this campaign!</p>
+              )}
             </CardContent>
           </Card>
         </div>

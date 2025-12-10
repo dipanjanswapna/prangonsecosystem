@@ -39,8 +39,11 @@ export function useCollection<T>(
         allWhereClauses.push([field, '==', value]);
     }
 
-    if (allWhereClauses.length > 0) {
-        const whereConstraints = allWhereClauses.map(clause => where(clause[0], clause[1], clause[2]));
+    // Filter out clauses with undefined or null values, which are invalid for Firestore queries
+    const validWhereClauses = allWhereClauses.filter(clause => clause[2] !== undefined && clause[2] !== null);
+
+    if (validWhereClauses.length > 0) {
+        const whereConstraints = validWhereClauses.map(clause => where(clause[0], clause[1], clause[2]));
         collectionRef = query(collectionRef, ...whereConstraints);
     }
     

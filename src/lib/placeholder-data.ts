@@ -137,13 +137,6 @@ export const services = [
   },
 ];
 
-export const donors = [
-  { name: 'John D.', amount: 50, imageId: 'donor-1', date: 'July 20, 2024' },
-  { name: 'Jane S.', amount: 100, imageId: 'donor-2', date: 'July 19, 2024' },
-  { name: 'Alex T.', amount: 25, imageId: 'donor-3', date: 'July 18, 2024' },
-  { name: 'Emily R.', amount: 75, imageId: 'donor-4', date: 'July 17, 2024' },
-];
-
 export const campaigns: {
     id: number;
     title: string;

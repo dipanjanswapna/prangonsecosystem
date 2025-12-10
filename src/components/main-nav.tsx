@@ -26,7 +26,6 @@ const navItems = [
       { href: '/blog', label: 'Blog' },
       { href: '/library', label: 'eBook Library' },
       { href: '/donor-wall', label: 'Donor Wall' },
-      { href: '/leaderboard', label: 'Leaderboard' },
       { href: '/contact', label: 'Contact Us' },
       { href: '/whats-new', label: "What's New" },
     ],
@@ -102,6 +101,25 @@ export function MainNav({ isMobile = false }: { isMobile?: boolean }) {
       )}
     >
       {navItems.map(renderNavItem)}
+      <Link
+        href="/leaderboard"
+        className={cn(
+            'group relative px-3 py-2 text-sm font-medium transition-colors hover:text-primary flex items-center gap-1',
+            pathname === '/leaderboard' ? 'text-primary' : 'text-foreground/80',
+            isMobile ? 'w-full text-base' : ''
+        )}
+        >
+        <Trophy className="h-4 w-4" />
+        Leaderboard
+        {!isMobile && (
+            <span
+            className={cn(
+                'absolute bottom-0 left-1/2 h-0.5 -translate-x-1/2 rounded-full bg-primary transition-all duration-300',
+                pathname === '/leaderboard' ? 'w-4' : 'w-0 group-hover:w-4'
+            )}
+            ></span>
+        )}
+        </Link>
        {user && isMobile && (
         <Link
           href="/dashboard"
