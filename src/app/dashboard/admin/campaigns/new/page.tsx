@@ -33,7 +33,6 @@ import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { createCampaign } from '@/lib/campaigns';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const formSchema = z.object({
   title: z.string().min(10, 'Title must be at least 10 characters.'),
@@ -42,7 +41,7 @@ const formSchema = z.object({
   category: z
     .enum(['Seasonal', 'Emergency', 'Regular'])
     .default('Regular'),
-  imageId: z.string().min(1, 'Please select a cover image.'),
+  imageUrl: z.string().url('Please provide a valid image URL.'),
 });
 
 export default function NewCampaignPage() {
@@ -57,7 +56,7 @@ export default function NewCampaignPage() {
       description: '',
       goal: 10000,
       category: 'Regular',
-      imageId: 'project-1',
+      imageUrl: '',
     },
   });
 
@@ -167,24 +166,13 @@ export default function NewCampaignPage() {
             </div>
              <FormField
                 control={form.control}
-                name="imageId"
+                name="imageUrl"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Cover Image</FormLabel>
-                     <Select onValueChange={field.onChange} defaultValue={field.value}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select an image" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {PlaceHolderImages.filter(img => img.id.startsWith('project-') || img.id.startsWith('blog-')).map(image => (
-                            <SelectItem key={image.id} value={image.id}>
-                                {image.description}
-                            </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <FormLabel>Cover Image URL</FormLabel>
+                     <FormControl>
+                        <Input placeholder="https://example.com/image.png" {...field} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}

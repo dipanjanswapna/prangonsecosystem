@@ -14,15 +14,6 @@ export default function ModeratorDashboard() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Moderator Dashboard</CardTitle>
-          <CardDescription>
-            Review content, handle reports, and manage community interactions.
-          </CardDescription>
-        </CardHeader>
-      </Card>
-      
-      <Card>
-        <CardHeader>
           <CardTitle>Content Moderation Queue</CardTitle>
           <CardDescription>
             Review user-submitted content that requires approval.

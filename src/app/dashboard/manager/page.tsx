@@ -14,15 +14,6 @@ export default function ManagerDashboard() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Manager Dashboard</CardTitle>
-          <CardDescription>
-            Oversee projects, manage team assignments, and track performance metrics.
-          </CardDescription>
-        </CardHeader>
-      </Card>
-      
-      <Card>
-        <CardHeader>
           <CardTitle>Project Overview</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">

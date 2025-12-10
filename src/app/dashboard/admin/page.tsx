@@ -23,16 +23,6 @@ import Link from 'next/link';
 export default function AdminDashboard() {
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Admin Dashboard</CardTitle>
-          <CardDescription>
-            Welcome to the admin control panel. Manage users, view analytics,
-            and configure system settings.
-          </CardDescription>
-        </CardHeader>
-      </Card>
-
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

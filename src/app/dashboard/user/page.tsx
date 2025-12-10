@@ -83,15 +83,6 @@ export default function UserDashboard() {
 
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>My Dashboard</CardTitle>
-          <CardDescription>
-            Welcome back! Here are your learning tools and notifications.
-          </CardDescription>
-        </CardHeader>
-      </Card>
-
       <div className="grid gap-6">
         
         {userProfile && (
