@@ -1,0 +1,98 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Represents a user's profile in the system.",
+      "type": "object",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "The user's unique ID from Firebase Auth."
+        },
+        "name": {
+          "type": "string",
+          "description": "The user's full name."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "The user's email address."
+        },
+        "photoURL": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL of the user's profile picture."
+        },
+        "role": {
+          "type": "string",
+          "description": "The user's role in the system.",
+          "enum": ["admin", "moderator", "manager", "collaborator", "user"]
+        },
+        "status": {
+            "type": "string",
+            "description": "The approval status of the user's account.",
+            "enum": ["pending", "approved", "rejected"]
+        },
+        "profile_status": {
+            "type": "string",
+            "description": "The completion status of the user's profile.",
+            "enum": ["incomplete", "pending_review", "complete"]
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the user was created."
+        },
+        "lastLogin": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp of the user's last login."
+        },
+        "profileUpdatedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "The timestamp when the user last updated their profile information."
+        },
+        "specialization": {
+            "type": "string",
+            "description": "Moderator's area of specialization."
+        },
+        "experienceYears": {
+            "type": "number",
+            "description": "Moderator's years of experience."
+        },
+        "department": {
+            "type": "string",
+            "description": "Manager's department."
+        },
+        "teamSize": {
+            "type": "number",
+            "description": "Manager's team size."
+        },
+        "skills": {
+            "type": "string",
+            "description": "Collaborator's listed skills."
+        },
+        "portfolioLink": {
+            "type": "string",
+            "format": "uri",
+            "description": "Link to the collaborator's portfolio."
+        }
+      },
+      "required": ["uid", "name", "email", "role", "status", "profile_status", "createdAt"]
+    }
+  },
+  "auth": {
+    "providers": ["password", "google.com"]
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/UserProfile"
+      },
+      "description": "Stores public information about a user, including their role and status."
+    }
+  }
+}
+
+    

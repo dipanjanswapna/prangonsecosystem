@@ -27,11 +27,15 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Trash2, View } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import type { Timestamp } from 'firebase/firestore';
 import { ROLES, type Role } from '@/lib/roles';
-import { updateUserRoleAndStatus, updateUserProfileStatus, deleteUserAccount } from '@/lib/auth';
+import {
+  updateUserRoleAndStatus,
+  updateUserProfileStatus,
+  deleteUserAccount,
+} from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -42,8 +46,14 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-
+} from '@/components/ui/alert-dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 interface User {
   id: string;
@@ -54,6 +64,14 @@ interface User {
   profile_status?: 'incomplete' | 'pending_review' | 'complete';
   photoURL?: string;
   createdAt: Timestamp;
+  profileUpdatedAt?: Timestamp;
+  // Role specific fields
+  specialization?: string;
+  experienceYears?: number;
+  department?: string;
+  teamSize?: number;
+  skills?: string;
+  portfolioLink?: string;
 }
 
 export default function AllUsersPage() {
@@ -61,6 +79,8 @@ export default function AllUsersPage() {
   const { toast } = useToast();
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
 
   const handleUpdateUserStatus = async (
     uid: string,
@@ -68,7 +88,11 @@ export default function AllUsersPage() {
   ) => {
     try {
       // This function only updates the main `status`, not the profile_status
-      await updateUserRoleAndStatus(uid, users.find(u=>u.id===uid)!.role, status);
+      await updateUserRoleAndStatus(
+        uid,
+        users.find((u) => u.id === uid)!.role,
+        status
+      );
       toast({
         title: 'User Status Updated',
         description: `User has been successfully ${status}.`,
@@ -106,9 +130,15 @@ export default function AllUsersPage() {
     setIsAlertOpen(true);
   };
   
+  const openDetailsDialog = (user: User) => {
+    setSelectedUser(user);
+    setIsDetailsOpen(true);
+  };
+
+
   const handleDeleteUser = async () => {
     if (!userToDelete) return;
-    
+
     try {
       await deleteUserAccount(userToDelete.id);
       toast({
@@ -116,7 +146,7 @@ export default function AllUsersPage() {
         description: `${userToDelete.name} has been permanently deleted.`,
       });
     } catch (error: any) {
-       toast({
+      toast({
         variant: 'destructive',
         title: 'Deletion Failed',
         description: error.message || 'Could not delete user.',
@@ -159,9 +189,15 @@ export default function AllUsersPage() {
               <TableRow>
                 <TableHead>User</TableHead>
                 <TableHead className="hidden sm:table-cell">Role</TableHead>
-                <TableHead className="hidden md:table-cell">Account Status</TableHead>
-                <TableHead className="hidden md:table-cell">Profile Status</TableHead>
-                <TableHead className="hidden md:table-cell">Created At</TableHead>
+                <TableHead className="hidden md:table-cell">
+                  Account Status
+                </TableHead>
+                <TableHead className="hidden md:table-cell">
+                  Profile Status
+                </TableHead>
+                <TableHead className="hidden md:table-cell">
+                  Created At
+                </TableHead>
                 <TableHead>
                   <span className="sr-only">Actions</span>
                 </TableHead>
@@ -186,7 +222,7 @@ export default function AllUsersPage() {
                       <TableCell className="hidden md:table-cell">
                         <Skeleton className="h-6 w-20" />
                       </TableCell>
-                       <TableCell className="hidden md:table-cell">
+                      <TableCell className="hidden md:table-cell">
                         <Skeleton className="h-6 w-20" />
                       </TableCell>
                       <TableCell className="hidden md:table-cell">
@@ -221,8 +257,10 @@ export default function AllUsersPage() {
                           {user.status}
                         </Badge>
                       </TableCell>
-                       <TableCell className="hidden md:table-cell">
-                        <Badge variant={getStatusVariant(user.profile_status || 'N/A')}>
+                      <TableCell className="hidden md:table-cell">
+                        <Badge
+                          variant={getStatusVariant(user.profile_status || 'N/A')}
+                        >
                           {user.profile_status || 'N/A'}
                         </Badge>
                       </TableCell>
@@ -246,7 +284,17 @@ export default function AllUsersPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            <DropdownMenuLabel>Account Actions</DropdownMenuLabel>
+                            <DropdownMenuLabel>
+                              Review & Actions
+                            </DropdownMenuLabel>
+                             <DropdownMenuItem onClick={() => openDetailsDialog(user)}>
+                              <View className="mr-2 h-4 w-4" />
+                              View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuLabel>
+                              Account Actions
+                            </DropdownMenuLabel>
                             <DropdownMenuItem
                               onClick={() =>
                                 handleUpdateUserStatus(user.id, 'approved')
@@ -262,27 +310,32 @@ export default function AllUsersPage() {
                               Reject Account
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                             <DropdownMenuLabel>Profile Actions</DropdownMenuLabel>
-                               <DropdownMenuItem
+                            <DropdownMenuLabel>
+                              Profile Actions
+                            </DropdownMenuLabel>
+                            <DropdownMenuItem
                               onClick={() =>
                                 handleUpdateUserProfileStatus(user.id, 'complete')
                               }
                             >
                               Approve Profile
                             </DropdownMenuItem>
-                             <DropdownMenuItem
+                            <DropdownMenuItem
                               onClick={() =>
-                                handleUpdateUserProfileStatus(user.id, 'incomplete')
+                                handleUpdateUserProfileStatus(
+                                  user.id,
+                                  'incomplete'
+                                )
                               }
                             >
                               Request Profile Update
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem 
+                            <DropdownMenuItem
                               className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-900/40"
                               onClick={() => openDeleteDialog(user)}
                             >
-                              <Trash2 className="mr-2 h-4 w-4"/>
+                              <Trash2 className="mr-2 h-4 w-4" />
                               Delete User
                             </DropdownMenuItem>
                           </DropdownMenuContent>
@@ -294,24 +347,98 @@ export default function AllUsersPage() {
           </Table>
         </CardContent>
       </Card>
-      
+
       <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the user
-              <span className="font-bold"> {userToDelete?.name}</span> and remove their data from our servers.
+              This action cannot be undone. This will permanently delete the
+              user
+              <span className="font-bold"> {userToDelete?.name}</span> and
+              remove their data from our servers.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDeleteUser} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
+            <AlertDialogAction
+              onClick={handleDeleteUser}
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+            >
               Yes, delete user
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      
+      <Dialog open={isDetailsOpen} onOpenChange={setIsDetailsOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>User Profile Details</DialogTitle>
+            <DialogDescription>
+              Review the information submitted by {selectedUser?.name}.
+            </DialogDescription>
+          </DialogHeader>
+          {selectedUser && (
+            <div className="grid gap-4 py-4 text-sm">
+                <div className="grid grid-cols-[150px_1fr] items-center gap-4">
+                    <p className="text-muted-foreground">Full Name</p>
+                    <p className="font-medium">{selectedUser.name}</p>
+                </div>
+                 <div className="grid grid-cols-[150px_1fr] items-center gap-4">
+                    <p className="text-muted-foreground">Email</p>
+                    <p className="font-medium">{selectedUser.email}</p>
+                </div>
+                <div className="grid grid-cols-[150px_1fr] items-center gap-4">
+                    <p className="text-muted-foreground">Role</p>
+                    <p className="font-medium capitalize">{selectedUser.role}</p>
+                </div>
+                {selectedUser.role === ROLES.MODERATOR && (
+                    <>
+                        <div className="grid grid-cols-[150px_1fr] items-center gap-4">
+                            <p className="text-muted-foreground">Specialization</p>
+                            <p className="font-medium">{selectedUser.specialization || 'N/A'}</p>
+                        </div>
+                         <div className="grid grid-cols-[150px_1fr] items-center gap-4">
+                            <p className="text-muted-foreground">Experience</p>
+                            <p className="font-medium">{selectedUser.experienceYears} years</p>
+                        </div>
+                    </>
+                )}
+                 {selectedUser.role === ROLES.MANAGER && (
+                    <>
+                        <div className="grid grid-cols-[150px_1fr] items-center gap-4">
+                            <p className="text-muted-foreground">Department</p>
+                            <p className="font-medium">{selectedUser.department || 'N/A'}</p>
+                        </div>
+                         <div className="grid grid-cols-[150px_1fr] items-center gap-4">
+                            <p className="text-muted-foreground">Team Size</p>
+                            <p className="font-medium">{selectedUser.teamSize}</p>
+                        </div>
+                    </>
+                )}
+                {selectedUser.role === ROLES.COLLABORATOR && (
+                    <>
+                        <div className="grid grid-cols-[150px_1fr] items-center gap-4">
+                            <p className="text-muted-foreground">Skills</p>
+                            <p className="font-medium whitespace-pre-wrap">{selectedUser.skills || 'N/A'}</p>
+                        </div>
+                         <div className="grid grid-cols-[150px_1fr] items-center gap-4">
+                            <p className="text-muted-foreground">Portfolio</p>
+                            <a href={selectedUser.portfolioLink} target="_blank" rel="noopener noreferrer" className="font-medium text-primary hover:underline">{selectedUser.portfolioLink || 'N/A'}</a>
+                        </div>
+                    </>
+                )}
+                 <div className="grid grid-cols-[150px_1fr] items-center gap-4">
+                    <p className="text-muted-foreground">Profile Submitted On</p>
+                    <p className="font-medium">{selectedUser.profileUpdatedAt ? new Date(selectedUser.profileUpdatedAt.seconds * 1000).toLocaleString() : 'N/A'}</p>
+                </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
+
+    
