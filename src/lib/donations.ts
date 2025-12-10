@@ -6,7 +6,7 @@ import { customAlphabet } from 'nanoid'
 
 const { firebaseApp } = initializeFirebase();
 const firestore = getFirestore(firebaseApp);
-const nanoid = customAlphabet('1234567890abcdef', 10)
+const nanoid = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ', 8)
 
 interface DonationData {
     userId: string | null;
@@ -35,10 +35,11 @@ export const saveDonation = async (data: DonationData): Promise<string> => {
         const newDonationId = await runTransaction(firestore, async (transaction) => {
             const newDonationRef = doc(collection(firestore, 'donations'));
             const campaignRef = doc(firestore, 'campaigns', data.campaignId);
+            const invoiceId = `ONGN-${nanoid()}`;
             
             transaction.set(newDonationRef, {
                 ...data,
-                invoiceId: nanoid(8).toUpperCase(),
+                invoiceId: invoiceId,
                 createdAt: serverTimestamp(),
                 status: 'success', // Simulating successful payment for now
             });
@@ -79,4 +80,3 @@ export const updateDonationStatus = async (donationId: string, status: 'success'
     await updateDoc(donationRef, { status });
 }
     
-

@@ -128,7 +128,7 @@ export default function InvoicePage() {
                     <p className="text-muted-foreground text-sm">Donation Receipt</p>
                 </div>
                 <div className="text-right">
-                    <p className="font-semibold text-lg">Invoice #{donation.id.substring(0, 8)}</p>
+                    <p className="font-semibold text-lg">Invoice #{donation.invoiceId}</p>
                     <p className="text-sm text-muted-foreground">Date: {new Date(donation.createdAt.seconds * 1000).toLocaleDateString()}</p>
                 </div>
             </div>

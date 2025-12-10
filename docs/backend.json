@@ -59,17 +59,20 @@
       "properties": {
         "userId": { "type": "string", "description": "UID of the donating user (nullable for guests)." },
         "campaignId": { "type": "string", "description": "ID of the campaign this donation is for." },
+        "campaignTitle": { "type": "string", "description": "Title of the campaign at the time of donation." },
         "amount": { "type": "number", "description": "The amount donated." },
         "currency": { "type": "string", "default": "BDT" },
         "gateway": { "type": "string", "description": "Payment gateway used.", "enum": ["bKash", "Nagad", "Rocket", "SSLCommerz", "SurjoPay"] },
         "transactionId": { "type": "string", "description": "Unique ID from the payment gateway." },
         "status": { "type": "string", "enum": ["pending", "success", "failed", "refunded"] },
-        "invoiceId": { "type": "string", "description": "ID of the generated invoice." },
+        "invoiceId": { "type": "string", "description": "Unique ID for the generated invoice." },
         "isAnonymous": { "type": "boolean", "default": false },
+        "donorName": { "type": "string", "description": "Name of the donor (if not anonymous)." },
+        "donorEmail": { "type": "string", "format": "email", "description": "Email of the donor (if not anonymous)." },
         "isCorporateMatch": { "type": "boolean", "default": false, "description": "Indicates if the donation is part of a corporate matching program." },
         "corporateName": { "type": "string", "description": "Name of the matching corporation, if applicable." }
       },
-      "required": ["campaignId", "amount", "gateway", "status"]
+      "required": ["campaignId", "campaignTitle", "amount", "gateway", "status", "donorName"]
     },
     "Invoice": {
         "title": "Donation Invoice",
@@ -79,12 +82,12 @@
             "donationId": { "type": "string" },
             "invoiceNumber": { "type": "string", "description": "A unique, sequential invoice number (e.g., ONGON-202407-000123)." },
             "donorName": { "type": "string" },
-            "donorEmail": { "type": "string" },
+            "donorEmail": { "type": "string", "format": "email" },
             "amount": { "type": "number" },
             "issueDate": { "type": "string", "format": "date-time" },
             "pdfUrl": { "type": "string", "format": "uri", "description": "Link to the generated PDF invoice." }
         },
-        "required": ["donationId", "invoiceNumber", "donorName", "amount", "issueDate"]
+        "required": ["donationId", "invoiceNumber", "donorName", "donorEmail", "amount", "issueDate"]
     },
     "Allocation": {
         "title": "Fund Allocation",
