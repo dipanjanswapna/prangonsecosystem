@@ -87,14 +87,18 @@ const handleSocialSignIn = async (user: User) => {
     // User already exists, just update last login
     await setDoc(userDocRef, { lastLogin: serverTimestamp() }, { merge: true });
   } else {
+    // Determine role based on email - this is a simple example
+    const isAdmin = user.email === 'example@admin.com'; // Replace with actual admin email logic
+    const role = isAdmin ? ROLES.ADMIN : ROLES.USER;
+
     // New user, create a document
     await setDoc(userDocRef, {
       uid: user.uid,
       email: user.email,
       name: user.displayName,
       photoURL: user.photoURL,
-      role: 'user', // Default role for social sign-in
-      status: 'approved',
+      role: role,
+      status: 'approved', // Social sign-ins are auto-approved
       createdAt: serverTimestamp(),
       lastLogin: serverTimestamp(),
     });

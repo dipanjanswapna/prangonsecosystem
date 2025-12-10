@@ -21,6 +21,13 @@ interface UserProfile {
 
 function AccessDenied({ status }: { status: 'pending' | 'rejected' }) {
     const router = useRouter();
+    
+    const handleLogoutAndRedirect = () => {
+      logOut().then(() => {
+        router.push('/');
+      });
+    };
+
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-10rem)]">
       <Card className="w-full max-w-md">
@@ -42,7 +49,7 @@ function AccessDenied({ status }: { status: 'pending' | 'rejected' }) {
           </CardDescription>
         </CardHeader>
         <CardContent className="text-center">
-            <Button onClick={() => logOut().then(() => router.push('/'))}>
+            <Button onClick={handleLogoutAndRedirect}>
                 Back to Home
             </Button>
         </CardContent>
