@@ -26,6 +26,7 @@ const navItems = [
       { href: '/blog', label: 'Blog' },
       { href: '/library', label: 'eBook Library' },
       { href: '/contact', label: 'Contact Us' },
+      { href: '/whats-new', label: "What's New" },
     ],
   },
 ];
@@ -99,17 +100,6 @@ export function MainNav({ isMobile = false }: { isMobile?: boolean }) {
       )}
     >
       {navItems.map(renderNavItem)}
-       <Link
-          href="/whats-new"
-          className={cn(
-            'group relative flex items-center gap-2 px-3 py-2 text-sm font-medium transition-colors hover:text-primary',
-            pathname.startsWith('/whats-new') ? 'text-primary' : 'text-foreground/80',
-            isMobile ? 'w-full text-base' : ''
-          )}
-        >
-          <PlusCircle className="h-4 w-4" />
-          What's New
-        </Link>
        {user && isMobile && (
         <Link
           href="/dashboard"
