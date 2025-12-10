@@ -85,6 +85,8 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       
       // Step 2: Check for overall account status or pending profile review
       if (status !== 'approved' || (isPrivilegedRole && profile_status === 'pending_review')) {
+        // Allow access to profile page even if pending
+        if(pathname.startsWith('/auth/profile')) return;
         return; // Render AccessDenied/Pending component
       }
 
@@ -129,6 +131,11 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
 
   if (isProtectedRoute && user && userProfile) {
     const isPrivilegedRole = ![ROLES.USER, ROLES.ADMIN].includes(userProfile.role);
+
+     // Don't show access denied on profile page
+    if (pathname.startsWith('/auth/profile')) {
+        return <>{children}</>;
+    }
 
     if (userProfile.status !== 'approved') {
       return <AccessDenied status={userProfile.status} onLogout={handleLogout} />;

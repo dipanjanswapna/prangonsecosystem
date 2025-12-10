@@ -1,7 +1,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { skills } from '@/lib/placeholder-data';
-import { ArrowRight, Github } from 'lucide-react';
+import { campaigns, skills } from '@/lib/placeholder-data';
+import { AlertTriangle, ArrowRight, Github, Siren } from 'lucide-react';
 import Link from 'next/link';
 import { HeroCarousel } from '@/components/hero-carousel';
 
@@ -77,10 +77,43 @@ function CTASection() {
   );
 }
 
+function EmergencyBanner() {
+    const emergencyCampaign = campaigns.find(c => c.category === 'Emergency' && c.status === 'active');
+
+    if (!emergencyCampaign) {
+        return null;
+    }
+
+    return (
+        <div className="relative bg-red-600 text-white rounded-lg p-6 mb-8 overflow-hidden">
+            <div className="absolute -bottom-4 -right-4">
+                <Siren className="h-32 w-32 text-white/10" />
+            </div>
+            <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div className="flex items-center gap-4">
+                    <div className="bg-white/20 p-3 rounded-full">
+                        <AlertTriangle className="h-6 w-6" />
+                    </div>
+                    <div>
+                        <h3 className="font-bold text-xl font-headline">URGENT: {emergencyCampaign.title}</h3>
+                        <p className="text-white/90 max-w-2xl">{emergencyCampaign.description}</p>
+                    </div>
+                </div>
+                <Button asChild variant="secondary" size="lg" className="shrink-0">
+                    <Link href={`/donations/${emergencyCampaign.slug}/donate`}>
+                        Donate Now <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                </Button>
+            </div>
+        </div>
+    );
+}
+
 
 export default function HomePage() {
   return (
     <div className="space-y-16 md:space-y-24">
+       <EmergencyBanner />
       <div className="grid min-h-[calc(100vh-10rem)] grid-cols-1 items-center gap-8 md:gap-12 lg:grid-cols-2">
         <section className="flex flex-col items-center text-center lg:items-start lg:text-left">
           <h1 className="font-headline text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tighter">

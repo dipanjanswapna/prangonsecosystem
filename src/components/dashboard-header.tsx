@@ -19,15 +19,18 @@ import { UserNav } from './user-nav';
 import { usePathname } from 'next/navigation';
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
 import { MainNav } from './main-nav';
-import { Menu, Package } from 'lucide-react';
+import { Menu, Package, HandHeart } from 'lucide-react';
+import { Icons } from './icons';
 
 
 function getBreadcrumb(pathname: string) {
+    if (pathname.includes('/dashboard/admin/donations')) return 'Donations';
     if (pathname.includes('/dashboard/admin')) return 'Admin';
     if (pathname.includes('/dashboard/all-users')) return 'All Users';
     if (pathname.includes('/dashboard/moderator')) return 'Moderator';
     if (pathname.includes('/dashboard/manager')) return 'Manager';
     if (pathname.includes('/dashboard/collaborator')) return 'Collaborator';
+    if (pathname.includes('/dashboard/user/donations')) return 'My Donations';
     if (pathname.includes('/dashboard/user')) return 'My Dashboard';
     if (pathname.includes('/auth/profile')) return 'Profile';
     return 'Overview'
@@ -47,10 +50,10 @@ export function DashboardHeader() {
             <SheetContent side="left" className="sm:max-w-xs">
                 <nav className="grid gap-6 text-lg font-medium">
                     <Link
-                    href="#"
+                    href="/"
                     className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
                     >
-                    <Package className="h-5 w-5 transition-all group-hover:scale-110" />
+                    <HandHeart className="h-5 w-5 transition-all group-hover:scale-110" />
                     <span className="sr-only">ONGON</span>
                     </Link>
                     <MainNav isMobile={true} />

@@ -152,6 +152,7 @@ export const campaigns: {
     goal: number;
     raised: number;
     imageId: string;
+    status: 'draft' | 'active' | 'completed' | 'archived';
     category?: 'Seasonal' | 'Emergency' | 'Regular';
 }[] = [
   {
@@ -163,6 +164,7 @@ export const campaigns: {
     goal: 50000,
     raised: 28000,
     imageId: 'project-1',
+    status: 'active',
     category: 'Seasonal',
   },
   {
@@ -174,17 +176,19 @@ export const campaigns: {
     goal: 100000,
     raised: 45000,
     imageId: 'project-2',
+    status: 'active',
     category: 'Regular',
   },
   {
     id: 3,
-    title: 'Emergency Medical Fund',
-    slug: 'emergency-medical-fund',
+    title: 'Emergency Flood Relief',
+    slug: 'emergency-flood-relief',
     description:
-      'Contribute to our fund for providing emergency medical assistance to those in need.',
+      'Contribute to our fund for providing emergency flood relief and medical assistance to those in need.',
     goal: 75000,
     raised: 60000,
     imageId: 'project-3',
+    status: 'active',
     category: 'Emergency',
   },
 ];
