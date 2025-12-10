@@ -7,6 +7,7 @@ import {
 import { BlogOutlineForm } from './blog-outline-form';
 import { FirstDraftForm } from './first-draft-form';
 import { RefineContentForm } from './refine-content-form';
+import { IdentifyImageForm } from './identify-image-form';
 
 export default function AiToolsPage() {
   return (
@@ -20,10 +21,11 @@ export default function AiToolsPage() {
         </p>
       </div>
       <Tabs defaultValue="outline" className="w-full max-w-3xl mx-auto">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="outline">Outline</TabsTrigger>
           <TabsTrigger value="draft">First Draft</TabsTrigger>
           <TabsTrigger value="refine">Refine</TabsTrigger>
+          <TabsTrigger value="identify">Identify</TabsTrigger>
         </TabsList>
         <TabsContent value="outline" className="mt-6">
           <BlogOutlineForm />
@@ -33,6 +35,9 @@ export default function AiToolsPage() {
         </TabsContent>
         <TabsContent value="refine" className="mt-6">
           <RefineContentForm />
+        </TabsContent>
+        <TabsContent value="identify" className="mt-6">
+          <IdentifyImageForm />
         </TabsContent>
       </Tabs>
     </div>
