@@ -21,22 +21,23 @@ interface UserProfile {
 }
 
 function AccessDenied({ status, onLogout }: { status: 'pending' | 'rejected', onLogout: () => void }) {
+  const isPendingProfile = status === 'pending';
   return (
     <div className="flex items-center justify-center min-h-[calc(100vh-10rem)]">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto bg-muted rounded-full p-3 w-fit">
-            {status === 'pending' ? (
+            {isPendingProfile ? (
               <Clock className="h-10 w-10 text-primary" />
             ) : (
               <AlertTriangle className="h-10 w-10 text-destructive" />
             )}
           </div>
           <CardTitle className="mt-4">
-            {status === 'pending' ? 'Access Pending' : 'Access Denied'}
+            {isPendingProfile ? 'Access Pending' : 'Access Denied'}
           </CardTitle>
           <CardDescription>
-            {status === 'pending'
+            {isPendingProfile
               ? 'Your account is currently awaiting admin approval. You will receive an email once your account has been reviewed. Thank you for your patience.'
               : 'Your registration was not approved. If you believe this is an error, please contact support.'}
           </CardDescription>
@@ -73,35 +74,25 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     }
 
     if (userProfile) {
-      // 1. Initial admin approval check
-      if (userProfile.status !== 'approved') {
-        if (pathname !== '/dashboard/access-denied') { // prevent redirect loop
-          // You could create a specific page for this or just show the component
-        }
-        return;
-      }
-      
-      const isPrivilegedRole = ![ROLES.USER, ROLES.ADMIN].includes(userProfile.role);
+      const { role, status, profile_status } = userProfile;
+      const isPrivilegedRole = ![ROLES.USER, ROLES.ADMIN].includes(role);
 
-      // 2. Profile completion check for specific roles
-      if (isPrivilegedRole && userProfile.profile_status === 'incomplete') {
+      // Step 1: Check for incomplete profiles for privileged roles
+      if (isPrivilegedRole && profile_status === 'incomplete') {
         if (pathname !== '/auth/update-profile') {
           router.replace('/auth/update-profile');
         }
-        return;
+        return; // Halt further checks until profile is complete
       }
       
-      // 3. Final approval check after profile submission
-       if (isPrivilegedRole && userProfile.profile_status === 'pending_review') {
-         if (pathname !== '/dashboard/access-denied') {
-            // You can show a specific "pending review" page here
-         }
-         return;
-       }
+      // Step 2: Check for overall account status or pending profile review
+      if (status !== 'approved' || (isPrivilegedRole && profile_status === 'pending_review')) {
+        // Let the component render the AccessDenied/Pending component
+        return;
+      }
 
-
-      // 4. Role-based dashboard routing
-      const userRole = userProfile.role || ROLES.USER;
+      // Step 3: Role-based dashboard routing for approved users
+      const userRole = role || ROLES.USER;
       const expectedDashboardPath = `/dashboard/${userRole.toLowerCase()}`;
       
       if (pathname === '/dashboard' || pathname === '/dashboard/') {
@@ -111,7 +102,8 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       
       const isDashboardPage = pathname.startsWith('/dashboard/');
       if (isDashboardPage && !pathname.startsWith(expectedDashboardPath)) {
-        if(!(userRole === ROLES.ADMIN && pathname === '/dashboard/all-users')) {
+        // Allow admin to access all-users page
+        if(!(userRole === ROLES.ADMIN && pathname.startsWith('/dashboard/all-users'))) {
            router.replace(expectedDashboardPath);
         }
       }
@@ -120,6 +112,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
 
   const handleLogout = async () => {
     await logOut();
+    router.push('/');
   };
 
   if (isLoading && isProtectedRoute) {
@@ -138,11 +131,13 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   }
 
   if (isProtectedRoute && user && userProfile) {
+    const isPrivilegedRole = ![ROLES.USER, ROLES.ADMIN].includes(userProfile.role);
+
+    // Render AccessDenied or pending screens
     if (userProfile.status !== 'approved') {
       return <AccessDenied status={userProfile.status} onLogout={handleLogout} />;
     }
-     if (userProfile.profile_status === 'pending_review') {
-        // A dedicated component for this state would be better.
+     if (isPrivilegedRole && userProfile.profile_status === 'pending_review') {
         return <AccessDenied status="pending" onLogout={handleLogout} />;
     }
   }
