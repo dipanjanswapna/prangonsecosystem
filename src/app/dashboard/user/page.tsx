@@ -8,15 +8,34 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Progress } from '@/components/ui/progress';
 import { useUser } from '@/firebase/auth/use-user';
 import { useDoc } from '@/firebase/firestore/use-doc';
 import { useToast } from '@/hooks/use-toast';
-import { Book, BrainCircuit, Calculator, Copy, Gift, Package, Users } from 'lucide-react';
+import { Book, BrainCircuit, Calculator, Copy, Gift, Package, Star, Trophy, Users } from 'lucide-react';
 import Link from 'next/link';
+import { Badge } from '@/components/ui/badge';
 
 interface UserProfile {
   referralCode?: string;
+  level?: 'Bronze' | 'Silver' | 'Gold' | 'Platinum';
+  points?: number;
 }
+
+const levelThresholds = {
+    Bronze: 0,
+    Silver: 1000,
+    Gold: 5000,
+    Platinum: 10000,
+};
+
+const nextLevel: Record<string, 'Silver' | 'Gold' | 'Platinum' | null> = {
+    Bronze: 'Silver',
+    Silver: 'Gold',
+    Gold: 'Platinum',
+    Platinum: null,
+};
+
 
 export default function UserDashboard() {
   const { user } = useUser();
@@ -53,6 +72,14 @@ export default function UserDashboard() {
       description: 'Your referral link has been copied to the clipboard.',
     });
   };
+  
+  const currentLevel = userProfile?.level || 'Bronze';
+  const currentPoints = userProfile?.points || 0;
+  const nextLevelName = nextLevel[currentLevel];
+  const nextLevelPoints = nextLevelName ? levelThresholds[nextLevelName] : currentPoints;
+  const progressPercentage = nextLevelName ? (currentPoints / nextLevelPoints) * 100 : 100;
+  const pointsForNextLevel = nextLevelName ? nextLevelPoints - currentPoints : 0;
+
 
   return (
     <div className="space-y-6">
@@ -66,6 +93,46 @@ export default function UserDashboard() {
       </Card>
 
       <div className="grid gap-6">
+        
+        {userProfile && (
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Trophy className="h-5 w-5 text-amber-500" />
+                        My Status
+                    </CardTitle>
+                    <CardDescription>Your current level, points, and progress.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div className="flex items-center gap-4">
+                            <Badge className="text-lg py-1 px-4 border-2" variant={currentLevel === 'Platinum' ? 'destructive' : currentLevel === 'Gold' ? 'default' : 'secondary'}>
+                                {currentLevel}
+                            </Badge>
+                            <div className="flex items-center gap-1.5">
+                                <Star className="h-5 w-5 text-amber-400 fill-amber-400" />
+                                <span className="font-bold text-xl">{currentPoints.toLocaleString()}</span>
+                                <span className="text-muted-foreground">Points</span>
+                            </div>
+                        </div>
+                    </div>
+                     {nextLevelName ? (
+                        <div>
+                            <div className="mb-2 text-sm text-muted-foreground">
+                                Next Level: <span className="font-semibold text-foreground">{nextLevelName}</span> ({nextLevelPoints.toLocaleString()} points)
+                            </div>
+                            <Progress value={progressPercentage} className="h-3" />
+                            <p className="text-xs text-muted-foreground mt-1 text-right">
+                                {pointsForNextLevel.toLocaleString()} more points to reach {nextLevelName}
+                            </p>
+                        </div>
+                    ) : (
+                         <p className="text-sm font-medium text-green-600">Congratulations! You have reached the highest level!</p>
+                    )}
+                </CardContent>
+            </Card>
+        )}
+
         <Card>
           <CardHeader>
              <CardTitle className="flex items-center gap-2">

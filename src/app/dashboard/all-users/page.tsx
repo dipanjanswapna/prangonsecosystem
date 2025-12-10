@@ -27,7 +27,7 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Trash2, View, FileDown } from 'lucide-react';
+import { MoreHorizontal, Trash2, View, FileDown, Gem, Star } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import type { Timestamp } from 'firebase/firestore';
 import { ROLES, type Role } from '@/lib/roles';
@@ -64,6 +64,8 @@ interface User {
   role: Role;
   status: 'pending' | 'approved' | 'rejected';
   profile_status?: 'incomplete' | 'pending_review' | 'complete';
+  level?: 'Bronze' | 'Silver' | 'Gold' | 'Platinum';
+  points?: number;
   photoURL?: string;
   createdAt: Timestamp;
   profileUpdatedAt?: Timestamp;
@@ -170,6 +172,14 @@ export default function AllUsersPage() {
       case 'rejected':
       case 'incomplete':
         return 'destructive';
+      case 'Bronze':
+        return 'outline';
+      case 'Silver':
+         return 'secondary';
+      case 'Gold':
+        return 'default';
+       case 'Platinum':
+        return 'destructive';
       default:
         return 'outline';
     }
@@ -232,12 +242,10 @@ export default function AllUsersPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>User</TableHead>
-                <TableHead className="hidden sm:table-cell">Role</TableHead>
-                <TableHead className="hidden md:table-cell">
-                  Account Status
-                </TableHead>
+                <TableHead className="hidden sm:table-cell">Level</TableHead>
+                <TableHead className="hidden md:table-cell">Points</TableHead>
                 <TableHead className="hidden lg:table-cell">
-                  Profile Status
+                  Account Status
                 </TableHead>
                 <TableHead className="hidden xl:table-cell">
                   Created At
@@ -296,18 +304,21 @@ export default function AllUsersPage() {
                         </div>
                       </TableCell>
                       <TableCell className="hidden sm:table-cell">
-                        <Badge variant="outline">{user.role}</Badge>
+                         <Badge variant={getStatusVariant(user.level || 'Bronze')}>
+                          {user.level || 'Bronze'}
+                        </Badge>
                       </TableCell>
                       <TableCell className="hidden md:table-cell">
-                        <Badge variant={getStatusVariant(user.status)}>
-                          {user.status}
-                        </Badge>
+                        <div className="flex items-center gap-1.5">
+                            <Star className="h-4 w-4 text-amber-400 fill-amber-400" />
+                            <span className="font-semibold">{user.points?.toLocaleString() || 0}</span>
+                        </div>
                       </TableCell>
                       <TableCell className="hidden lg:table-cell">
                         <Badge
-                          variant={getStatusVariant(user.profile_status || 'N/A')}
+                          variant={getStatusVariant(user.status)}
                         >
-                          {user.profile_status || 'N/A'}
+                          {user.status}
                         </Badge>
                       </TableCell>
                       <TableCell className="hidden xl:table-cell">
