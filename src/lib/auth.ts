@@ -15,7 +15,7 @@ import {
 } from 'firebase/auth';
 import { initializeFirebase } from '@/firebase';
 import { doc, setDoc, getDoc, serverTimestamp, getFirestore } from 'firebase/firestore';
-import type { Role } from '@/lib/roles';
+import { ROLES, type Role } from '@/lib/roles';
 
 // Initialize Firebase and get the auth instance
 const { firebaseApp } = initializeFirebase();
@@ -33,7 +33,7 @@ export const signUp = async (email:string, password:string, fullName:string, rol
   
   await updateProfile(user, { displayName: fullName });
 
-  const status = role === 'user' ? 'approved' : 'pending';
+  const status = role === ROLES.USER ? 'approved' : 'pending';
 
   // Create a user document in Firestore
   await setDoc(doc(firestore, 'users', user.uid), {
