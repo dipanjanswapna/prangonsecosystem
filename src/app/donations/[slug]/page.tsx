@@ -1,6 +1,6 @@
 'use client';
 import { notFound, useParams } from 'next/navigation';
-import { campaigns, donors } from '@/lib/placeholder-data';
+import { donors } from '@/lib/placeholder-data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import {
@@ -16,10 +16,79 @@ import { ArrowRight, Gift, HandHeart, QrCode } from 'lucide-react';
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
+import { useCollection } from '@/firebase/firestore/use-collection';
+import { Skeleton } from '@/components/ui/skeleton';
+
+interface Campaign {
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+  goal: number;
+  raised: number;
+  imageId: string;
+}
+
+const CampaignDetailsSkeleton = () => (
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2 space-y-6">
+            <Card>
+                <Skeleton className="aspect-video w-full" />
+                <CardHeader>
+                    <Skeleton className="h-10 w-3/4" />
+                    <Skeleton className="h-6 w-full mt-2" />
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-4">
+                        <div className='space-y-2'>
+                            <div className="flex justify-between">
+                                <Skeleton className="h-8 w-1/4" />
+                                <Skeleton className="h-6 w-1/4" />
+                            </div>
+                            <Skeleton className="h-3 w-full" />
+                        </div>
+                        <div className="flex gap-4">
+                            <Skeleton className="h-12 w-40" />
+                            <Skeleton className="h-12 w-40" />
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+        </div>
+        <div className="lg:col-span-1">
+             <Card>
+                <CardHeader>
+                    <Skeleton className="h-8 w-1/2" />
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                        <div key={i} className="flex items-center gap-4">
+                            <Skeleton className="h-12 w-12 rounded-full" />
+                            <div className="flex-grow space-y-2">
+                                <Skeleton className="h-4 w-3/4" />
+                                <Skeleton className="h-4 w-1/2" />
+                            </div>
+                        </div>
+                    ))}
+                </CardContent>
+            </Card>
+        </div>
+    </div>
+)
+
 
 export default function CampaignDetailsPage() {
   const params = useParams<{ slug: string }>();
-  const campaign = campaigns.find((c) => c.slug === params.slug);
+  const { data: campaigns, loading } = useCollection<Campaign>(
+    'campaigns',
+    'slug',
+    params.slug
+  );
+  const campaign = campaigns[0];
+
+  if (loading) {
+    return <CampaignDetailsSkeleton />;
+  }
 
   if (!campaign) {
     notFound();

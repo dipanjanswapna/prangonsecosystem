@@ -28,6 +28,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal, Download, Trash2, CheckCircle, XCircle } from 'lucide-react';
 import type { Timestamp } from 'firebase/firestore';
+import { useToast } from '@/hooks/use-toast';
+import { updateDonationStatus } from '@/lib/donations';
 
 interface Donation {
   id: string;
@@ -42,6 +44,7 @@ interface Donation {
 
 export default function AdminDonationsPage() {
   const { data: donations, loading } = useCollection<Donation>('donations');
+  const { toast } = useToast();
 
   const getStatusVariant = (status: string) => {
     switch (status) {
@@ -56,6 +59,22 @@ export default function AdminDonationsPage() {
         return 'outline';
     }
   };
+  
+  const handleUpdateStatus = async (id: string, status: 'success' | 'failed' | 'refunded') => {
+      try {
+          await updateDonationStatus(id, status);
+          toast({
+              title: 'Status Updated',
+              description: `Donation has been marked as ${status}.`
+          });
+      } catch (error: any) {
+          toast({
+              variant: 'destructive',
+              title: 'Update Failed',
+              description: 'Could not update the donation status.'
+          });
+      }
+  }
 
   return (
     <>
@@ -156,16 +175,16 @@ export default function AdminDonationsPage() {
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuItem>View Details</DropdownMenuItem>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleUpdateStatus(donation.id, 'success')}>
                                <CheckCircle className="mr-2 h-4 w-4" />
                                Mark as Success
                             </DropdownMenuItem>
-                             <DropdownMenuItem>
+                             <DropdownMenuItem onClick={() => handleUpdateStatus(donation.id, 'failed')}>
                                 <XCircle className="mr-2 h-4 w-4" />
                                 Mark as Failed
                             </DropdownMenuItem>
                              <DropdownMenuSeparator />
-                             <DropdownMenuItem className="text-red-600 focus:text-red-600">
+                             <DropdownMenuItem className="text-red-600 focus:text-red-600" disabled>
                                 <Trash2 className="mr-2 h-4 w-4" />
                                 Delete
                             </DropdownMenuItem>

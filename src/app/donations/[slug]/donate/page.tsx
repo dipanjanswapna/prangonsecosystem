@@ -1,7 +1,6 @@
 'use client';
 
 import { notFound, useRouter, useParams } from 'next/navigation';
-import { campaigns } from '@/lib/placeholder-data';
 import {
   Card,
   CardContent,
@@ -23,6 +22,14 @@ import { saveDonation } from '@/lib/donations';
 import { useUser } from '@/firebase/auth/use-user';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Separator } from '@/components/ui/separator';
+import { useCollection } from '@/firebase/firestore/use-collection';
+import { Skeleton } from '@/components/ui/skeleton';
+
+interface Campaign {
+  id: string;
+  title: string;
+  slug: string;
+}
 
 function GatewayIcon({ name, src, isSelected, onClick }: { name: string; src: string; isSelected: boolean; onClick: () => void }) {
   return (
@@ -43,7 +50,9 @@ export default function DonatePage() {
   const { user } = useUser();
   const router = useRouter();
   const { toast } = useToast();
-  const campaign = campaigns.find((c) => c.slug === params.slug);
+  const { data: campaigns, loading } = useCollection<Campaign>('campaigns', 'slug', params.slug as string);
+  const campaign = campaigns[0];
+
 
   const [amount, setAmount] = useState('');
   const [selectedGateway, setSelectedGateway] = useState<string | null>(null);
@@ -54,6 +63,41 @@ export default function DonatePage() {
   const [donationFrequency, setDonationFrequency] = useState('one-time');
   const [isCorporateMatch, setIsCorporateMatch] = useState(false);
   const [corporateName, setCorporateName] = useState('');
+
+  if (loading) {
+      return (
+          <div className='max-w-4xl mx-auto'>
+              <Card>
+                  <CardHeader className='text-center'>
+                      <Skeleton className='h-8 w-3/4 mx-auto' />
+                      <Skeleton className='h-5 w-1/2 mx-auto mt-2' />
+                  </CardHeader>
+                  <CardContent className='space-y-8'>
+                      <div className='space-y-4'>
+                          <Skeleton className='h-6 w-1/3' />
+                          <div className='grid grid-cols-2 gap-4'>
+                               <Skeleton className='h-16 w-full' />
+                               <Skeleton className='h-16 w-full' />
+                          </div>
+                      </div>
+                      <div className='space-y-4'>
+                          <Skeleton className='h-6 w-1/3' />
+                           <div className='grid grid-cols-4 gap-4'>
+                               <Skeleton className='h-16 w-full' />
+                               <Skeleton className='h-16 w-full' />
+                               <Skeleton className='h-16 w-full' />
+                               <Skeleton className='h-16 w-full' />
+                           </div>
+                           <Skeleton className='h-14 w-full' />
+                      </div>
+                  </CardContent>
+                  <CardFooter>
+                      <Skeleton className='h-12 w-full' />
+                  </CardFooter>
+              </Card>
+          </div>
+      )
+  }
 
   if (!campaign) {
     notFound();

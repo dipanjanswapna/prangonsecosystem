@@ -24,8 +24,15 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { saveDonation } from '@/lib/donations';
 import { useUser } from '@/firebase/auth/use-user';
-import { campaigns } from '@/lib/placeholder-data';
 import { Separator } from '@/components/ui/separator';
+import { useCollection } from '@/firebase/firestore/use-collection';
+
+interface Campaign {
+    id: string;
+    title: string;
+    slug: string;
+}
+
 
 function GatewayIcon({
   name,
@@ -64,15 +71,17 @@ function PoolDonationForm() {
   const { user } = useUser();
   const router = useRouter();
   const { toast } = useToast();
+  
+  const {data: allCampaigns } = useCollection<Campaign>('campaigns');
 
   const selectedIds = useMemo(() => {
     const ids = searchParams.get('ids');
-    return ids ? ids.split(',').map(Number) : [];
+    return ids ? ids.split(',') : [];
   }, [searchParams]);
 
   const selectedCampaigns = useMemo(
-    () => campaigns.filter((c) => selectedIds.includes(c.id)),
-    [selectedIds]
+    () => allCampaigns.filter((c) => selectedIds.includes(c.id)),
+    [selectedIds, allCampaigns]
   );
 
   const [totalAmount, setTotalAmount] = useState('');
@@ -82,7 +91,7 @@ function PoolDonationForm() {
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  if (selectedCampaigns.length === 0) {
+  if (selectedCampaigns.length === 0 && allCampaigns.length > 0) {
     notFound();
   }
 

@@ -11,7 +11,6 @@ import {
 } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
-import { campaigns } from '@/lib/placeholder-data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { ArrowRight, ShoppingCart, Leaf, Siren } from 'lucide-react';
 import Image from 'next/image';
@@ -20,7 +19,20 @@ import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { Badge } from '@/components/ui/badge';
+import { useCollection } from '@/firebase/firestore/use-collection';
+import { Skeleton } from '@/components/ui/skeleton';
 
+interface Campaign {
+    id: string;
+    title: string;
+    slug: string;
+    description: string;
+    goal: number;
+    raised: number;
+    imageId: string;
+    status: 'draft' | 'active' | 'completed' | 'archived';
+    category?: 'Seasonal' | 'Emergency' | 'Regular';
+}
 
 const categoryStyles = {
     Seasonal: {
@@ -61,11 +73,36 @@ const CampaignCategoryBadge = ({ category }: { category?: 'Seasonal' | 'Emergenc
     );
 };
 
-export default function DonationsPage() {
-  const [selectedCampaigns, setSelectedCampaigns] = useState<number[]>([]);
-  const router = useRouter();
+const CampaignCardSkeleton = () => (
+    <Card className="flex flex-col overflow-hidden">
+        <div className="aspect-video bg-muted animate-pulse"></div>
+        <CardHeader>
+            <div className="flex justify-between items-start gap-2">
+                <Skeleton className="h-6 w-3/4" />
+                <Skeleton className="h-5 w-5 mt-1" />
+            </div>
+            <Skeleton className="h-4 w-full" />
+        </CardHeader>
+        <CardContent className="flex-grow space-y-4">
+            <Skeleton className="h-2 w-full" />
+            <div className="flex justify-between">
+                <Skeleton className="h-4 w-1/4" />
+                <Skeleton className="h-4 w-1/4" />
+            </div>
+        </CardContent>
+        <CardFooter>
+            <Skeleton className="h-10 w-full" />
+        </CardFooter>
+    </Card>
+)
 
-  const handleCampaignSelect = (campaignId: number) => {
+export default function DonationsPage() {
+  const [selectedCampaigns, setSelectedCampaigns] = useState<string[]>([]);
+  const router = useRouter();
+  const { data: campaigns, loading } = useCollection<Campaign>('campaigns', 'status', 'active');
+
+
+  const handleCampaignSelect = (campaignId: string) => {
     setSelectedCampaigns((prev) =>
       prev.includes(campaignId)
         ? prev.filter((id) => id !== campaignId)
@@ -94,70 +131,74 @@ export default function DonationsPage() {
         </p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {campaigns.map((campaign) => {
-          const image = PlaceHolderImages.find(
-            (img) => img.id === campaign.imageId
-          );
-          const progress = (campaign.raised / campaign.goal) * 100;
-          const isSelected = selectedCampaigns.includes(campaign.id);
-          return (
-            <Card
-              key={campaign.id}
-              className={cn(
-                'flex flex-col overflow-hidden group transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 relative',
-                isSelected && 'ring-2 ring-primary'
-              )}
-            >
-              <CampaignCategoryBadge category={campaign.category} />
-              {image && (
-                <div className="aspect-video overflow-hidden">
-                  <Image
-                    src={image.imageUrl}
-                    alt={campaign.title}
-                    width={600}
-                    height={400}
-                    className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
-                    data-ai-hint={image.imageHint}
-                  />
-                </div>
-              )}
-              <CardHeader>
-                <div className="flex justify-between items-start gap-2">
-                  <CardTitle className="group-hover:text-primary transition-colors">
-                    {campaign.title}
-                  </CardTitle>
-                  <Checkbox
-                    id={`campaign-${campaign.id}`}
-                    checked={isSelected}
-                    onCheckedChange={() => handleCampaignSelect(campaign.id)}
-                    className="h-5 w-5 mt-1"
-                  />
-                </div>
-                <CardDescription>{campaign.description}</CardDescription>
-              </CardHeader>
-              <CardContent className="flex-grow space-y-4">
-                <div>
-                  <Progress value={progress} className="h-2" />
-                  <div className="flex justify-between text-sm text-muted-foreground mt-2">
-                    <span className="font-semibold">
-                      ${campaign.raised.toLocaleString()}
-                    </span>
-                    <span className="text-right">
-                      ${campaign.goal.toLocaleString()} Goal
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button asChild className="w-full">
-                  <Link href={`/donations/${campaign.slug}`}>
-                    Donate Now <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
-              </CardFooter>
-            </Card>
-          );
-        })}
+        {loading ? (
+             Array.from({ length: 3 }).map((_, i) => <CampaignCardSkeleton key={i} />)
+        ) : (
+            campaigns.map((campaign) => {
+            const image = PlaceHolderImages.find(
+                (img) => img.id === campaign.imageId
+            );
+            const progress = (campaign.raised / campaign.goal) * 100;
+            const isSelected = selectedCampaigns.includes(campaign.id);
+            return (
+                <Card
+                key={campaign.id}
+                className={cn(
+                    'flex flex-col overflow-hidden group transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 relative',
+                    isSelected && 'ring-2 ring-primary'
+                )}
+                >
+                <CampaignCategoryBadge category={campaign.category} />
+                {image && (
+                    <div className="aspect-video overflow-hidden">
+                    <Image
+                        src={image.imageUrl}
+                        alt={campaign.title}
+                        width={600}
+                        height={400}
+                        className="object-cover w-full h-full transition-transform duration-300 group-hover:scale-105"
+                        data-ai-hint={image.imageHint}
+                    />
+                    </div>
+                )}
+                <CardHeader>
+                    <div className="flex justify-between items-start gap-2">
+                    <CardTitle className="group-hover:text-primary transition-colors">
+                        {campaign.title}
+                    </CardTitle>
+                    <Checkbox
+                        id={`campaign-${campaign.id}`}
+                        checked={isSelected}
+                        onCheckedChange={() => handleCampaignSelect(campaign.id)}
+                        className="h-5 w-5 mt-1"
+                    />
+                    </div>
+                    <CardDescription>{campaign.description}</CardDescription>
+                </CardHeader>
+                <CardContent className="flex-grow space-y-4">
+                    <div>
+                    <Progress value={progress} className="h-2" />
+                    <div className="flex justify-between text-sm text-muted-foreground mt-2">
+                        <span className="font-semibold">
+                        ৳{campaign.raised.toLocaleString()}
+                        </span>
+                        <span className="text-right">
+                        ৳{campaign.goal.toLocaleString()} Goal
+                        </span>
+                    </div>
+                    </div>
+                </CardContent>
+                <CardFooter>
+                    <Button asChild className="w-full">
+                    <Link href={`/donations/${campaign.slug}`}>
+                        Donate Now <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                    </Button>
+                </CardFooter>
+                </Card>
+            );
+            })
+        )}
       </div>
 
       {selectedCampaigns.length > 0 && (

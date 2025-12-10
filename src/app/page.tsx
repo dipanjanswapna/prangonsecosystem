@@ -1,10 +1,22 @@
+'use client'
+
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { campaigns, skills } from '@/lib/placeholder-data';
+import { skills } from '@/lib/placeholder-data';
 import { AlertTriangle, ArrowRight, Github, Siren } from 'lucide-react';
 import Link from 'next/link';
 import { HeroCarousel } from '@/components/hero-carousel';
+import { useCollection } from '@/firebase/firestore/use-collection';
+import { Skeleton } from '@/components/ui/skeleton';
 
+interface Campaign {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  category: 'Seasonal' | 'Emergency' | 'Regular';
+  status: 'active' | 'completed';
+}
 
 function WavyBackground() {
   return (
@@ -78,7 +90,25 @@ function CTASection() {
 }
 
 function EmergencyBanner() {
-    const emergencyCampaign = campaigns.find(c => c.category === 'Emergency' && c.status === 'active');
+    const { data: campaigns, loading } = useCollection<Campaign>(
+    'campaigns',
+    undefined,
+    undefined,
+    undefined,
+    1,
+    [
+      ['category', '==', 'Emergency'],
+      ['status', '==', 'active'],
+    ]
+  );
+
+  const emergencyCampaign = campaigns?.[0];
+
+    if (loading) {
+        return (
+            <Skeleton className="h-36 w-full mb-8" />
+        )
+    }
 
     if (!emergencyCampaign) {
         return null;

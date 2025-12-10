@@ -1,6 +1,6 @@
 'use client';
 
-import { Home, Package, ShieldCheck, Briefcase, PenTool, User, Users, Settings } from 'lucide-react';
+import { Home, Package, ShieldCheck, Briefcase, PenTool, User, Users, Settings, HandHeart } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useUser } from '@/firebase/auth/use-user';
@@ -13,8 +13,8 @@ const navItems = {
   [ROLES.ADMIN]: [
     { href: '/dashboard/admin', icon: Home, label: 'Dashboard' },
     { href: '/dashboard/all-users', icon: Users, label: 'Users' },
+    { href: '/dashboard/admin/campaigns', icon: HandHeart, label: 'Campaigns' },
     { href: '/dashboard/admin/donations', icon: Package, label: 'Donations' },
-    { href: '#', icon: Settings, label: 'Settings' },
   ],
   [ROLES.MODERATOR]: [
     { href: '/dashboard/moderator', icon: Home, label: 'Dashboard' },
@@ -46,7 +46,7 @@ export function DashboardBottomNav() {
   const items = navItems[userRole] || navItems[ROLES.USER];
   
   return (
-      <div className="fixed bottom-0 left-0 z-50 w-full h-16 bg-background border-t">
+      <div className="fixed bottom-0 left-0 z-50 w-full h-16 bg-background border-t md:hidden">
         <div className="w-full h-full overflow-x-auto whitespace-nowrap">
           <div className="flex justify-around items-center h-full max-w-lg mx-auto px-2">
               {items.map((item) => {

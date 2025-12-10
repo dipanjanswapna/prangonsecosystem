@@ -152,13 +152,17 @@ export const updateUserProfileStatus = async (uid: string, profileStatus: 'incom
 
 export const updateUserProfile = async (uid: string, data: any) => {
     const userDocRef = doc(firestore, 'users', uid);
-    const updateData = {
+    const updateData: Record<string, any> = {
         ...data,
         profileUpdatedAt: serverTimestamp(),
     };
     
+    const userProfile = await getDoc(userDocRef);
+    const role = userProfile.data()?.role;
+    const isPrivilegedRole = ![ROLES.USER, ROLES.ADMIN].includes(role);
+
     // Only set profile status to pending_review if it's not a simple name update
-    if (Object.keys(data).some(key => key !== 'name')) {
+    if (isPrivilegedRole && Object.keys(data).some(key => key !== 'name')) {
         updateData.profile_status = 'pending_review';
     }
 

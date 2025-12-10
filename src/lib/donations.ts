@@ -1,6 +1,6 @@
 'use client';
 
-import { getFirestore, collection, addDoc, serverTimestamp, doc, runTransaction, increment, type DocumentSnapshot } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, serverTimestamp, doc, runTransaction, increment, type DocumentSnapshot, updateDoc } from 'firebase/firestore';
 import { initializeFirebase } from '@/firebase';
 import { customAlphabet } from 'nanoid'
 
@@ -34,11 +34,18 @@ export const saveDonation = async (data: DonationData): Promise<string> => {
     try {
         const newDonationId = await runTransaction(firestore, async (transaction) => {
             const newDonationRef = doc(collection(firestore, 'donations'));
+            const campaignRef = doc(firestore, 'campaigns', data.campaignId);
             
             transaction.set(newDonationRef, {
                 ...data,
                 invoiceId: nanoid(8).toUpperCase(),
                 createdAt: serverTimestamp(),
+                status: 'success', // Simulating successful payment for now
+            });
+            
+            // Increment the 'raised' amount on the campaign
+            transaction.update(campaignRef, {
+                raised: increment(data.amount)
             });
 
             if (data.userId && !data.isAnonymous) {
@@ -67,4 +74,9 @@ export const saveDonation = async (data: DonationData): Promise<string> => {
     }
 };
 
+export const updateDonationStatus = async (donationId: string, status: 'success' | 'failed' | 'refunded') => {
+    const donationRef = doc(firestore, 'donations', donationId);
+    await updateDoc(donationRef, { status });
+}
     
+
