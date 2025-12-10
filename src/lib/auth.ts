@@ -8,12 +8,14 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
   sendPasswordResetEmail,
+  updateProfile,
   type Auth,
   type UserCredential,
   type User,
 } from 'firebase/auth';
 import { initializeFirebase } from '@/firebase';
 import { doc, setDoc, getDoc, serverTimestamp, getFirestore } from 'firebase/firestore';
+import type { Role } from '@/lib/roles';
 
 // Initialize Firebase and get the auth instance
 const { firebaseApp } = initializeFirebase();
@@ -21,28 +23,34 @@ const auth = getAuth(firebaseApp);
 const firestore = getFirestore(firebaseApp);
 
 
-export const signUp = async (email, password, fullName): Promise<UserCredential> => {
+export const signUp = async (email:string, password:string, fullName:string, role: Role): Promise<UserCredential> => {
   const userCredential = await createUserWithEmailAndPassword(
     auth,
     email,
     password
   );
   const user = userCredential.user;
+  
+  await updateProfile(user, { displayName: fullName });
+
+  const status = role === 'user' ? 'approved' : 'pending';
 
   // Create a user document in Firestore
   await setDoc(doc(firestore, 'users', user.uid), {
     uid: user.uid,
     email: user.email,
     name: fullName,
-    role: 'user', // Default role
+    role: role,
+    status: status,
     createdAt: serverTimestamp(),
     lastLogin: serverTimestamp(),
+    photoURL: user.photoURL
   });
 
   return userCredential;
 };
 
-export const signIn = async (email, password, rememberMe): Promise<UserCredential> => {
+export const signIn = async (email:string, password:string, rememberMe:boolean): Promise<UserCredential> => {
   const userCredential = await signInWithEmailAndPassword(auth, email, password);
   const user = userCredential.user;
 
@@ -52,6 +60,19 @@ export const signIn = async (email, password, rememberMe): Promise<UserCredentia
     { lastLogin: serverTimestamp() },
     { merge: true }
   );
+  
+  // This part is now handled by the session creation API
+  // No need to call createSessionCookie here from the client
+  const idToken = await user.getIdToken();
+  
+  await fetch('/api/auth/session', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ idToken, rememberMe }),
+  });
+
 
   return userCredential;
 };
@@ -59,6 +80,8 @@ export const signIn = async (email, password, rememberMe): Promise<UserCredentia
 const handleSocialSignIn = async (user: User) => {
   const userDocRef = doc(firestore, 'users', user.uid);
   const userDoc = await getDoc(userDocRef);
+
+  const idToken = await user.getIdToken();
 
   if (userDoc.exists()) {
     // User already exists, just update last login
@@ -70,11 +93,18 @@ const handleSocialSignIn = async (user: User) => {
       email: user.email,
       name: user.displayName,
       photoURL: user.photoURL,
-      role: 'user', // Default role
+      role: 'user', // Default role for social sign-in
+      status: 'approved',
       createdAt: serverTimestamp(),
       lastLogin: serverTimestamp(),
     });
   }
+
+  await fetch('/api/auth/session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ idToken, rememberMe: true }),
+  });
 };
 
 
@@ -88,8 +118,14 @@ export const signInWithGoogle = async (): Promise<UserCredential> => {
 
 export const logOut = async (): Promise<void> => {
   await signOut(auth);
+  await fetch('/api/auth/session', { method: 'DELETE' });
 };
 
 export const resetPassword = async (email: string): Promise<void> => {
   await sendPasswordResetEmail(auth, email);
+};
+
+export const updateUserRoleAndStatus = async (uid: string, role: Role, status: 'pending' | 'approved' | 'rejected') => {
+    const userDocRef = doc(firestore, 'users', uid);
+    await setDoc(userDocRef, { role, status }, { merge: true });
 };

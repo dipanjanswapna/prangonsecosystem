@@ -22,11 +22,20 @@ import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useUser } from '@/firebase/auth/use-user';
 import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { ROLES, type Role } from '@/lib/roles';
 
 const formSchema = z.object({
   fullName: z.string().min(3, 'Full name must be at least 3 characters.'),
   email: z.string().email('Please enter a valid email address.'),
   password: z.string().min(6, 'Password must be at least 6 characters.'),
+  role: z.nativeEnum(ROLES).default(ROLES.USER),
 });
 
 function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -78,23 +87,28 @@ export default function SignupPage() {
       fullName: '',
       email: '',
       password: '',
+      role: ROLES.USER,
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
     try {
-      await signUp(values.email, values.password, values.fullName);
+      await signUp(values.email, values.password, values.fullName, values.role);
       toast({
         title: 'Account Created!',
-        description: "You've been successfully signed up. Redirecting to login...",
+        description:
+          values.role === ROLES.USER
+            ? "You've been successfully signed up. Redirecting to login..."
+            : 'Your registration is pending admin approval. We will notify you via email.',
       });
       router.push('/auth/login');
     } catch (error: any) {
       console.error('Signup Error:', error);
       let description = 'There was a problem with your request.';
       if (error.code === 'auth/email-already-in-use') {
-        description = 'This email address is already in use. Please try another one.';
+        description =
+          'This email address is already in use. Please try another one.';
       } else {
         description = error.message;
       }
@@ -119,35 +133,39 @@ export default function SignupPage() {
       router.push('/dashboard');
     } catch (error: any) {
       console.error('Google Sign-In Error:', error);
-       toast({
+      toast({
         variant: 'destructive',
         title: 'Google Sign-Up Failed.',
-        description: error.message || 'Could not sign you up with Google. Please try again.',
+        description:
+          error.message || 'Could not sign you up with Google. Please try again.',
       });
     } finally {
       setIsGoogleLoading(false);
     }
   };
-  
+
   if (userLoading || user) {
     return (
-       <AuthLayout title="Loading..." description="Please wait while we check your session.">
-         <div className="space-y-4">
-           <div className="space-y-2">
-              <Skeleton className="h-5 w-20" />
-              <Skeleton className="h-10 w-full" />
-           </div>
-           <div className="space-y-2">
-              <Skeleton className="h-5 w-20" />
-              <Skeleton className="h-10 w-full" />
-           </div>
-           <div className="space-y-2">
-              <Skeleton className="h-5 w-20" />
-              <Skeleton className="h-10 w-full" />
-           </div>
+      <AuthLayout
+        title="Loading..."
+        description="Please wait while we check your session."
+      >
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Skeleton className="h-5 w-20" />
             <Skeleton className="h-10 w-full" />
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-5 w-20" />
             <Skeleton className="h-10 w-full" />
-         </div>
+          </div>
+          <div className="space-y-2">
+            <Skeleton className="h-5 w-20" />
+            <Skeleton className="h-10 w-full" />
+          </div>
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-10 w-full" />
+        </div>
       </AuthLayout>
     );
   }
@@ -223,15 +241,48 @@ export default function SignupPage() {
               </FormItem>
             )}
           />
+          <FormField
+            control={form.control}
+            name="role"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Sign up as</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                  disabled={isLoading || isGoogleLoading}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a role" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value={ROLES.USER}>User</SelectItem>
+                    <SelectItem value={ROLES.COLLABORATOR}>
+                      Collaborator
+                    </SelectItem>
+                    <SelectItem value={ROLES.MANAGER}>Manager</SelectItem>
+                    <SelectItem value={ROLES.MODERATOR}>Moderator</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <div className="flex flex-col gap-4 mt-2">
-            <Button type="submit" className="w-full auth-button" disabled={isLoading || isGoogleLoading}>
+            <Button
+              type="submit"
+              className="w-full auth-button"
+              disabled={isLoading || isGoogleLoading}
+            >
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Create Account
             </Button>
           </div>
         </form>
       </Form>
-      
+
       <div className="relative my-4">
         <div className="absolute inset-0 flex items-center">
           <span className="w-full border-t" />
@@ -243,7 +294,12 @@ export default function SignupPage() {
         </div>
       </div>
 
-       <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={isLoading || isGoogleLoading}>
+      <Button
+        variant="outline"
+        className="w-full"
+        onClick={handleGoogleSignIn}
+        disabled={isLoading || isGoogleLoading}
+      >
         {isGoogleLoading ? (
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
         ) : (
