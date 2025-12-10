@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronDown, LayoutDashboard } from 'lucide-react';
+import { ChevronDown, LayoutDashboard, PlusCircle } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -99,6 +99,17 @@ export function MainNav({ isMobile = false }: { isMobile?: boolean }) {
       )}
     >
       {navItems.map(renderNavItem)}
+       <Link
+          href="/whats-new"
+          className={cn(
+            'group relative flex items-center gap-2 px-3 py-2 text-sm font-medium transition-colors hover:text-primary',
+            pathname.startsWith('/whats-new') ? 'text-primary' : 'text-foreground/80',
+            isMobile ? 'w-full text-base' : ''
+          )}
+        >
+          <PlusCircle className="h-4 w-4" />
+          What's New
+        </Link>
        {user && isMobile && (
         <Link
           href="/dashboard"

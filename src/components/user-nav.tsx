@@ -187,10 +187,10 @@ export function UserNav() {
             </a>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <a href="/contact" target="_blank" rel="noopener noreferrer">
+            <Link href="/contact">
               <Mail className="mr-2" />
               <span>Contact Support</span>
-            </a>
+            </Link>
           </DropdownMenuItem>
            <DropdownMenuItem asChild>
             <Link href="/whats-new">
