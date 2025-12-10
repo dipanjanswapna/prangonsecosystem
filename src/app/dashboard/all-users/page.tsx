@@ -65,7 +65,13 @@ export default function AllUsersPage() {
               ? Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i}>
                     <TableCell>
-                      <Skeleton className="h-10 w-48" />
+                      <div className="flex items-center gap-3">
+                        <Skeleton className="h-10 w-10 rounded-full" />
+                        <div className='space-y-2'>
+                           <Skeleton className="h-4 w-32" />
+                           <Skeleton className="h-3 w-48" />
+                        </div>
+                      </div>
                     </TableCell>
                     <TableCell>
                       <Skeleton className="h-6 w-16" />
@@ -82,7 +88,7 @@ export default function AllUsersPage() {
                   <TableRow key={user.id}>
                     <TableCell className="font-medium flex items-center gap-3">
                       <Avatar>
-                        <AvatarImage src={user.photoURL} />
+                        <AvatarImage src={user.photoURL} alt={user.name}/>
                         <AvatarFallback>
                           {user.name?.charAt(0).toUpperCase() || 'U'}
                         </AvatarFallback>

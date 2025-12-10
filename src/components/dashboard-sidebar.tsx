@@ -18,6 +18,8 @@ import { useDoc } from '@/firebase/firestore/use-doc';
 import { ROLES, type Role } from '@/lib/roles';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
+import { logOut } from '@/lib/auth';
+import { useRouter } from 'next/navigation';
 
 const navItems = {
   [ROLES.ADMIN]: [
@@ -46,6 +48,7 @@ const navItems = {
 
 export function DashboardSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { user } = useUser();
   const { data: userProfile } = useDoc<{ role: Role }>(
     user ? `users/${user.uid}` : null
@@ -53,6 +56,11 @@ export function DashboardSidebar() {
   const userRole = userProfile?.role || ROLES.USER;
 
   const items = navItems[userRole] || navItems[ROLES.USER];
+  
+  const handleLogout = async () => {
+    await logOut();
+    router.push('/');
+  };
 
   return (
     <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
@@ -65,34 +73,37 @@ export function DashboardSidebar() {
             <span className="text-sm font-bold">DSP</span>
             <span className="sr-only">Prangons Ecosystem</span>
           </Link>
-          {items.map((item) => (
-            <Tooltip key={item.label}>
-              <TooltipTrigger asChild>
-                <Link
-                  href={item.href}
-                  className={cn(
-                    'flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8',
-                    pathname.startsWith(item.href) && item.href !== '#' && 'bg-accent text-accent-foreground'
-                  )}
-                >
-                  <item.icon className="h-5 w-5" />
-                  <span className="sr-only">{item.label}</span>
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right">{item.label}</TooltipContent>
-            </Tooltip>
-          ))}
+          {items.map((item) => {
+            const isActive = pathname.startsWith(item.href) && item.href !== '#';
+            return (
+              <Tooltip key={item.label}>
+                <TooltipTrigger asChild>
+                  <Link
+                    href={item.href}
+                    className={cn(
+                      'flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8',
+                      isActive && 'bg-accent text-accent-foreground'
+                    )}
+                  >
+                    <item.icon className="h-5 w-5" />
+                    <span className="sr-only">{item.label}</span>
+                  </Link>
+                </TooltipTrigger>
+                <TooltipContent side="right">{item.label}</TooltipContent>
+              </Tooltip>
+            );
+          })}
         </nav>
         <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">
           <Tooltip>
             <TooltipTrigger asChild>
-              <Link
-                href="#"
+              <button
+                onClick={handleLogout}
                 className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
               >
                 <LogOut className="h-5 w-5" />
                 <span className="sr-only">Logout</span>
-              </Link>
+              </button>
             </TooltipTrigger>
             <TooltipContent side="right">Logout</TooltipContent>
           </Tooltip>
