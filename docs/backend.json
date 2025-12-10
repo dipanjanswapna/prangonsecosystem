@@ -87,7 +87,7 @@
         "type": "object",
         "properties": {
             "donationId": { "type": "string", "description": "The source donation ID." },
-            "usageItemId": { "type": "string", landslidescription": "The destination usage item ID." },
+            "usageItemId": { "type": "string", "description": "The destination usage item ID." },
             "amount": { "type": "number" },
             "note": { "type": "string", "description": "Note from the manager making the allocation." },
             "approvedBy": { "type": "string", "description": "UID of the admin who approved it." },
