@@ -18,6 +18,8 @@ const DashboardLayout: FC<DashboardLayoutProps> = ({ children }) => {
             {children}
         </main>
         <DashboardBottomNav />
+        {/* This div is a trick to hide the main AppFooter on dashboard routes */}
+        <div className="hidden" data-purpose="footer-hider"></div>
       </div>
     </DashboardProvider>
   );
