@@ -47,24 +47,26 @@ export function DashboardBottomNav() {
 
   return (
     <div className="fixed bottom-0 left-0 z-50 w-full h-16 bg-background border-t">
-      <div className={`grid h-full max-w-lg grid-cols-${items.length} mx-auto`}>
-        {items.map((item) => {
-          const isActive = pathname === item.href;
-          return (
-            <Link
-              key={item.label}
-              href={item.href}
-              className={cn(
-                buttonVariants({ variant: 'ghost', size: 'lg' }),
-                'flex flex-col items-center justify-center h-full rounded-none group text-muted-foreground pt-2',
-                isActive && 'text-primary'
-              )}
-            >
-              <item.icon className={cn('h-5 w-5 mb-1', isActive ? 'text-primary' : 'group-hover:text-foreground')} />
-              <span className="text-xs font-medium">{item.label}</span>
-            </Link>
-          );
-        })}
+      <div className="w-full h-full overflow-x-auto whitespace-nowrap">
+        <div className="flex justify-around items-center h-full min-w-max mx-auto px-2">
+            {items.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+                <Link
+                key={item.label}
+                href={item.href}
+                className={cn(
+                    buttonVariants({ variant: 'ghost', size: 'lg' }),
+                    'flex flex-col items-center justify-center h-full rounded-none group text-muted-foreground pt-2 px-4 w-20',
+                    isActive && 'text-primary'
+                )}
+                >
+                <item.icon className={cn('h-5 w-5 mb-1', isActive ? 'text-primary' : 'group-hover:text-foreground')} />
+                <span className="text-xs font-medium truncate">{item.label}</span>
+                </Link>
+            );
+            })}
+        </div>
       </div>
     </div>
   );
