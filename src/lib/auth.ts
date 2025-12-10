@@ -147,3 +147,16 @@ export const updateUserProfile = async (uid: string, data: any) => {
         profileUpdatedAt: serverTimestamp(),
      }, { merge: true });
 };
+
+export const deleteUserAccount = async (uid: string) => {
+  const response = await fetch(`/api/users/${uid}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Failed to delete user');
+  }
+
+  return await response.json();
+};

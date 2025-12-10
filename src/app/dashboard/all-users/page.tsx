@@ -1,4 +1,5 @@
 'use client';
+import { useState } from 'react';
 import {
   Card,
   CardContent,
@@ -22,20 +23,27 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuPortal,
-  DropdownMenuSubContent,
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal } from 'lucide-react';
+import { MoreHorizontal, Trash2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import type { Timestamp } from 'firebase/firestore';
 import { ROLES, type Role } from '@/lib/roles';
-import { updateUserRoleAndStatus, updateUserProfileStatus } from '@/lib/auth';
+import { updateUserRoleAndStatus, updateUserProfileStatus, deleteUserAccount } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+
 
 interface User {
   id: string;
@@ -51,6 +59,8 @@ interface User {
 export default function AllUsersPage() {
   const { data: users, loading } = useCollection<User>('users');
   const { toast } = useToast();
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
 
   const handleUpdateUserStatus = async (
     uid: string,
@@ -91,6 +101,32 @@ export default function AllUsersPage() {
     }
   };
 
+  const openDeleteDialog = (user: User) => {
+    setUserToDelete(user);
+    setIsAlertOpen(true);
+  };
+  
+  const handleDeleteUser = async () => {
+    if (!userToDelete) return;
+    
+    try {
+      await deleteUserAccount(userToDelete.id);
+      toast({
+        title: 'User Deleted',
+        description: `${userToDelete.name} has been permanently deleted.`,
+      });
+    } catch (error: any) {
+       toast({
+        variant: 'destructive',
+        title: 'Deletion Failed',
+        description: error.message || 'Could not delete user.',
+      });
+    } finally {
+      setIsAlertOpen(false);
+      setUserToDelete(null);
+    }
+  };
+
   const getStatusVariant = (status: string) => {
     switch (status) {
       case 'approved':
@@ -108,150 +144,174 @@ export default function AllUsersPage() {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>All Users</CardTitle>
-        <CardDescription>
-          A list of all users in the system. You can manage their roles and
-          approval status here.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>User</TableHead>
-              <TableHead className="hidden sm:table-cell">Role</TableHead>
-              <TableHead className="hidden md:table-cell">Account Status</TableHead>
-              <TableHead className="hidden md:table-cell">Profile Status</TableHead>
-              <TableHead className="hidden md:table-cell">Created At</TableHead>
-              <TableHead>
-                <span className="sr-only">Actions</span>
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loading
-              ? Array.from({ length: 5 }).map((_, i) => (
-                  <TableRow key={i}>
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <Skeleton className="h-10 w-10 rounded-full" />
-                        <div className="space-y-2">
-                          <Skeleton className="h-4 w-32" />
-                          <Skeleton className="h-3 w-48" />
+    <>
+      <Card>
+        <CardHeader>
+          <CardTitle>All Users</CardTitle>
+          <CardDescription>
+            A list of all users in the system. You can manage their roles and
+            approval status here.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>User</TableHead>
+                <TableHead className="hidden sm:table-cell">Role</TableHead>
+                <TableHead className="hidden md:table-cell">Account Status</TableHead>
+                <TableHead className="hidden md:table-cell">Profile Status</TableHead>
+                <TableHead className="hidden md:table-cell">Created At</TableHead>
+                <TableHead>
+                  <span className="sr-only">Actions</span>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {loading
+                ? Array.from({ length: 5 }).map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <Skeleton className="h-10 w-10 rounded-full" />
+                          <div className="space-y-2">
+                            <Skeleton className="h-4 w-32" />
+                            <Skeleton className="h-3 w-48" />
+                          </div>
                         </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="hidden sm:table-cell">
-                      <Skeleton className="h-6 w-16" />
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      <Skeleton className="h-6 w-20" />
-                    </TableCell>
-                     <TableCell className="hidden md:table-cell">
-                      <Skeleton className="h-6 w-20" />
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      <Skeleton className="h-6 w-24" />
-                    </TableCell>
-                    <TableCell>
-                      <Skeleton className="h-8 w-8" />
-                    </TableCell>
-                  </TableRow>
-                ))
-              : users.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell className="font-medium flex items-center gap-3">
-                      <Avatar>
-                        <AvatarImage src={user.photoURL} alt={user.name} />
-                        <AvatarFallback>
-                          {user.name?.charAt(0).toUpperCase() || 'U'}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <div>{user.name}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {user.email}
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        <Skeleton className="h-6 w-16" />
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        <Skeleton className="h-6 w-20" />
+                      </TableCell>
+                       <TableCell className="hidden md:table-cell">
+                        <Skeleton className="h-6 w-20" />
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        <Skeleton className="h-6 w-24" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="h-8 w-8" />
+                      </TableCell>
+                    </TableRow>
+                  ))
+                : users.map((user) => (
+                    <TableRow key={user.id}>
+                      <TableCell className="font-medium flex items-center gap-3">
+                        <Avatar>
+                          <AvatarImage src={user.photoURL} alt={user.name} />
+                          <AvatarFallback>
+                            {user.name?.charAt(0).toUpperCase() || 'U'}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div>{user.name}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {user.email}
+                          </div>
                         </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="hidden sm:table-cell">
-                      <Badge variant="outline">{user.role}</Badge>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      <Badge variant={getStatusVariant(user.status)}>
-                        {user.status}
-                      </Badge>
-                    </TableCell>
-                     <TableCell className="hidden md:table-cell">
-                      <Badge variant={getStatusVariant(user.profile_status || 'N/A')}>
-                        {user.profile_status || 'N/A'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      {user.createdAt
-                        ? new Date(
-                            user.createdAt.seconds * 1000
-                          ).toLocaleDateString()
-                        : 'N/A'}
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            aria-haspopup="true"
-                            size="icon"
-                            variant="ghost"
-                          >
-                            <MoreHorizontal className="h-4 w-4" />
-                            <span className="sr-only">Toggle menu</span>
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Account Actions</DropdownMenuLabel>
-                          <DropdownMenuItem
-                            onClick={() =>
-                              handleUpdateUserStatus(user.id, 'approved')
-                            }
-                          >
-                            Approve Account
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() =>
-                              handleUpdateUserStatus(user.id, 'rejected')
-                            }
-                          >
-                            Reject Account
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                           <DropdownMenuLabel>Profile Actions</DropdownMenuLabel>
+                      </TableCell>
+                      <TableCell className="hidden sm:table-cell">
+                        <Badge variant="outline">{user.role}</Badge>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        <Badge variant={getStatusVariant(user.status)}>
+                          {user.status}
+                        </Badge>
+                      </TableCell>
+                       <TableCell className="hidden md:table-cell">
+                        <Badge variant={getStatusVariant(user.profile_status || 'N/A')}>
+                          {user.profile_status || 'N/A'}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="hidden md:table-cell">
+                        {user.createdAt
+                          ? new Date(
+                              user.createdAt.seconds * 1000
+                            ).toLocaleDateString()
+                          : 'N/A'}
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              aria-haspopup="true"
+                              size="icon"
+                              variant="ghost"
+                            >
+                              <MoreHorizontal className="h-4 w-4" />
+                              <span className="sr-only">Toggle menu</span>
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Account Actions</DropdownMenuLabel>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleUpdateUserStatus(user.id, 'approved')
+                              }
+                            >
+                              Approve Account
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() =>
+                                handleUpdateUserStatus(user.id, 'rejected')
+                              }
+                            >
+                              Reject Account
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                             <DropdownMenuLabel>Profile Actions</DropdownMenuLabel>
+                               <DropdownMenuItem
+                              onClick={() =>
+                                handleUpdateUserProfileStatus(user.id, 'complete')
+                              }
+                            >
+                              Approve Profile
+                            </DropdownMenuItem>
                              <DropdownMenuItem
-                            onClick={() =>
-                              handleUpdateUserProfileStatus(user.id, 'complete')
-                            }
-                          >
-                            Approve Profile
-                          </DropdownMenuItem>
-                           <DropdownMenuItem
-                            onClick={() =>
-                              handleUpdateUserProfileStatus(user.id, 'incomplete')
-                            }
-                          >
-                            Request Profile Update
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem className="text-red-600">
-                            Delete User
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
-          </TableBody>
-        </Table>
-      </CardContent>
-    </Card>
+                              onClick={() =>
+                                handleUpdateUserProfileStatus(user.id, 'incomplete')
+                              }
+                            >
+                              Request Profile Update
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem 
+                              className="text-red-600 focus:text-red-600 focus:bg-red-50 dark:focus:bg-red-900/40"
+                              onClick={() => openDeleteDialog(user)}
+                            >
+                              <Trash2 className="mr-2 h-4 w-4"/>
+                              Delete User
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+      
+      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the user
+              <span className="font-bold"> {userToDelete?.name}</span> and remove their data from our servers.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteUser} className="bg-destructive hover:bg-destructive/90 text-destructive-foreground">
+              Yes, delete user
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
