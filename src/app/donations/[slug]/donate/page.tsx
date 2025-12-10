@@ -157,11 +157,8 @@ export default function DonatePage() {
         donorName: isAnonymous ? 'Anonymous' : name,
         donorEmail: isAnonymous ? null : email,
         isCorporateMatch: isCorporateMatch,
+        corporateName: isCorporateMatch ? corporateName : null,
       };
-
-      if (isCorporateMatch) {
-        donationData.corporateName = corporateName;
-      }
 
       const newDonationId = await saveDonation(donationData);
 

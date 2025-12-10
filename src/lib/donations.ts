@@ -37,7 +37,6 @@ export const saveDonation = async (data: DonationData): Promise<string> => {
             let userDoc: DocumentSnapshot | null = null;
             
             // --- READ PHASE ---
-            // This must come before any write operations in the transaction.
             if (data.userId && !data.isAnonymous) {
                 userRef = doc(firestore, 'users', data.userId);
                 userDoc = await transaction.get(userRef);
@@ -55,8 +54,8 @@ export const saveDonation = async (data: DonationData): Promise<string> => {
                 status: 'success', // Simulating successful payment for now
             };
             
-            if (data.isCorporateMatch && data.corporateName) {
-                donationPayload.corporateName = data.corporateName;
+            if (!donationPayload.isCorporateMatch) {
+                delete donationPayload.corporateName;
             }
 
             // Write 1: Create the new donation document.
@@ -69,8 +68,7 @@ export const saveDonation = async (data: DonationData): Promise<string> => {
 
             // Write 3: If user doc was read, update user's points and level.
             if (userRef && userDoc && userDoc.exists()) {
-                // 1 Point for every 100 Taka
-                const pointsEarned = Math.floor(data.amount / 100);
+                const pointsEarned = Math.floor(data.amount / 1);
                 const currentPoints = userDoc.data()?.points || 0;
                 const newTotalPoints = currentPoints + pointsEarned;
                 const newLevel = getDonorLevel(newTotalPoints);
@@ -84,7 +82,6 @@ export const saveDonation = async (data: DonationData): Promise<string> => {
             return newDonationRef.id;
         });
 
-        // The transaction was successful, return the new donation ID
         return newDonationId;
 
     } catch (error) {
