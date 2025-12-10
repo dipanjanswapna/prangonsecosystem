@@ -19,7 +19,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { HandHeart, Loader2 } from 'lucide-react';
 import Image from 'next/image';
-import { useState, useMemo, Suspense } from 'react';
+import { useState, useMemo, Suspense, Fragment } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { saveDonation } from '@/lib/donations';
@@ -190,13 +190,13 @@ function PoolDonationForm() {
             <Label className="text-lg font-medium">Selected Campaigns ({selectedCampaigns.length})</Label>
             <div className="border rounded-lg p-4 space-y-3">
               {selectedCampaigns.map((campaign, index) => (
-                <>
-                  <div key={campaign.id} className="flex justify-between items-center">
+                <Fragment key={campaign.id}>
+                  <div className="flex justify-between items-center">
                     <p className="font-medium">{campaign.title}</p>
                     <p className="text-muted-foreground">৳{amountPerCampaign.toFixed(2)}</p>
                   </div>
                   {index < selectedCampaigns.length - 1 && <Separator />}
-                </>
+                </Fragment>
               ))}
             </div>
           </div>
