@@ -37,12 +37,22 @@ export const saveDonation = async (data: DonationData): Promise<string> => {
             const campaignRef = doc(firestore, 'campaigns', data.campaignId);
             const invoiceId = `ONGN-${nanoid()}`;
             
-            transaction.set(newDonationRef, {
+            const donationPayload: any = {
                 ...data,
                 invoiceId: invoiceId,
                 createdAt: serverTimestamp(),
                 status: 'success', // Simulating successful payment for now
-            });
+            };
+
+            // Only include corporateName if it's a corporate match and has a value
+            if (data.isCorporateMatch && data.corporateName) {
+                donationPayload.corporateName = data.corporateName;
+            } else {
+                // Ensure corporateName is not in the payload if not applicable
+                delete donationPayload.corporateName;
+            }
+
+            transaction.set(newDonationRef, donationPayload);
             
             // Increment the 'raised' amount on the campaign
             transaction.update(campaignRef, {

@@ -145,7 +145,7 @@ export default function DonatePage() {
     setIsLoading(true);
 
     try {
-      const donationData = {
+      const donationData: any = {
         userId: user?.uid || null,
         campaignId: String(campaign.id),
         campaignTitle: campaign.title,
@@ -157,8 +157,11 @@ export default function DonatePage() {
         donorName: isAnonymous ? 'Anonymous' : name,
         donorEmail: isAnonymous ? null : email,
         isCorporateMatch: isCorporateMatch,
-        corporateName: isCorporateMatch ? corporateName : undefined,
       };
+
+      if (isCorporateMatch) {
+        donationData.corporateName = corporateName;
+      }
 
       const newDonationId = await saveDonation(donationData);
 
