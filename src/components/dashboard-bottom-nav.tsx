@@ -46,8 +46,8 @@ export function DashboardBottomNav() {
   const items = navItems[userRole] || navItems[ROLES.USER];
 
   return (
-    <div className="fixed bottom-0 left-0 z-50 w-full h-20 bg-background border-t">
-      <div className={`grid h-full grid-cols-${items.length} mx-auto`}>
+    <div className="fixed bottom-0 left-0 z-50 w-full h-16 bg-background border-t">
+      <div className={`grid h-full max-w-lg grid-cols-${items.length} mx-auto`}>
         {items.map((item) => {
           const isActive = pathname === item.href;
           return (
@@ -56,11 +56,11 @@ export function DashboardBottomNav() {
               href={item.href}
               className={cn(
                 buttonVariants({ variant: 'ghost', size: 'lg' }),
-                'flex flex-col items-center justify-center h-full rounded-none group text-muted-foreground',
-                isActive && 'text-primary bg-primary/10'
+                'flex flex-col items-center justify-center h-full rounded-none group text-muted-foreground pt-2',
+                isActive && 'text-primary'
               )}
             >
-              <item.icon className={cn('h-6 w-6 mb-1', isActive ? 'text-primary' : 'group-hover:text-foreground')} />
+              <item.icon className={cn('h-5 w-5 mb-1', isActive ? 'text-primary' : 'group-hover:text-foreground')} />
               <span className="text-xs font-medium">{item.label}</span>
             </Link>
           );
