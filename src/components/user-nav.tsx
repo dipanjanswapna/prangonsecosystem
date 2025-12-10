@@ -108,32 +108,14 @@ export function UserNav() {
           <DropdownMenuLabel>My Account</DropdownMenuLabel>
           <DropdownMenuItem asChild>
             <Link href="/auth/profile">
-              <UserIcon className="mr-2" />
+              <UserIcon />
               <span>Profile</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link href="/dashboard">
-              <LayoutDashboard className="mr-2" />
+              <LayoutDashboard />
               <span>Dashboard</span>
-            </Link>
-          </DropdownMenuItem>
-           <DropdownMenuItem asChild>
-            <Link href="/dashboard/my-content">
-              <FileText className="mr-2" />
-              <span>My Content</span>
-            </Link>
-          </DropdownMenuItem>
-           <DropdownMenuItem asChild>
-            <Link href="/dashboard/billing">
-              <CreditCard className="mr-2" />
-              <span>Billing</span>
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link href="/dashboard/team">
-              <Users className="mr-2" />
-              <span>Team</span>
             </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
@@ -142,38 +124,20 @@ export function UserNav() {
            <DropdownMenuLabel>Settings</DropdownMenuLabel>
             <DropdownMenuItem asChild>
             <Link href="/settings/general">
-              <Settings className="mr-2" />
+              <Settings />
               <span>General Settings</span>
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link href="/settings/notifications">
-              <Bell className="mr-2" />
+              <Bell />
               <span>Notifications</span>
-            </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link href="/settings/security">
-              <Shield className="mr-2" />
-              <span>Security</span>
-            </Link>
-          </DropdownMenuItem>
-           <DropdownMenuItem asChild>
-            <Link href="/settings/language">
-              <Languages className="mr-2" />
-              <span>Language</span>
             </Link>
           </DropdownMenuItem>
            <DropdownMenuItem asChild>
             <Link href="/settings/appearance">
-              <Palette className="mr-2" />
+              <Palette />
               <span>Appearance</span>
-            </Link>
-          </DropdownMenuItem>
-           <DropdownMenuItem asChild>
-            <Link href="/settings/shortcuts">
-              <Keyboard className="mr-2" />
-              <span>Keyboard Shortcuts</span>
             </Link>
           </DropdownMenuItem>
         </DropdownMenuGroup>
@@ -182,54 +146,26 @@ export function UserNav() {
            <DropdownMenuLabel>Help &amp; Support</DropdownMenuLabel>
           <DropdownMenuItem asChild>
             <a href="/help-center" target="_blank" rel="noopener noreferrer">
-              <LifeBuoy className="mr-2" />
+              <LifeBuoy />
               <span>Help Center</span>
             </a>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
             <Link href="/contact">
-              <Mail className="mr-2" />
+              <Mail />
               <span>Contact Support</span>
             </Link>
           </DropdownMenuItem>
            <DropdownMenuItem asChild>
             <Link href="/whats-new">
-              <PlusCircle className="mr-2" />
+              <PlusCircle />
               <span>What's New</span>
             </Link>
-          </DropdownMenuItem>
-          <DropdownMenuItem asChild>
-            <Link href="/feedback">
-              <MessageSquare className="mr-2" />
-              <span>Send Feedback</span>
-            </Link>
-          </DropdownMenuItem>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
-        <DropdownMenuGroup>
-          <DropdownMenuLabel>Developer</DropdownMenuLabel>
-          <DropdownMenuItem asChild>
-            <a href="#" target="_blank" rel="noopener noreferrer">
-              <Book className="mr-2" />
-              <span>API Documentation</span>
-            </a>
-          </DropdownMenuItem>
-           <DropdownMenuItem asChild>
-            <Link href="/settings/api-keys">
-              <Code className="mr-2" />
-              <span>API Keys</span>
-            </Link>
-          </DropdownMenuItem>
-           <DropdownMenuItem asChild>
-            <a href="https://github.com/your-repo" target="_blank" rel="noopener noreferrer">
-              <Github className="mr-2" />
-              <span>GitHub</span>
-            </a>
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout}>
-          <LogOut className="mr-2" />
+          <LogOut />
           <span>Log out</span>
         </DropdownMenuItem>
       </DropdownMenuContent>

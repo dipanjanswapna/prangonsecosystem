@@ -78,17 +78,14 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       const isPrivilegedRole = ![ROLES.USER, ROLES.ADMIN].includes(role);
 
       // Step 1: Check for incomplete profiles for privileged roles
-      if (isPrivilegedRole && profile_status === 'incomplete') {
-        if (pathname !== '/auth/update-profile') {
-          router.replace('/auth/update-profile');
-        }
-        return; // Halt further checks until profile is complete
+      if (isPrivilegedRole && profile_status === 'incomplete' && pathname !== '/auth/update-profile') {
+        router.replace('/auth/update-profile');
+        return; // Halt further checks
       }
       
       // Step 2: Check for overall account status or pending profile review
       if (status !== 'approved' || (isPrivilegedRole && profile_status === 'pending_review')) {
-        // Let the component render the AccessDenied/Pending component
-        return;
+        return; // Render AccessDenied/Pending component
       }
 
       // Step 3: Role-based dashboard routing for approved users
@@ -102,7 +99,6 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       
       const isDashboardPage = pathname.startsWith('/dashboard/');
       if (isDashboardPage && !pathname.startsWith(expectedDashboardPath)) {
-        // Allow admin to access certain pages outside their direct dashboard
         const allowedAdminPaths = ['/dashboard/all-users', '/dashboard/admin/donations'];
         if(!(userRole === ROLES.ADMIN && allowedAdminPaths.some(p => pathname.startsWith(p)))) {
            router.replace(expectedDashboardPath);
@@ -134,7 +130,6 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   if (isProtectedRoute && user && userProfile) {
     const isPrivilegedRole = ![ROLES.USER, ROLES.ADMIN].includes(userProfile.role);
 
-    // Render AccessDenied or pending screens
     if (userProfile.status !== 'approved') {
       return <AccessDenied status={userProfile.status} onLogout={handleLogout} />;
     }

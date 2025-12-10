@@ -93,12 +93,7 @@ export default function CollaboratorDashboard() {
       title: 'Document Editor',
       description: 'Collaborate on documents in real-time.',
     },
-    {
-      icon: Trash2,
-      title: 'Recycle Bin',
-      description: 'Restore deleted files and assets.',
-    },
-     // Productivity Tools
+    // Productivity Tools
     {
       icon: Lightbulb,
       title: 'Idea Board',
@@ -110,45 +105,9 @@ export default function CollaboratorDashboard() {
       description: 'Access tutorials and documentation.',
     },
     {
-      icon: DollarSign,
-      title: 'Expense Tracking',
-      description: 'Log and track project-related expenses.',
-    },
-    {
       icon: Settings,
       title: 'Workspace Settings',
       description: 'Customize your workspace and notifications.',
-    },
-    // Content Tools
-    {
-      icon: Edit,
-      title: 'Content Planner',
-      description: 'Plan and schedule content releases.',
-    },
-    {
-      icon: Copy,
-      title: 'Version History',
-      description: 'Track changes and revert to previous versions.',
-    },
-    {
-      icon: LinkIcon,
-      title: 'Shared Links',
-      description: 'Create and manage shareable links for assets.',
-    },
-     {
-      icon: Share2,
-      title: 'Social Sharing',
-      description: 'Directly share content to social media platforms.',
-    },
-    {
-      icon: Users,
-      title: 'Feedback Panel',
-      description: 'Request and manage feedback from stakeholders.',
-    },
-    {
-      icon: ClipboardCheck,
-      title: 'Approval Workflows',
-      description: 'Submit your work for formal approval.',
     },
   ];
 

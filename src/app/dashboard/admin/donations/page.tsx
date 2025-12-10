@@ -26,7 +26,7 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Download } from 'lucide-react';
+import { MoreHorizontal, Download, Trash2, CheckCircle, XCircle } from 'lucide-react';
 import type { Timestamp } from 'firebase/firestore';
 
 interface Donation {
@@ -155,10 +155,20 @@ export default function AdminDonationsPage() {
                           <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
                             <DropdownMenuItem>View Details</DropdownMenuItem>
-                            <DropdownMenuItem>Mark as Success</DropdownMenuItem>
-                             <DropdownMenuItem>Mark as Failed</DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem>
+                               <CheckCircle className="mr-2 h-4 w-4" />
+                               Mark as Success
+                            </DropdownMenuItem>
+                             <DropdownMenuItem>
+                                <XCircle className="mr-2 h-4 w-4" />
+                                Mark as Failed
+                            </DropdownMenuItem>
                              <DropdownMenuSeparator />
-                             <DropdownMenuItem className="text-red-600 focus:text-red-600">Delete</DropdownMenuItem>
+                             <DropdownMenuItem className="text-red-600 focus:text-red-600">
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete
+                            </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
                       </TableCell>
