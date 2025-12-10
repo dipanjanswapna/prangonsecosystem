@@ -160,8 +160,8 @@ export const campaigns: {
     slug: 'winter-clothing-drive',
     description:
       'Help provide warm clothing to underprivileged communities during the harsh winter months.',
-    goal: 5000,
-    raised: 2800,
+    goal: 50000,
+    raised: 28000,
     imageId: 'project-1',
     category: 'Seasonal',
   },
@@ -171,8 +171,8 @@ export const campaigns: {
     slug: 'education-for-all',
     description:
       "Support children's education by providing books, stationery, and school fees.",
-    goal: 10000,
-    raised: 4500,
+    goal: 100000,
+    raised: 45000,
     imageId: 'project-2',
     category: 'Regular',
   },
@@ -182,8 +182,8 @@ export const campaigns: {
     slug: 'emergency-medical-fund',
     description:
       'Contribute to our fund for providing emergency medical assistance to those in need.',
-    goal: 7500,
-    raised: 6000,
+    goal: 75000,
+    raised: 60000,
     imageId: 'project-3',
     category: 'Emergency',
   },

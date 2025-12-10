@@ -6,7 +6,7 @@ import { customAlphabet } from 'nanoid'
 
 const { firebaseApp } = initializeFirebase();
 const firestore = getFirestore(firebaseApp);
-const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyz', 10)
+const nanoid = customAlphabet('1234567890abcdef', 10)
 
 interface DonationData {
     userId: string | null;

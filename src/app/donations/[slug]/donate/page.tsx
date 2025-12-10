@@ -59,7 +59,7 @@ export default function DonatePage() {
     notFound();
   }
 
-  const suggestedAmounts = [10, 25, 50, 100];
+  const suggestedAmounts = [100, 250, 500, 1000];
   const gateways = [
       { name: "bKash", src: "https://i.ibb.co/609yv0N/bkash.png" },
       { name: "Nagad", src: "https://i.ibb.co/qMs2N1x/nagad.png" },
@@ -74,8 +74,8 @@ export default function DonatePage() {
   
   const handleProceedToPay = async () => {
     const donationAmount = Number(amount);
-    if (isNaN(donationAmount) || donationAmount < 0.01) {
-        toast({ variant: 'destructive', title: 'Invalid Amount', description: 'Please enter a valid donation amount.' });
+    if (isNaN(donationAmount) || donationAmount < 10) {
+        toast({ variant: 'destructive', title: 'Invalid Amount', description: 'Please enter a valid donation amount. Minimum is ৳10.' });
         return;
     }
     if (!name && !isAnonymous) {
@@ -192,8 +192,8 @@ export default function DonatePage() {
                 type="number"
                 placeholder="Or enter a custom amount"
                 className="pl-7 text-lg h-14"
-                min="0.01"
-                step="0.01"
+                min="10"
+                step="1"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
               />

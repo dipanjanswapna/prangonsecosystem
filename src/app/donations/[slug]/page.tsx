@@ -58,13 +58,13 @@ export default function CampaignDetailsPage() {
                   <div className="flex justify-between items-end mb-2">
                     <div className="text-muted-foreground">
                       <span className="font-bold text-2xl text-foreground">
-                        ${campaign.raised.toLocaleString()}
+                        ৳{campaign.raised.toLocaleString()}
                       </span>{' '}
                       raised
                     </div>
                     <div className="text-muted-foreground">
                       <span className="font-semibold text-foreground">
-                        ${campaign.goal.toLocaleString()}
+                        ৳{campaign.goal.toLocaleString()}
                       </span>{' '}
                       goal
                     </div>
@@ -103,9 +103,9 @@ export default function CampaignDetailsPage() {
               </p>
               <h4>How Your Donation Helps:</h4>
               <ul>
-                <li><strong>$10</strong> can provide a warm blanket for one person.</li>
-                <li><strong>$25</strong> can supply a family with a winter kit.</li>
-                <li><strong>$100</strong> can help us reach four families in need.</li>
+                <li><strong>৳1000</strong> can provide a warm blanket for one person.</li>
+                <li><strong>৳2500</strong> can supply a family with a winter kit.</li>
+                <li><strong>৳10000</strong> can help us reach four families in need.</li>
               </ul>
             </CardContent>
           </Card>
@@ -131,7 +131,7 @@ export default function CampaignDetailsPage() {
                   <div className="flex-grow">
                     <p className="font-semibold">{donor.name}</p>
                     <p className="text-sm text-muted-foreground">
-                      Donated ${donor.amount}
+                      Donated ৳{donor.amount}
                     </p>
                   </div>
                   <Badge variant="secondary">
