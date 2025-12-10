@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { useDoc } from '@/firebase/firestore/use-doc';
 import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 
 interface Donation {
   id: string;
@@ -74,7 +75,7 @@ function InvoiceSkeleton() {
 export default function InvoicePage() {
   const params = useParams();
   const { donationId } = params;
-  const { data: donation, loading } = useDoc<Donation>(donationId ? `donations/${donationId}`: null);
+  const { data: donation, loading } = useDoc<Donation>(donationId ? `donations/${donationId as string}`: null);
   
   if (loading) {
     return (
