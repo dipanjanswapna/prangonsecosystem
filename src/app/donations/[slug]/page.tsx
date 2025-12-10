@@ -97,7 +97,7 @@ export default function CampaignDetailsPage() {
     'donations',
     undefined,
     undefined,
-    { field: 'createdAt', direction: 'desc' },
+    undefined, // Removed orderBy clause
     5,
     [
       ['campaignId', '==', campaign?.id || ''],
