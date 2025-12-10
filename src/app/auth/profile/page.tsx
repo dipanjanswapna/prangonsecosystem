@@ -15,13 +15,15 @@ import { Label } from '@/components/ui/label';
 import { useUser } from '@/firebase/auth/use-user';
 import { Copy, Gift, Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDoc } from '@/firebase/firestore/use-doc';
 import { useToast } from '@/hooks/use-toast';
+import { updateUserProfile } from '@/lib/auth';
 
 interface UserProfile {
   referralCode?: string;
+  name: string;
 }
 
 
@@ -32,6 +34,9 @@ export default function ProfilePage() {
   );
   const router = useRouter();
   const { toast } = useToast();
+  
+  const [name, setName] = useState(userProfile?.name || user?.displayName || '');
+  const [isSaving, setIsSaving] = useState(false);
 
   const referralLink = `${process.env.NEXT_PUBLIC_BASE_URL}/auth/register?ref=${userProfile?.referralCode}`;
 
@@ -47,7 +52,30 @@ export default function ProfilePage() {
     if (!loading && !user) {
       router.push('/auth/login');
     }
-  }, [user, loading, router]);
+    if (userProfile) {
+        setName(userProfile.name);
+    }
+  }, [user, loading, router, userProfile]);
+  
+  const handleSaveChanges = async () => {
+    if (!user) return;
+    setIsSaving(true);
+    try {
+        await updateUserProfile(user.uid, { name });
+        toast({
+            title: 'Profile Updated',
+            description: 'Your changes have been saved successfully.',
+        });
+    } catch (error: any) {
+        toast({
+            variant: 'destructive',
+            title: 'Update Failed',
+            description: error.message || 'Could not save your changes.',
+        });
+    } finally {
+        setIsSaving(false);
+    }
+  }
 
   if (loading || profileLoading || !user) {
     return (
@@ -109,23 +137,26 @@ export default function ProfilePage() {
                 <AvatarImage src={user.photoURL} alt={user.displayName || 'User'} />
               ): (
                 <AvatarFallback>
-                  {(user.displayName || user.email)?.charAt(0).toUpperCase() || 'U'}
+                  {(name || user.email)?.charAt(0).toUpperCase() || 'U'}
                 </AvatarFallback>
               )}
             </Avatar>
-            <Button variant="outline">Change Photo</Button>
+            <Button variant="outline" disabled>Change Photo</Button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
-              <Input id="name" defaultValue={user.displayName || ''} />
+              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" defaultValue={user.email || ''} readOnly />
+              <Input id="email" type="email" value={user.email || ''} readOnly disabled />
             </div>
           </div>
-          <Button>Save Changes</Button>
+          <Button onClick={handleSaveChanges} disabled={isSaving}>
+            {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            Save Changes
+          </Button>
         </CardContent>
       </Card>
       

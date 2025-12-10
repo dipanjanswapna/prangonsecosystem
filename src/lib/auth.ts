@@ -8,19 +8,21 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
   sendPasswordResetEmail,
-  updateProfile,
+  updateProfile as updateFirebaseProfile,
   type Auth,
   type UserCredential,
   type User,
 } from 'firebase/auth';
 import { initializeFirebase } from '@/firebase';
-import { doc, setDoc, getDoc, serverTimestamp, getFirestore } from 'firebase/firestore';
+import { doc, setDoc, getDoc, serverTimestamp, getFirestore, updateDoc } from 'firebase/firestore';
 import { ROLES, type Role } from '@/lib/roles';
+import { customAlphabet } from 'nanoid';
 
 // Initialize Firebase and get the auth instance
 const { firebaseApp } = initializeFirebase();
 const auth = getAuth(firebaseApp);
 const firestore = getFirestore(firebaseApp);
+const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyz', 8);
 
 
 const createSession = async (user: User, rememberMe: boolean): Promise<void> => {
@@ -34,7 +36,7 @@ const createSession = async (user: User, rememberMe: boolean): Promise<void> => 
     });
 };
 
-export const signUp = async (email:string, password:string, fullName:string, role: Role): Promise<UserCredential> => {
+export const signUp = async (email:string, password:string, fullName:string, role: Role, refCode?: string): Promise<UserCredential> => {
   const userCredential = await createUserWithEmailAndPassword(
     auth,
     email,
@@ -42,7 +44,7 @@ export const signUp = async (email:string, password:string, fullName:string, rol
   );
   const user = userCredential.user;
   
-  await updateProfile(user, { displayName: fullName });
+  await updateFirebaseProfile(user, { displayName: fullName });
 
   const isPrivilegedRole = ![ROLES.USER, ROLES.ADMIN].includes(role);
   const status = isPrivilegedRole ? 'pending' : 'approved';
@@ -58,7 +60,12 @@ export const signUp = async (email:string, password:string, fullName:string, rol
     profile_status: profileStatus,
     createdAt: serverTimestamp(),
     lastLogin: serverTimestamp(),
-    photoURL: user.photoURL
+    photoURL: user.photoURL,
+    referralCode: nanoid(),
+    referredBy: refCode || null,
+    level: 'Bronze',
+    points: 0,
+    badges: [],
   });
 
   return userCredential;
@@ -69,10 +76,9 @@ export const signIn = async (email:string, password:string, rememberMe:boolean):
   const user = userCredential.user;
 
   // Update the last login timestamp
-  await setDoc(
+  await updateDoc(
     doc(firestore, 'users', user.uid),
-    { lastLogin: serverTimestamp() },
-    { merge: true }
+    { lastLogin: serverTimestamp() }
   );
   
   await createSession(user, rememberMe);
@@ -80,7 +86,7 @@ export const signIn = async (email:string, password:string, rememberMe:boolean):
   return userCredential;
 };
 
-const handleSocialSignIn = async (user: User) => {
+const handleSocialSignIn = async (user: User, refCode?: string) => {
   const userDocRef = doc(firestore, 'users', user.uid);
   const userDoc = await getDoc(userDocRef);
 
@@ -99,20 +105,25 @@ const handleSocialSignIn = async (user: User) => {
       profile_status: 'complete',
       createdAt: serverTimestamp(),
       lastLogin: serverTimestamp(),
+      referralCode: nanoid(),
+      referredBy: refCode || null,
+      level: 'Bronze',
+      points: 0,
+      badges: [],
     });
   } else {
     // If user already exists, just update their last login
-    await setDoc(userDocRef, { lastLogin: serverTimestamp() }, { merge: true });
+    await updateDoc(userDocRef, { lastLogin: serverTimestamp() });
   }
   
   await createSession(user, true);
 };
 
 
-export const signInWithGoogle = async (): Promise<UserCredential> => {
+export const signInWithGoogle = async (refCode?: string): Promise<UserCredential> => {
   const provider = new GoogleAuthProvider();
   const userCredential = await signInWithPopup(auth, provider);
-  await handleSocialSignIn(userCredential.user);
+  await handleSocialSignIn(userCredential.user, refCode);
   return userCredential;
 };
 
@@ -131,21 +142,32 @@ export const resetPassword = async (email: string): Promise<void> => {
 
 export const updateUserRoleAndStatus = async (uid: string, role: Role, status: 'pending' | 'approved' | 'rejected') => {
     const userDocRef = doc(firestore, 'users', uid);
-    await setDoc(userDocRef, { role, status }, { merge: true });
+    await updateDoc(userDocRef, { role, status });
 };
 
 export const updateUserProfileStatus = async (uid: string, profileStatus: 'incomplete' | 'pending_review' | 'complete') => {
     const userDocRef = doc(firestore, 'users', uid);
-    await setDoc(userDocRef, { profile_status: profileStatus }, { merge: true });
+    await updateDoc(userDocRef, { profile_status: profileStatus });
 };
 
 export const updateUserProfile = async (uid: string, data: any) => {
     const userDocRef = doc(firestore, 'users', uid);
-    await setDoc(userDocRef, { 
+    const updateData = {
         ...data,
-        profile_status: 'pending_review',
         profileUpdatedAt: serverTimestamp(),
-     }, { merge: true });
+    };
+    
+    // Only set profile status to pending_review if it's not a simple name update
+    if (Object.keys(data).some(key => key !== 'name')) {
+        updateData.profile_status = 'pending_review';
+    }
+
+    await updateDoc(userDocRef, updateData);
+
+    const user = auth.currentUser;
+    if (user && user.uid === uid && data.name) {
+        await updateFirebaseProfile(user, { displayName: data.name });
+    }
 };
 
 export const deleteUserAccount = async (uid: string) => {
