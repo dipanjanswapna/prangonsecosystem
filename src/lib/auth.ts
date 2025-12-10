@@ -82,13 +82,13 @@ const handleSocialSignIn = async (user: User) => {
   const userDocRef = doc(firestore, 'users', user.uid);
   const userDoc = await getDoc(userDocRef);
 
-  // If user already exists, just update their last login
   if (userDoc.exists()) {
+    // If user already exists, just update their last login
     await setDoc(userDocRef, { lastLogin: serverTimestamp() }, { merge: true });
   } else {
     // For new social sign-ins, determine role.
-    // Explicitly check if the email is an admin email. Otherwise, default to USER.
-    const isAdmin = user.email === 'example@admin.com'; // IMPORTANT: Use your actual admin email
+    // IMPORTANT: Use your actual admin email here.
+    const isAdmin = user.email === 'dipanjansarkarprangon@gmail.com'; 
     const role = isAdmin ? ROLES.ADMIN : ROLES.USER;
 
     // For new social sign-ups (admin or user), status is always 'approved'.
@@ -103,9 +103,8 @@ const handleSocialSignIn = async (user: User) => {
       lastLogin: serverTimestamp(),
     });
   }
-
-  // IMPORTANT: Create session AFTER the firestore document has been created/updated.
-  // This ensures the role and status are available for the DashboardProvider check.
+  
+  // Create session AFTER firestore doc is guaranteed to exist.
   await createSession(user, true);
 };
 
@@ -120,8 +119,12 @@ export const signInWithGoogle = async (): Promise<UserCredential> => {
 
 export const logOut = async (): Promise<void> => {
   await signOut(auth);
+  // Fetch to clear the session cookie on the server
   await fetch('/api/auth/session', { method: 'DELETE' });
+  // Force a hard reload to clear all client-side state and re-evaluate auth
+  window.location.href = '/';
 };
+
 
 export const resetPassword = async (email: string): Promise<void> => {
   await sendPasswordResetEmail(auth, email);

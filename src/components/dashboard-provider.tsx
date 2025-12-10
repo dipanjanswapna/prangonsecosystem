@@ -24,8 +24,7 @@ function AccessDenied({ status }: { status: 'pending' | 'rejected' }) {
     
     const handleLogoutAndRedirect = async () => {
       await logOut();
-      router.push('/');
-      router.refresh();
+      // No need to push router, logout logic already handles redirection via page refresh
     };
 
   return (
@@ -70,42 +69,45 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
 
   useEffect(() => {
-    // Don't do anything if it's not a protected route or if we are still loading.
-    if (!isProtectedRoute || isLoading) {
+    // If it's not a protected route, do nothing.
+    if (!isProtectedRoute) {
+      return;
+    }
+    
+    // If user data is still loading, wait.
+    if (isLoading) {
       return;
     }
 
-    // If loading is finished and there's no user, redirect to login.
+    // After loading, if there's no user, redirect to login.
     if (!user) {
       router.push('/auth/login?redirect=' + pathname);
       return;
     }
     
-    // If there is a user profile and their status is not 'approved', block access.
-    // The AccessDenied component will be rendered below.
-    if (userProfile?.status && userProfile.status !== 'approved') {
+    // If there is a user, but the profile hasn't loaded or doesn't exist, wait. 
+    // This state should be brief. If it persists, it indicates a Firestore issue.
+    if (!userProfile) {
+        // Fallback for safety, but this indicates a potential issue in user creation.
+        // It's better to show loading until the profile is confirmed.
         return;
     }
 
-    // If user is logged in, profile is loaded, and status is approved...
-    if (userProfile) {
-      const userRole = userProfile.role || ROLES.USER;
-      const expectedDashboardPath = `/dashboard/${userRole.toLowerCase()}`;
-      
-      // If they land on the base /dashboard, redirect them to their specific role dashboard.
-      if (pathname === '/dashboard' || pathname === '/dashboard/') {
-        router.replace(expectedDashboardPath);
-      }
-    } else if (user && !userProfile && !profileLoading) {
-      // This is a fallback case. If the user exists but the profile document doesn't,
-      // something is wrong. For safety, redirect to a default dashboard, but this indicates
-      // an issue in the user creation flow.
-      router.replace(`/dashboard/${ROLES.USER}`);
+    // If the profile is loaded and the status is approved, handle role-based redirection.
+    if (userProfile.status === 'approved') {
+        const userRole = userProfile.role || ROLES.USER;
+        const expectedDashboardPath = `/dashboard/${userRole.toLowerCase()}`;
+        
+        // If they land on the base /dashboard, redirect them to their specific role dashboard.
+        if (pathname === '/dashboard' || pathname === '/dashboard/') {
+            router.replace(expectedDashboardPath);
+        }
     }
-  }, [user, userProfile, isLoading, profileLoading, router, pathname, isProtectedRoute]);
+
+  }, [user, userProfile, isLoading, router, pathname, isProtectedRoute]);
 
   // While loading, show a skeleton UI on protected routes.
-  if (isLoading && isProtectedRoute) {
+  if (isProtectedRoute && (isLoading || (user && !userProfile))) {
     return (
       <div className="space-y-6 p-4 sm:px-6 sm:py-4">
         <Skeleton className="h-16 w-full" />
@@ -125,6 +127,6 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     return <AccessDenied status={userProfile.status} />;
   }
   
-  // Otherwise, render the children components.
+  // If not a protected route, or if all checks passed, render the children.
   return <>{children}</>;
 }
