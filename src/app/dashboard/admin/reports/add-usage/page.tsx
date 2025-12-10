@@ -83,6 +83,7 @@ export default function AddUsagePage() {
         description: `The expenditure has been logged successfully.`,
       });
       router.push('/dashboard/admin/reports');
+      router.refresh();
     } catch (error) {
       console.error('Error adding usage item:', error);
       toast({
@@ -206,7 +207,7 @@ export default function AddUsagePage() {
                 </FormItem>
               )}
             />
-            <Button type="submit" disabled={isLoading} size="lg">
+            <Button type="submit" disabled={isLoading || campaignsLoading} size="lg">
               {isLoading ? (
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               ) : null}

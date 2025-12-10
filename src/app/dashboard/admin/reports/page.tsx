@@ -105,6 +105,12 @@ export default function AdminReportsPage() {
             <p className="mt-2 text-sm text-muted-foreground">
               Expenditure reports for all campaigns will appear here.
             </p>
+            <Button asChild className="mt-4">
+              <Link href="/dashboard/admin/reports/add-usage">
+                <FilePlus className="mr-2 h-4 w-4" />
+                Add First Usage Item
+              </Link>
+            </Button>
           </div>
         )}
       </CardContent>
