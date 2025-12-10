@@ -12,14 +12,17 @@ import { Progress } from '@/components/ui/progress';
 import { useUser } from '@/firebase/auth/use-user';
 import { useDoc } from '@/firebase/firestore/use-doc';
 import { useToast } from '@/hooks/use-toast';
-import { Book, BrainCircuit, Calculator, Copy, Gift, Package, Star, Trophy, Users } from 'lucide-react';
+import { Book, BrainCircuit, Calculator, Copy, Gift, Package, Star, Trophy, Users, CalendarDays } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import type { Timestamp } from 'firebase/firestore';
 
 interface UserProfile {
   referralCode?: string;
   level?: 'Bronze' | 'Silver' | 'Gold' | 'Platinum';
   points?: number;
+  lastGiftClaimedAt?: Timestamp;
 }
 
 const levelThresholds = {
@@ -92,34 +95,54 @@ export default function UserDashboard() {
                         <Trophy className="h-5 w-5 text-amber-500" />
                         My Status & Rewards
                     </CardTitle>
-                    <CardDescription>Your current level, points, and progress toward the next reward. (1 Point = 1 BDT Discount)</CardDescription>
+                    <CardDescription>Your current level, points, and progress toward the next reward. (1 Point = 100 BDT Donated)</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                        <div className="flex items-center gap-4">
-                            <Badge className="text-lg py-1 px-4 border-2" variant={currentLevel === 'Platinum' ? 'destructive' : currentLevel === 'Gold' ? 'default' : 'secondary'}>
-                                {currentLevel}
-                            </Badge>
-                            <div className="flex items-center gap-1.5">
-                                <Star className="h-5 w-5 text-amber-400 fill-amber-400" />
-                                <span className="font-bold text-xl">{currentPoints.toLocaleString()}</span>
-                                <span className="text-muted-foreground">Points</span>
+                <CardContent className="space-y-6">
+                    <div className="space-y-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <div className="flex items-center gap-4">
+                                <Badge className="text-lg py-1 px-4 border-2" variant={currentLevel === 'Platinum' ? 'destructive' : currentLevel === 'Gold' ? 'default' : 'secondary'}>
+                                    {currentLevel}
+                                </Badge>
+                                <div className="flex items-center gap-1.5">
+                                    <Star className="h-5 w-5 text-amber-400 fill-amber-400" />
+                                    <span className="font-bold text-xl">{currentPoints.toLocaleString()}</span>
+                                    <span className="text-muted-foreground">Points</span>
+                                </div>
                             </div>
                         </div>
+                        {nextLevelName ? (
+                            <div>
+                                <div className="mb-2 text-sm text-muted-foreground">
+                                    Next Level: <span className="font-semibold text-foreground">{nextLevelName}</span> ({nextLevelPoints.toLocaleString()} points)
+                                </div>
+                                <Progress value={progressPercentage} className="h-3" />
+                                <p className="text-xs text-muted-foreground mt-1 text-right">
+                                    {pointsForNextLevel.toLocaleString()} more points to reach {nextLevelName}
+                                </p>
+                            </div>
+                        ) : (
+                            <p className="text-sm font-medium text-green-600">Congratulations! You have reached the highest level!</p>
+                        )}
                     </div>
-                     {nextLevelName ? (
-                        <div>
-                            <div className="mb-2 text-sm text-muted-foreground">
-                                Next Level: <span className="font-semibold text-foreground">{nextLevelName}</span> ({nextLevelPoints.toLocaleString()} points)
+                    <Separator />
+                     <div className="space-y-2">
+                        <h4 className="font-semibold text-muted-foreground flex items-center gap-2">
+                            <Gift className="h-4 w-4" />
+                            Reward History
+                        </h4>
+                        {userProfile.lastGiftClaimedAt ? (
+                            <div className="flex items-center gap-3 text-sm p-3 bg-muted/50 rounded-lg">
+                                <CalendarDays className="h-5 w-5 text-primary" />
+                                <div>
+                                    <p>Last gift claimed on:</p>
+                                    <p className="font-semibold">{new Date(userProfile.lastGiftClaimedAt.seconds * 1000).toLocaleString()}</p>
+                                </div>
                             </div>
-                            <Progress value={progressPercentage} className="h-3" />
-                            <p className="text-xs text-muted-foreground mt-1 text-right">
-                                {pointsForNextLevel.toLocaleString()} more points to reach {nextLevelName}
-                            </p>
-                        </div>
-                    ) : (
-                         <p className="text-sm font-medium text-green-600">Congratulations! You have reached the highest level!</p>
-                    )}
+                        ) : (
+                            <p className="text-sm text-muted-foreground italic">No gifts claimed yet. Keep earning points!</p>
+                        )}
+                    </div>
                 </CardContent>
             </Card>
         )}

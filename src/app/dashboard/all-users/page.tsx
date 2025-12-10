@@ -71,6 +71,7 @@ interface User {
   photoURL?: string;
   createdAt: Timestamp;
   profileUpdatedAt?: Timestamp;
+  lastGiftClaimedAt?: Timestamp;
   // Role specific fields
   specialization?: string;
   experienceYears?: number;
@@ -229,7 +230,8 @@ export default function AllUsersPage() {
     const sanitizedData = users.map(user => ({
       ...user,
       createdAt: user.createdAt ? new Date(user.createdAt.seconds * 1000).toISOString() : '',
-      profileUpdatedAt: user.profileUpdatedAt ? new Date(user.profileUpdatedAt.seconds * 1000).toISOString() : ''
+      profileUpdatedAt: user.profileUpdatedAt ? new Date(user.profileUpdatedAt.seconds * 1000).toISOString() : '',
+      lastGiftClaimedAt: user.lastGiftClaimedAt ? new Date(user.lastGiftClaimedAt.seconds * 1000).toISOString() : ''
     }));
 
     const csv = unparse(sanitizedData, {
@@ -545,6 +547,10 @@ export default function AllUsersPage() {
                             </div>
                         </>
                     )}
+                    <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
+                        <p className="text-muted-foreground">Last Gift Claimed</p>
+                        <p className="font-medium">{selectedUser.lastGiftClaimedAt ? new Date(selectedUser.lastGiftClaimedAt.seconds * 1000).toLocaleString() : 'N/A'}</p>
+                    </div>
                     <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
                         <p className="text-muted-foreground">Profile Submitted On</p>
                         <p className="font-medium">{selectedUser.profileUpdatedAt ? new Date(selectedUser.profileUpdatedAt.seconds * 1000).toLocaleString() : 'N/A'}</p>
