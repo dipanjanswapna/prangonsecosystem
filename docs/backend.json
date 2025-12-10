@@ -72,7 +72,7 @@
         "isCorporateMatch": { "type": "boolean", "default": false, "description": "Indicates if the donation is part of a corporate matching program." },
         "corporateName": { "type": "string", "description": "Name of the matching corporation, if applicable." }
       },
-      "required": ["campaignId", "campaignTitle", "amount", "gateway", "status", "donorName"]
+      "required": ["campaignId", "campaignTitle", "amount", "gateway", "status", "donorName", "invoiceId"]
     },
     "Invoice": {
         "title": "Donation Invoice",
