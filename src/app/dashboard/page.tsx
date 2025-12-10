@@ -30,12 +30,12 @@ export default function DashboardRedirectPage() {
       const userRole = userProfile.role || ROLES.USER;
       const expectedDashboardPath = `/dashboard/${userRole.toLowerCase()}`;
       router.replace(expectedDashboardPath);
-    } else {
+    } else if (user && !userProfile && !profileLoading) {
         // Fallback for cases where profile might not exist yet, though auth listeners should handle this.
         // Directing to user as a safe default.
         router.replace(`/dashboard/${ROLES.USER}`);
     }
-  }, [user, userProfile, isLoading, router]);
+  }, [user, userProfile, isLoading, profileLoading, router]);
 
   // Show a full-page loading skeleton while redirecting
   return (

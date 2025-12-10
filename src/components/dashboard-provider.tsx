@@ -48,7 +48,8 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   }, [user, userProfile, isLoading, router, pathname]);
 
   // Show a loading skeleton while we verify the user and their profile
-  if (isLoading) {
+  const isProtected = protectedRoutes.some(route => pathname.startsWith(route));
+  if (isLoading && isProtected) {
     return (
       <div className="space-y-6 p-4 sm:px-6 sm:py-4">
         <div className="flex items-center space-x-4">
@@ -72,6 +73,6 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // If user is authenticated, render the dashboard content
+  // If user is authenticated (or page is not protected), render the content
   return <>{children}</>;
 }
