@@ -27,7 +27,7 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Trash2, View } from 'lucide-react';
+import { MoreHorizontal, Trash2, View, FileDown } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import type { Timestamp } from 'firebase/firestore';
 import { ROLES, type Role } from '@/lib/roles';
@@ -54,6 +54,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { unparse } from 'papaparse';
+
 
 interface User {
   id: string;
@@ -172,16 +174,58 @@ export default function AllUsersPage() {
         return 'outline';
     }
   };
+  
+  const downloadAsCSV = () => {
+    if (!users || users.length === 0) {
+      toast({
+        variant: 'destructive',
+        title: 'No Data',
+        description: 'There is no user data to export.',
+      });
+      return;
+    }
+    
+    // Convert Timestamps to ISO strings for readability
+    const sanitizedData = users.map(user => ({
+      ...user,
+      createdAt: user.createdAt ? new Date(user.createdAt.seconds * 1000).toISOString() : '',
+      profileUpdatedAt: user.profileUpdatedAt ? new Date(user.profileUpdatedAt.seconds * 1000).toISOString() : ''
+    }));
+
+    const csv = unparse(sanitizedData, {
+        header: true,
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `users-export-${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast({
+        title: 'Export Successful',
+        description: 'User data has been downloaded as a CSV file.',
+    });
+  };
 
   return (
     <>
       <Card>
-        <CardHeader>
-          <CardTitle>All Users</CardTitle>
-          <CardDescription>
-            A list of all users in the system. You can manage their roles and
-            approval status here.
-          </CardDescription>
+        <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <CardTitle>All Users</CardTitle>
+            <CardDescription>
+              A list of all users in the system. You can manage their roles and
+              approval status here.
+            </CardDescription>
+          </div>
+          <Button onClick={downloadAsCSV} disabled={loading || users.length === 0}>
+            <FileDown className="mr-2 h-4 w-4" />
+            Export to CSV
+          </Button>
         </CardHeader>
         <CardContent>
           <Table>
