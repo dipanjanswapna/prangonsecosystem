@@ -35,8 +35,18 @@ export const saveDonation = async (data: DonationData): Promise<string> => {
         const newDonationId = await runTransaction(firestore, async (transaction) => {
             const newDonationRef = doc(collection(firestore, 'donations'));
             const campaignRef = doc(firestore, 'campaigns', data.campaignId);
-            const invoiceId = `ONGN-${nanoid()}`;
+            let userRef;
+            let userDoc: DocumentSnapshot | null = null;
             
+            // --- READ PHASE ---
+            // If the donation is tied to a user and not anonymous, read the user's document first.
+            if (data.userId && !data.isAnonymous) {
+                userRef = doc(firestore, 'users', data.userId);
+                userDoc = await transaction.get(userRef);
+            }
+
+            // --- WRITE PHASE ---
+            const invoiceId = `ONGN-${nanoid()}`;
             const donationPayload: any = {
                 ...data,
                 invoiceId: invoiceId,
@@ -44,27 +54,21 @@ export const saveDonation = async (data: DonationData): Promise<string> => {
                 status: 'success', // Simulating successful payment for now
             };
 
-            // Only include corporateName if it's a corporate match and has a value
             if (data.isCorporateMatch && data.corporateName) {
                 donationPayload.corporateName = data.corporateName;
-            } else {
-                // Ensure corporateName is not in the payload if not applicable
-                delete donationPayload.corporateName;
             }
 
+            // Write 1: Create the new donation document.
             transaction.set(newDonationRef, donationPayload);
             
-            // Increment the 'raised' amount on the campaign
+            // Write 2: Increment the 'raised' amount on the campaign.
             transaction.update(campaignRef, {
                 raised: increment(data.amount)
             });
 
-            // If the donation is tied to a user and not anonymous, update points and level
-            if (data.userId && !data.isAnonymous) {
-                const userRef = doc(firestore, 'users', data.userId);
+            // Write 3: If user doc was read, update user's points and level.
+            if (userRef && userDoc && userDoc.exists()) {
                 const pointsEarned = Math.floor(data.amount); // 1 BDT = 1 Point
-                
-                const userDoc: DocumentSnapshot = await transaction.get(userRef);
                 const currentPoints = userDoc.data()?.points || 0;
                 const newTotalPoints = currentPoints + pointsEarned;
                 const newLevel = getDonorLevel(newTotalPoints);
