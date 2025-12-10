@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Gift, HandHeart } from 'lucide-react';
+import { ArrowRight, Gift, HandHeart, QrCode } from 'lucide-react';
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -76,11 +76,18 @@ export default function CampaignDetailsPage({
                     {progress.toFixed(0)}% funded
                   </div>
                 </div>
-                <Button asChild size="lg" className="w-full md:w-auto">
-                  <Link href={`/donations/${campaign.slug}/donate`}>
-                    Donate Now <HandHeart className="ml-2 h-5 w-5" />
-                  </Link>
-                </Button>
+                <div className="flex flex-wrap gap-4 items-center">
+                    <Button asChild size="lg" className="w-full sm:w-auto">
+                    <Link href={`/donations/${campaign.slug}/donate`}>
+                        Donate Now <HandHeart className="ml-2 h-5 w-5" />
+                    </Link>
+                    </Button>
+                    <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
+                        <Link href={`/donations/qr/${campaign.slug}`}>
+                            Scan QR Code <QrCode className="ml-2 h-5 w-5" />
+                        </Link>
+                    </Button>
+                </div>
               </div>
             </CardContent>
           </Card>

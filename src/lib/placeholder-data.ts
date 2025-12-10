@@ -176,3 +176,18 @@ export const campaigns = [
     imageId: 'project-3',
   },
 ];
+
+export const sampleDonation = {
+  id: 'dn_1a2b3c4d5e',
+  invoiceId: 'ONGON-202407-000123',
+  campaignId: 1,
+  campaignTitle: 'Winter Clothing Drive',
+  donorName: 'Alex T.',
+  donorEmail: 'alex.t@example.com',
+  amount: 25.00,
+  currency: 'BDT',
+  gateway: 'bKash',
+  transactionId: 'trx_9f8e7d6c5b',
+  status: 'Success',
+  createdAt: '2024-07-21T14:30:00Z'
+};
