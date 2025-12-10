@@ -36,7 +36,7 @@ interface Campaign {
     id: string;
     title: string;
     raised: number;
-    imageId: string;
+    imageUrl: string;
 }
 
 const getRankColor = (rank: number) => {
@@ -92,12 +92,6 @@ function DonorLeaderboard() {
 function CampaignLeaderboard() {
     const { data: campaigns, loading } = useCollection<Campaign>('campaigns', undefined, undefined, { field: 'raised', direction: 'desc' }, 10);
     
-    const campaignImages = useMemo(() => {
-        return campaigns.map(campaign => {
-            return PlaceHolderImages.find(img => img.id === campaign.imageId);
-        });
-    }, [campaigns]);
-
     return (
         <CardContent className="space-y-4">
         {loading ? (
@@ -118,8 +112,8 @@ function CampaignLeaderboard() {
                         <Trophy className={cn("h-5 w-5", getRankColor(index))} />
                         <span className="font-bold text-lg">{index + 1}</span>
                     </div>
-                    <Avatar className="h-12 w-16 rounded-md border-2 border-primary/20">
-                         {campaignImages[index] && <AvatarImage src={campaignImages[index]?.imageUrl} alt={campaign.title} className="object-cover" />}
+                    <Avatar className="h-12 w-16 rounded-md border-2 border-primary/20 bg-muted">
+                         {campaign.imageUrl && <AvatarImage src={campaign.imageUrl} alt={campaign.title} className="object-cover" />}
                         <AvatarFallback>{campaign.title?.charAt(0) || 'C'}</AvatarFallback>
                     </Avatar>
                     <div className="flex-grow">
