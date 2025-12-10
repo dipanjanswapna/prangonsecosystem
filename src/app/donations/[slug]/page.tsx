@@ -1,6 +1,5 @@
 'use client';
 import { notFound, useParams } from 'next/navigation';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import {
   Card,
@@ -13,11 +12,12 @@ import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Gift, HandHeart, QrCode } from 'lucide-react';
 import Link from 'next/link';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useCollection } from '@/firebase/firestore/use-collection';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { Timestamp } from 'firebase/firestore';
+import { CampaignUsageReport } from './usage-report';
 
 interface Campaign {
   id: string;
@@ -106,8 +106,6 @@ export default function CampaignDetailsPage() {
     ]
   );
   
-  const defaultImage = PlaceHolderImages.find(p => p.id === 'project-1');
-
   if (loading) {
     return <CampaignDetailsSkeleton />;
   }
@@ -125,7 +123,7 @@ export default function CampaignDetailsPage() {
           <Card className="overflow-hidden">
             <div className="aspect-video relative bg-muted">
               <Image
-                src={campaign.imageUrl || defaultImage?.imageUrl || ''}
+                src={campaign.imageUrl}
                 alt={campaign.title}
                 fill
                 className="object-cover"
@@ -196,6 +194,7 @@ export default function CampaignDetailsPage() {
               </ul>
             </CardContent>
           </Card>
+          <CampaignUsageReport campaignId={campaign.id} />
         </div>
 
         <div className="lg:col-span-1 space-y-6">
