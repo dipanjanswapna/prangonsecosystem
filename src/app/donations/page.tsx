@@ -13,12 +13,53 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import { campaigns } from '@/lib/placeholder-data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { ArrowRight, ShoppingCart } from 'lucide-react';
+import { ArrowRight, ShoppingCart, Leaf, Siren } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
+import { Badge } from '@/components/ui/badge';
+
+
+const categoryStyles = {
+    Seasonal: {
+      icon: Leaf,
+      bgColor: 'bg-green-100 dark:bg-green-900/30',
+      textColor: 'text-green-700 dark:text-green-300',
+      borderColor: 'border-green-200 dark:border-green-700/50',
+    },
+    Emergency: {
+      icon: Siren,
+      bgColor: 'bg-red-100 dark:bg-red-900/30',
+      textColor: 'text-red-700 dark:text-red-300',
+      borderColor: 'border-red-200 dark:border-red-700/50',
+    },
+};
+
+const CampaignCategoryBadge = ({ category }: { category?: 'Seasonal' | 'Emergency' | 'Regular' }) => {
+    if (!category || category === 'Regular') return null;
+
+    const Icon = categoryStyles[category]?.icon;
+    const styles = categoryStyles[category];
+
+    if (!Icon || !styles) return null;
+
+    return (
+        <Badge
+        variant="outline"
+        className={cn(
+            "absolute top-4 left-4 z-10 font-semibold",
+            styles.bgColor,
+            styles.textColor,
+            styles.borderColor
+        )}
+        >
+        <Icon className="mr-1.5 h-3.5 w-3.5" />
+        {category}
+        </Badge>
+    );
+};
 
 export default function DonationsPage() {
   const [selectedCampaigns, setSelectedCampaigns] = useState<number[]>([]);
@@ -63,10 +104,11 @@ export default function DonationsPage() {
             <Card
               key={campaign.id}
               className={cn(
-                'flex flex-col overflow-hidden group transition-all duration-300 hover:shadow-2xl hover:-translate-y-1',
+                'flex flex-col overflow-hidden group transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 relative',
                 isSelected && 'ring-2 ring-primary'
               )}
             >
+              <CampaignCategoryBadge category={campaign.category} />
               {image && (
                 <div className="aspect-video overflow-hidden">
                   <Image

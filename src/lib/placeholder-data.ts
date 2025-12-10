@@ -144,7 +144,16 @@ export const donors = [
   { name: 'Emily R.', amount: 75, imageId: 'donor-4', date: 'July 17, 2024' },
 ];
 
-export const campaigns = [
+export const campaigns: {
+    id: number;
+    title: string;
+    slug: string;
+    description: string;
+    goal: number;
+    raised: number;
+    imageId: string;
+    category?: 'Seasonal' | 'Emergency' | 'Regular';
+}[] = [
   {
     id: 1,
     title: 'Winter Clothing Drive',
@@ -154,6 +163,7 @@ export const campaigns = [
     goal: 5000,
     raised: 2800,
     imageId: 'project-1',
+    category: 'Seasonal',
   },
   {
     id: 2,
@@ -164,6 +174,7 @@ export const campaigns = [
     goal: 10000,
     raised: 4500,
     imageId: 'project-2',
+    category: 'Regular',
   },
   {
     id: 3,
@@ -174,5 +185,6 @@ export const campaigns = [
     goal: 7500,
     raised: 6000,
     imageId: 'project-3',
+    category: 'Emergency',
   },
 ];

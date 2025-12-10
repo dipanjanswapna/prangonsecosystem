@@ -41,6 +41,7 @@
         "raisedAmount": { "type": "number", "description": "The total amount raised so far." },
         "minAmount": { "type": "number", "description": "Minimum donation amount.", "default": 0.01 },
         "status": { "type": "string", "enum": ["draft", "active", "completed", "archived"], "description": "Current status of the campaign." },
+        "category": { "type": "string", "enum": ["Seasonal", "Emergency", "Regular"], "description": "The category of the campaign." },
         "tags": { "type": "array", "items": { "type": "string" } },
         "qrCodeUrl": { "type": "string", "format": "uri", "description": "URL of the campaign's QR code image." },
         "shortLink": { "type": "string", "format": "uri", "description": "A shortened link for sharing the campaign." },
