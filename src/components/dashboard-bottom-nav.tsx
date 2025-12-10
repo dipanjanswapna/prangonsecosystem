@@ -48,9 +48,9 @@ export function DashboardBottomNav() {
   const items = navItems[userRole] || navItems[ROLES.USER];
   
   return (
-      <div className="fixed bottom-0 left-0 z-50 w-full h-16 bg-background border-t sm:hidden">
+      <div className="fixed bottom-0 left-0 z-50 w-full h-16 bg-background border-t">
         <div className="w-full h-full overflow-x-auto whitespace-nowrap">
-          <div className="flex justify-around items-center h-full max-w-lg mx-auto px-2">
+          <div className="flex justify-center items-center h-full max-w-lg mx-auto px-2">
               {items.map((item) => {
               const isActive = pathname === item.href;
               return (

@@ -17,11 +17,6 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { UserNav } from './user-nav';
 import { usePathname } from 'next/navigation';
-import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
-import { MainNav } from './main-nav';
-import { Menu, Package, HandHeart } from 'lucide-react';
-import { Icons } from './icons';
-import { DashboardSidebar } from './dashboard-sidebar';
 
 
 function getBreadcrumb(pathname: string) {
@@ -41,19 +36,8 @@ function getBreadcrumb(pathname: string) {
 export function DashboardHeader() {
     const pathname = usePathname();
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
-        <Sheet>
-            <SheetTrigger asChild>
-                <Button size="icon" variant="outline" className="sm:hidden">
-                    <Menu className="h-5 w-5" />
-                    <span className="sr-only">Toggle Menu</span>
-                </Button>
-            </SheetTrigger>
-            <SheetContent side="left" className="sm:max-w-xs">
-                <DashboardSidebar isMobile={true} />
-            </SheetContent>
-        </Sheet>
-      <Breadcrumb className="hidden md:flex">
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
+      <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>
             <BreadcrumbLink asChild>
