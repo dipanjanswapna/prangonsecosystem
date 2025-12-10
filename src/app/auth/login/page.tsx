@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -22,6 +22,8 @@ import { signIn, signInWithGoogle } from '@/lib/auth';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, Loader2 } from 'lucide-react';
+import { useUser } from '@/firebase/auth/use-user';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const formSchema = z.object({
   email: z.string().email('Please enter a valid email address.'),
@@ -60,11 +62,18 @@ function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
 
 
 export default function LoginPage() {
+  const { user, loading: userLoading } = useUser();
   const { toast } = useToast();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    if (!userLoading && user) {
+      router.push('/dashboard');
+    }
+  }, [user, userLoading, router]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -119,6 +128,25 @@ export default function LoginPage() {
       setIsGoogleLoading(false);
     }
   };
+  
+  if (userLoading || user) {
+    return (
+       <AuthLayout title="Loading..." description="Please wait while we check your session.">
+         <div className="space-y-4">
+           <div className="space-y-2">
+              <Skeleton className="h-5 w-20" />
+              <Skeleton className="h-10 w-full" />
+           </div>
+           <div className="space-y-2">
+              <Skeleton className="h-5 w-20" />
+              <Skeleton className="h-10 w-full" />
+           </div>
+            <Skeleton className="h-10 w-full" />
+            <Skeleton className="h-10 w-full" />
+         </div>
+      </AuthLayout>
+    );
+  }
 
 
   return (
