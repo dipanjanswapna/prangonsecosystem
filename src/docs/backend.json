@@ -1,0 +1,177 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Represents a user's profile in the system.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "The user's unique ID from Firebase Auth." },
+        "name": { "type": "string", "description": "The user's full name." },
+        "email": { "type": "string", "format": "email", "description": "The user's email address." },
+        "photoURL": { "type": "string", "format": "uri", "description": "URL of the user's profile picture." },
+        "role": { "type": "string", "description": "The user's role in the system.", "enum": ["admin", "moderator", "manager", "collaborator", "user"] },
+        "status": { "type": "string", "description": "The approval status of the user's account.", "enum": ["pending", "approved", "rejected"] },
+        "profile_status": { "type": "string", "description": "The completion status of the user's profile.", "enum": ["incomplete", "pending_review", "complete"] },
+        "level": { "type": "string", "description": "User's gamification level based on total points. Bronze: 0+, Silver: 1000+, Gold: 5000+, Platinum: 10000+.", "enum": ["Bronze", "Silver", "Gold", "Platinum"], "default": "Bronze" },
+        "points": { "type": "number", "description": "User's engagement points for rewards. (100 BDT = 1 Point)", "default": 0 },
+        "badges": { "type": "array", "description": "List of badges earned by the user.", "items": { "type": "string" } },
+        "createdAt": { "type": "string", "format": "date-time", "description": "The timestamp when the user was created." },
+        "lastLogin": { "type": "string", "format": "date-time", "description": "The timestamp of the user's last login." },
+        "profileUpdatedAt": { "type": "string", "format": "date-time", "description": "The timestamp when the user last updated their profile information." },
+        "specialization": { "type": "string", "description": "Moderator's area of specialization." },
+        "experienceYears": { "type": "number", "description": "Moderator's years of experience." },
+        "department": { "type": "string", "description": "Manager's department." },
+        "teamSize": { "type": "number", "description": "Manager's team size." },
+        "skills": { "type": "string", "description": "Collaborator's listed skills." },
+        "portfolioLink": { "type": "string", "format": "uri", "description": "Link to the collaborator's portfolio." },
+        "referralCode": { "type": "string", "description": "Unique code for referring new users." },
+        "referredBy": { "type": "string", "description": "The UID of the user who referred this user." },
+        "lastGiftClaimedAt": { "type": "string", "format": "date-time", "description": "Timestamp of when the user last claimed a gift by resetting their points." },
+        "pointsExpireAt": { "type": "string", "format": "date-time", "description": "Timestamp indicating when the user's points will expire (e.g., 1 year after earning)." }
+      },
+      "required": ["uid", "name", "email", "role", "status", "profile_status", "createdAt", "referralCode"]
+    },
+    "Campaign": {
+      "title": "Donation Campaign",
+      "description": "Represents a fundraising campaign.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "description": "Title of the campaign." },
+        "slug": { "type": "string", "description": "URL-friendly slug for the campaign." },
+        "description": { "type": "string", "description": "Detailed description of the campaign, supports markdown." },
+        "goal": { "type": "number", "description": "The target amount to be raised." },
+        "raised": { "type": "number", "description": "The total amount raised so far." },
+        "minAmount": { "type": "number", "description": "Minimum donation amount.", "default": 0.01 },
+        "status": { "type": "string", "enum": ["draft", "active", "completed", "archived"], "description": "Current status of the campaign." },
+        "category": { "type": "string", "enum": ["Seasonal", "Emergency", "Regular"], "description": "The category of the campaign." },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "voteOptions": { "type": "array", "items": { "type": "string" }, "description": "List of categories or items that users can vote on for this campaign." },
+        "qrCodeUrl": { "type": "string", "format": "uri", "description": "URL of the campaign's QR code image." },
+        "shortLink": { "type": "string", "format": "uri", "description": "A shortened link for sharing the campaign." },
+        "telegramLink": { "type": "string", "format": "uri", "description": "Link to a Telegram channel/group for campaign proof." },
+        "createdBy": { "type": "string", "description": "UID of the admin who created the campaign." },
+        "startDate": { "type": "string", "format": "date-time" },
+        "endDate": { "type": "string", "format": "date-time" },
+        "imageUrl": { "type": "string", "format": "uri", "description": "URL of the campaign's cover image." }
+      },
+      "required": ["title", "slug", "description", "goal", "status", "createdBy", "imageUrl"]
+    },
+    "Donation": {
+      "title": "Donation Record",
+      "description": "Represents a single donation made by a user or guest.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "UID of the donating user (nullable for guests)." },
+        "campaignId": { "type": "string", "description": "ID of the campaign this donation is for." },
+        "campaignTitle": { "type": "string", "description": "Title of the campaign at the time of donation." },
+        "amount": { "type": "number", "description": "The amount donated." },
+        "currency": { "type": "string", "default": "BDT" },
+        "gateway": { "type": "string", "description": "Payment gateway used.", "enum": ["bKash", "Nagad", "Rocket", "SSLCommerz", "SurjoPay"] },
+        "transactionId": { "type": "string", "description": "Unique ID from the payment gateway." },
+        "status": { "type": "string", "enum": ["pending", "success", "failed", "refunded"] },
+        "invoiceId": { "type": "string", "description": "Unique ID for the generated invoice." },
+        "isAnonymous": { "type": "boolean", "default": false },
+        "donorName": { "type": "string", "description": "Name of the donor (if not anonymous)." },
+        "donorEmail": { "type": "string", "format": "email", "description": "Email of the donor (if not anonymous)." },
+        "frequency": { "type": "string", "enum": ["one-time", "monthly"], "description": "The frequency of the donation.", "default": "one-time" },
+        "isCorporateMatch": { "type": "boolean", "default": false, "description": "Indicates if the donation is part of a corporate matching program." },
+        "corporateName": { "type": "string", "description": "Name of the matching corporation, if applicable." }
+      },
+      "required": ["campaignId", "campaignTitle", "amount", "gateway", "status", "donorName", "invoiceId", "frequency"]
+    },
+    "Invoice": {
+        "title": "Donation Invoice",
+        "description": "Represents a generated invoice for a donation.",
+        "type": "object",
+        "properties": {
+            "donationId": { "type": "string" },
+            "invoiceNumber": { "type": "string", "description": "A unique, sequential invoice number (e.g., ONGON-202407-000123)." },
+            "donorName": { "type": "string" },
+            "donorEmail": { "type": "string", "format": "email" },
+            "amount": { "type": "number" },
+            "issueDate": { "type": "string", "format": "date-time" },
+            "pdfUrl": { "type": "string", "format": "uri", "description": "Link to the generated PDF invoice." }
+        },
+        "required": ["donationId", "invoiceNumber", "donorName", "donorEmail", "amount", "issueDate"]
+    },
+    "Allocation": {
+        "title": "Fund Allocation",
+        "description": "Represents the allocation of donated funds to a specific usage item.",
+        "type": "object",
+        "properties": {
+            "donationId": { "type": "string", "description": "The source donation ID." },
+            "usageItemId": { "type": "string", "description": "The destination usage item ID." },
+            "amount": { "type": "number" },
+            "note": { "type": "string", "description": "Note from the manager making the allocation." },
+            "approvedBy": { "type": "string", "description": "UID of the admin who approved it." },
+            "allocatedAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["donationId", "usageItemId", "amount", "allocatedAt"]
+    },
+    "UsageItem": {
+        "title": "Donation Usage Item",
+        "description": "An item or service where donated funds were spent.",
+        "type": "object",
+        "properties": {
+            "campaignId": { "type": "string" },
+            "campaignTitle": { "type": "string" },
+            "category": { "type": "string", "enum": ["education", "health", "logistics", "food", "shelter"] },
+            "description": { "type": "string" },
+            "cost": { "type": "number" },
+            "vendor": { "type": "string" },
+            "evidenceUrls": { "type": "array", "items": { "type": "string", "format": "uri" } },
+            "spentAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["campaignId", "category", "description", "cost", "spentAt"]
+    },
+    "Vote": {
+      "title": "Community Vote",
+      "description": "Represents a single vote cast by a user for a specific campaign category.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "The UID of the user who voted." },
+        "campaignId": { "type": "string", "description": "The ID of the campaign the vote is for." },
+        "category": { "type": "string", "description": "The category the user voted for. This is now a dynamic value." },
+        "votedAt": { "type": "string", "format": "date-time", "description": "Timestamp of when the vote was cast." }
+      },
+      "required": ["userId", "campaignId", "category", "votedAt"]
+    }
+  },
+  "auth": {
+    "providers": ["password", "google.com"]
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "Stores public information about a user, including their role and status."
+    },
+    "/campaigns/{campaignId}": {
+        "schema": { "$ref": "#/entities/Campaign" },
+        "description": "Stores details for each donation campaign."
+    },
+    "/donations/{donationId}": {
+        "schema": { "$ref": "#/entities/Donation" },
+        "description": "Stores records of all individual donations."
+    },
+    "/invoices/{invoiceId}": {
+        "schema": { "$ref": "#/entities/Invoice" },
+        "description": "Stores generated invoices for donations."
+    },
+    "/campaigns/{campaignId}/usageItems/{usageItemId}": {
+        "schema": { "$ref": "#/entities/UsageItem" },
+        "description": "Stores items on which campaign funds were spent, nested under the campaign."
+    },
+    "/usageItems/{usageItemId}": {
+        "schema": { "$ref": "#/entities/UsageItem" },
+        "description": "Global collection for all usage items for easier querying by admins."
+    },
+    "/allocations/{allocationId}": {
+        "schema": { "$ref": "#/entities/Allocation" },
+        "description": "Stores the mapping of donations to usage items for transparency."
+    },
+    "/votes/{voteId}": {
+      "schema": { "$ref": "#/entities/Vote" },
+      "description": "Stores all votes cast by users for different campaign fund allocations."
+    }
+  }
+}

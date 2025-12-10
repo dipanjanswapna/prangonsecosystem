@@ -137,9 +137,6 @@ export default function CampaignDetailsPage() {
               <CardTitle className="font-headline text-3xl md:text-4xl">
                 {campaign.title}
               </CardTitle>
-              <CardDescription className="text-lg">
-                {campaign.description}
-              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
@@ -191,18 +188,7 @@ export default function CampaignDetailsPage() {
               <CardTitle>About this campaign</CardTitle>
             </CardHeader>
             <CardContent className="prose dark:prose-invert max-w-full">
-              <p>
-                This campaign aims to address the critical need for warm clothing in remote villages during the winter season. Many families lack adequate protection against the cold, leading to health issues and hardship.
-              </p>
-              <p>
-                Your donation will directly fund the purchase and distribution of high-quality blankets, jackets, and other winter essentials. We partner with local volunteers to ensure the aid reaches the most vulnerable individuals, including children and the elderly.
-              </p>
-              <h4>How Your Donation Helps:</h4>
-              <ul>
-                <li><strong>৳1000</strong> can provide a warm blanket for one person.</li>
-                <li><strong>৳2500</strong> can supply a family with a winter kit.</li>
-                <li><strong>৳10000</strong> can help us reach four families in need.</li>
-              </ul>
+              <div dangerouslySetInnerHTML={{ __html: campaign.description.replace(/\n/g, '<br />') }} />
             </CardContent>
           </Card>
           <CampaignUsageReport campaignId={campaign.id} />
