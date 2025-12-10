@@ -69,24 +69,41 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
 
   useEffect(() => {
-    if (isLoading) return;
+    if (isLoading) return; // Wait for user and profile data to be loaded
 
     if (!user) {
-      if(isProtectedRoute) {
+      if (isProtectedRoute) {
         router.replace('/auth/login');
       }
       return;
     }
-
+    
     if (userProfile && userProfile.status === 'approved') {
-        const userRole = userProfile.role || ROLES.USER;
-        const expectedDashboardPath = `/dashboard/${userRole.toLowerCase()}`;
-        if (pathname === '/dashboard' || pathname === '/dashboard/') {
-            router.replace(expectedDashboardPath);
+      const userRole = userProfile.role || ROLES.USER;
+      const expectedDashboardPath = `/dashboard/${userRole.toLowerCase()}`;
+      
+      // Redirect from the generic /dashboard page to the role-specific one
+      if (pathname === '/dashboard' || pathname === '/dashboard/') {
+        router.replace(expectedDashboardPath);
+        return;
+      }
+      
+      // Security check: if user is on a dashboard page that doesn't match their role, redirect them.
+      // This prevents a 'user' from accessing '/dashboard/admin', for example.
+      const isDashboardPage = pathname.startsWith('/dashboard/');
+      if (isDashboardPage && !pathname.startsWith(expectedDashboardPath)) {
+        // Exception for admin viewing all users page
+        if(userRole === ROLES.ADMIN && pathname === '/dashboard/all-users'){
+            return;
         }
+        router.replace(expectedDashboardPath);
+        return;
+      }
     }
-  }, [user, userProfile, isLoading, profileLoading, router, pathname, isProtectedRoute]);
+  }, [user, userProfile, isLoading, router, pathname, isProtectedRoute]);
 
+
+  // While loading, show a skeleton UI for any protected route
   if (isLoading && isProtectedRoute) {
      return (
       <div className="space-y-6 p-4 sm:px-6 sm:py-4">
@@ -102,38 +119,33 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
     );
   }
 
+  // After loading, if on a protected route and user is present
   if (isProtectedRoute && user) {
      if (userProfile) {
-        if (userProfile.status === 'approved') {
-            // If we are at the root dashboard path, the useEffect will handle redirection.
-            // While redirecting, show a loader.
-            if (pathname === '/dashboard' || pathname === '/dashboard/') {
-                 return (
-                    <div className="space-y-6 p-4 sm:px-6 sm:py-4">
-                        <Skeleton className="h-16 w-full" />
-                        <Skeleton className="h-80 w-full" />
-                    </div>
-                );
-            }
-            return <>{children}</>;
-        } else {
+        // If the user's registration is not approved, show the relevant 'Access Denied' or 'Pending' page.
+        if (userProfile.status !== 'approved') {
              return <AccessDenied status={userProfile.status} />;
         }
+        // If approved, render the children (the actual dashboard page)
+        return <>{children}</>;
      }
-     // If user exists but profile is still loading (or just finished loading and useEffect hasn't run), keep showing loader.
+     
+     // If user is logged in but profile is still loading, continue showing skeleton.
+     // This prevents a flash of incorrect content.
      return (
         <div className="space-y-6 p-4 sm:px-6 sm:py-4">
             <Skeleton className="h-16 w-full" />
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Skeleton className="h-32 w-full" />
-            <Skeleton className="h-32 w-full" />
-            <Skeleton className="h-32 w-full" />
-            <Skeleton className="h-32 w-full" />
+              <Skeleton className="h-32 w-full" />
+              <Skeleton className="h-32 w-full" />
+              <Skeleton className="h-32 w-full" />
+              <Skeleton className="h-32 w-full" />
             </div>
             <Skeleton className="h-80 w-full" />
         </div>
      );
   }
   
+  // If not a protected route, just render the children
   return <>{children}</>;
 }
