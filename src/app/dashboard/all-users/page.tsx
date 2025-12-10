@@ -283,7 +283,7 @@ export default function AllUsersPage() {
                               <span className="sr-only">Toggle menu</span>
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
+                          <DropdownMenuContent align="end" className="max-h-[90vh] overflow-y-auto">
                             <DropdownMenuLabel>
                               Review & Actions
                             </DropdownMenuLabel>
@@ -440,5 +440,3 @@ export default function AllUsersPage() {
     </>
   );
 }
-
-    
