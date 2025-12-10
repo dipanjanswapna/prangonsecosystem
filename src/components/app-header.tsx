@@ -2,7 +2,13 @@
 
 import Link from 'next/link';
 import { MainNav } from './main-nav';
-import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from './ui/sheet';
 import { Button } from './ui/button';
 import { Menu } from 'lucide-react';
 import { ThemeToggle } from './theme-toggle';
@@ -13,7 +19,12 @@ import { cn } from '@/lib/utils';
 export function AppHeader() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   return (
-    <header className={cn("sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60", "hide-on-auth")}>
+    <header
+      className={cn(
+        'sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60',
+        'hide-on-auth'
+      )}
+    >
       <div className="container flex h-14 items-center">
         <div className="md:hidden flex-1">
           <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
@@ -24,6 +35,9 @@ export function AppHeader() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left">
+              <SheetHeader className="sr-only">
+                <SheetTitle>Mobile Navigation Menu</SheetTitle>
+              </SheetHeader>
               <div className="py-6" onClick={() => setIsSheetOpen(false)}>
                 <MainNav isMobile={true} />
               </div>
