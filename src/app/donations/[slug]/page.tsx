@@ -1,4 +1,5 @@
-import { notFound } from 'next/navigation';
+'use client';
+import { notFound, useParams } from 'next/navigation';
 import { campaigns, donors } from '@/lib/placeholder-data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
@@ -16,11 +17,8 @@ import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 
-export default function CampaignDetailsPage({
-  params,
-}: {
-  params: { slug: string };
-}) {
+export default function CampaignDetailsPage() {
+  const params = useParams<{ slug: string }>();
   const campaign = campaigns.find((c) => c.slug === params.slug);
 
   if (!campaign) {

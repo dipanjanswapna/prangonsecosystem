@@ -1,6 +1,6 @@
 'use client';
 
-import { notFound, useRouter } from 'next/navigation';
+import { notFound, useRouter, useParams } from 'next/navigation';
 import { campaigns } from '@/lib/placeholder-data';
 import {
   Card,
@@ -36,7 +36,8 @@ function GatewayIcon({ name, src, isSelected, onClick }: { name: string; src: st
   );
 }
 
-export default function DonatePage({ params }: { params: { slug: string } }) {
+export default function DonatePage() {
+  const params = useParams<{ slug: string }>();
   const { user } = useUser();
   const router = useRouter();
   const { toast } = useToast();
@@ -95,7 +96,7 @@ export default function DonatePage({ params }: { params: { slug: string } }) {
         amount: donationAmount,
         currency: 'BDT',
         gateway: selectedGateway,
-        status: 'pending', // Status is pending until payment is confirmed
+        status: 'pending' as const, 
         isAnonymous,
         donorName: isAnonymous ? 'Anonymous' : name,
         donorEmail: isAnonymous ? null : email,

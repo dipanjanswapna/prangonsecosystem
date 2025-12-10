@@ -1,11 +1,13 @@
-import { notFound } from 'next/navigation';
+'use client';
+import { notFound, useParams } from 'next/navigation';
 import { campaigns } from '@/lib/placeholder-data';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Download, QrCode } from 'lucide-react';
 import Image from 'next/image';
 
-export default function CampaignQRPage({ params }: { params: { slug: string } }) {
+export default function CampaignQRPage() {
+  const params = useParams<{ slug: string }>();
   const campaign = campaigns.find((c) => c.slug === params.slug);
 
   if (!campaign) {
