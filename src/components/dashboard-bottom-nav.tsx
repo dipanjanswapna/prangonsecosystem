@@ -34,6 +34,7 @@ const navItems = {
   ],
   [ROLES.USER]: [
     { href: '/dashboard/user', icon: Home, label: 'Dashboard' },
+    { href: '/dashboard/user/donations', icon: Package, label: 'Donations' },
     { href: '/auth/profile', icon: User, label: 'Profile' },
   ],
 };
