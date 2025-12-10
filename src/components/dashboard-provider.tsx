@@ -102,8 +102,9 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       
       const isDashboardPage = pathname.startsWith('/dashboard/');
       if (isDashboardPage && !pathname.startsWith(expectedDashboardPath)) {
-        // Allow admin to access all-users page
-        if(!(userRole === ROLES.ADMIN && pathname.startsWith('/dashboard/all-users'))) {
+        // Allow admin to access certain pages outside their direct dashboard
+        const allowedAdminPaths = ['/dashboard/all-users', '/dashboard/admin/donations'];
+        if(!(userRole === ROLES.ADMIN && allowedAdminPaths.some(p => pathname.startsWith(p)))) {
            router.replace(expectedDashboardPath);
         }
       }
