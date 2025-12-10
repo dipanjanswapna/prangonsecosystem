@@ -19,6 +19,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import type { Timestamp } from 'firebase/firestore';
 import { CampaignUsageReport } from './usage-report';
 import { VoteCard } from './vote-card';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface Campaign {
   id: string;
@@ -99,7 +100,7 @@ export default function CampaignDetailsPage() {
     'donations',
     undefined,
     undefined,
-    undefined, // Removed orderBy clause
+    undefined, 
     5,
     [
       ['campaignId', '==', campaign?.id || ''],
@@ -207,37 +208,39 @@ export default function CampaignDetailsPage() {
                 Recent Donors
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              {donationsLoading ? (
-                 Array.from({ length: 4 }).map((_, i) => (
-                    <div key={i} className="flex items-center gap-4">
-                        <Skeleton className="h-12 w-12 rounded-full" />
-                        <div className="flex-grow space-y-2">
-                            <Skeleton className="h-4 w-3/4" />
-                            <Skeleton className="h-4 w-1/2" />
-                        </div>
+            <ScrollArea className="h-96">
+              <CardContent className="space-y-4">
+                {donationsLoading ? (
+                   Array.from({ length: 4 }).map((_, i) => (
+                      <div key={i} className="flex items-center gap-4">
+                          <Skeleton className="h-12 w-12 rounded-full" />
+                          <div className="flex-grow space-y-2">
+                              <Skeleton className="h-4 w-3/4" />
+                              <Skeleton className="h-4 w-1/2" />
+                          </div>
+                      </div>
+                  ))
+                ) : donations.length > 0 ? (
+                  donations.map((donor) => (
+                  <div key={donor.id} className="flex items-center gap-4">
+                    <Avatar>
+                      <AvatarFallback>{donor.donorName.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-grow">
+                      <p className="font-semibold">{donor.donorName}</p>
+                      <p className="text-sm text-muted-foreground">
+                        Donated ৳{donor.amount}
+                      </p>
                     </div>
-                ))
-              ) : donations.length > 0 ? (
-                donations.map((donor) => (
-                <div key={donor.id} className="flex items-center gap-4">
-                  <Avatar>
-                    <AvatarFallback>{donor.donorName.charAt(0)}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-grow">
-                    <p className="font-semibold">{donor.donorName}</p>
-                    <p className="text-sm text-muted-foreground">
-                      Donated ৳{donor.amount}
-                    </p>
+                     <Badge variant="secondary">
+                      {new Date(donor.createdAt.seconds * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                    </Badge>
                   </div>
-                   <Badge variant="secondary">
-                    {new Date(donor.createdAt.seconds * 1000).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-                  </Badge>
-                </div>
-              ))) : (
-                <p className="text-sm text-muted-foreground">Be the first to donate to this campaign!</p>
-              )}
-            </CardContent>
+                ))) : (
+                  <p className="text-sm text-muted-foreground">Be the first to donate to this campaign!</p>
+                )}
+              </CardContent>
+            </ScrollArea>
           </Card>
           {campaign.voteOptions && campaign.voteOptions.length > 0 && (
             <VoteCard campaignId={campaign.id} voteOptions={campaign.voteOptions} />
