@@ -98,9 +98,9 @@ export default function SignupPage() {
       toast({
         title: 'Account Created!',
         description:
-          values.role === ROLES.USER || values.role === ROLES.ADMIN
+          values.role === ROLES.USER
             ? "You've been successfully signed up. Redirecting to login..."
-            : 'Your registration is pending admin approval. We will notify you via email.',
+            : 'Your registration is pending. Please complete your profile to continue.',
       });
       router.push('/auth/login');
     } catch (error: any) {
