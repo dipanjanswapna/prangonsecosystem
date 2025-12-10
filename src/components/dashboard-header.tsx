@@ -2,14 +2,7 @@
 
 import {
   Bell,
-  Home,
-  LineChart,
-  Package,
-  Package2,
-  PanelLeft,
   Search,
-  ShoppingCart,
-  Users,
 } from 'lucide-react';
 import Link from 'next/link';
 import {
@@ -21,19 +14,24 @@ import {
   BreadcrumbSeparator,
 } from './ui/breadcrumb';
 import { Button } from './ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from './ui/dropdown-menu';
 import { Input } from './ui/input';
-import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
 import { UserNav } from './user-nav';
+import { usePathname } from 'next/navigation';
+
+
+function getBreadcrumb(pathname: string) {
+    if (pathname.includes('/dashboard/admin')) return 'Admin';
+    if (pathname.includes('/dashboard/all-users')) return 'All Users';
+    if (pathname.includes('/dashboard/moderator')) return 'Moderator';
+    if (pathname.includes('/dashboard/manager')) return 'Manager';
+    if (pathname.includes('/dashboard/collaborator')) return 'Collaborator';
+    if (pathname.includes('/dashboard/user')) return 'My Dashboard';
+    if (pathname.includes('/auth/profile')) return 'Profile';
+    return 'Overview'
+}
 
 export function DashboardHeader() {
+    const pathname = usePathname();
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
       <Breadcrumb className="hidden md:flex">
@@ -45,7 +43,7 @@ export function DashboardHeader() {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbPage>Overview</BreadcrumbPage>
+            <BreadcrumbPage>{getBreadcrumb(pathname)}</BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>
