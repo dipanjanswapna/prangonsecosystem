@@ -1,3 +1,5 @@
+'use client';
+
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -7,14 +9,38 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import { campaigns } from '@/lib/placeholder-data';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, ShoppingCart } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useState } from 'react';
+import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 
 export default function DonationsPage() {
+  const [selectedCampaigns, setSelectedCampaigns] = useState<number[]>([]);
+  const router = useRouter();
+
+  const handleCampaignSelect = (campaignId: number) => {
+    setSelectedCampaigns((prev) =>
+      prev.includes(campaignId)
+        ? prev.filter((id) => id !== campaignId)
+        : [...prev, campaignId]
+    );
+  };
+
+  const handleDonateToPool = () => {
+    if (selectedCampaigns.length > 0) {
+      const query = new URLSearchParams({
+        ids: selectedCampaigns.join(','),
+      }).toString();
+      router.push(`/donations/pool?${query}`);
+    }
+  };
+
   return (
     <div className="space-y-8">
       <div className="text-center px-4">
@@ -22,8 +48,8 @@ export default function DonationsPage() {
           Support Our Campaigns
         </h1>
         <p className="mt-2 text-lg text-muted-foreground max-w-2xl mx-auto">
-          Your contribution makes a difference. Help us empower communities
-          across Bangladesh.
+          Your contribution makes a difference. Select one or more campaigns to
+          create a donation pool.
         </p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -32,10 +58,14 @@ export default function DonationsPage() {
             (img) => img.id === campaign.imageId
           );
           const progress = (campaign.raised / campaign.goal) * 100;
+          const isSelected = selectedCampaigns.includes(campaign.id);
           return (
             <Card
               key={campaign.id}
-              className="flex flex-col overflow-hidden group transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
+              className={cn(
+                'flex flex-col overflow-hidden group transition-all duration-300 hover:shadow-2xl hover:-translate-y-1',
+                isSelected && 'ring-2 ring-primary'
+              )}
             >
               {image && (
                 <div className="aspect-video overflow-hidden">
@@ -50,9 +80,17 @@ export default function DonationsPage() {
                 </div>
               )}
               <CardHeader>
-                <CardTitle className="font-headline text-xl group-hover:text-primary transition-colors">
-                  {campaign.title}
-                </CardTitle>
+                <div className="flex justify-between items-start gap-2">
+                  <CardTitle className="group-hover:text-primary transition-colors">
+                    {campaign.title}
+                  </CardTitle>
+                  <Checkbox
+                    id={`campaign-${campaign.id}`}
+                    checked={isSelected}
+                    onCheckedChange={() => handleCampaignSelect(campaign.id)}
+                    className="h-5 w-5 mt-1"
+                  />
+                </div>
                 <CardDescription>{campaign.description}</CardDescription>
               </CardHeader>
               <CardContent className="flex-grow space-y-4">
@@ -69,7 +107,7 @@ export default function DonationsPage() {
                 </div>
               </CardContent>
               <CardFooter>
-                 <Button asChild className="w-full">
+                <Button asChild className="w-full">
                   <Link href={`/donations/${campaign.slug}`}>
                     Donate Now <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
@@ -79,6 +117,22 @@ export default function DonationsPage() {
           );
         })}
       </div>
+
+      {selectedCampaigns.length > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 p-4">
+          <div className="container mx-auto">
+            <div className="bg-background border rounded-lg shadow-2xl p-4 flex justify-between items-center">
+              <p className="font-semibold">
+                {selectedCampaigns.length} campaign(s) selected
+              </p>
+              <Button onClick={handleDonateToPool}>
+                <ShoppingCart className="mr-2 h-4 w-4" />
+                Donate to Pool
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
