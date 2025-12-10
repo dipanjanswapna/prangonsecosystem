@@ -21,6 +21,7 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { saveDonation } from '@/lib/donations';
 import { useUser } from '@/firebase/auth/use-user';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 function GatewayIcon({ name, src, isSelected, onClick }: { name: string; src: string; isSelected: boolean; onClick: () => void }) {
   return (
@@ -37,7 +38,7 @@ function GatewayIcon({ name, src, isSelected, onClick }: { name: string; src: st
 }
 
 export default function DonatePage() {
-  const params = useParams<{ slug: string }>();
+  const params = useParams();
   const { user } = useUser();
   const router = useRouter();
   const { toast } = useToast();
@@ -49,6 +50,7 @@ export default function DonatePage() {
   const [email, setEmail] = useState(user?.email || '');
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [donationFrequency, setDonationFrequency] = useState('one-time');
 
   if (!campaign) {
     notFound();
@@ -135,6 +137,34 @@ export default function DonatePage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-8">
+          <div className="space-y-4">
+            <Label className="text-lg font-medium">Donation Frequency</Label>
+            <RadioGroup
+              defaultValue="one-time"
+              className="grid grid-cols-2 gap-4"
+              onValueChange={setDonationFrequency}
+            >
+              <div>
+                <RadioGroupItem value="one-time" id="one-time" className="peer sr-only" />
+                <Label
+                  htmlFor="one-time"
+                  className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                >
+                  One-time
+                </Label>
+              </div>
+              <div>
+                <RadioGroupItem value="monthly" id="monthly" className="peer sr-only" />
+                <Label
+                  htmlFor="monthly"
+                  className="flex flex-col items-center justify-between rounded-md border-2 border-muted bg-popover p-4 hover:bg-accent hover:text-accent-foreground peer-data-[state=checked]:border-primary [&:has([data-state=checked])]:border-primary"
+                >
+                  Monthly
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+          
           <div className="space-y-4">
             <Label htmlFor="amount" className="text-lg font-medium">Choose an amount (BDT)</Label>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
