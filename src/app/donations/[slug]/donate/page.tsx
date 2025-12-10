@@ -29,6 +29,7 @@ interface Campaign {
   id: string;
   title: string;
   slug: string;
+  minAmount?: number;
 }
 
 function GatewayIcon({ name, src, isSelected, onClick }: { name: string; src: string; isSelected: boolean; onClick: () => void }) {
@@ -118,8 +119,10 @@ export default function DonatePage() {
   
   const handleProceedToPay = async () => {
     const donationAmount = Number(amount);
-    if (isNaN(donationAmount) || donationAmount < 10) {
-        toast({ variant: 'destructive', title: 'Invalid Amount', description: 'Please enter a valid donation amount. Minimum is ৳10.' });
+    const minDonationAmount = campaign?.minAmount ?? 0.01;
+
+    if (isNaN(donationAmount) || donationAmount < minDonationAmount) {
+        toast({ variant: 'destructive', title: 'Invalid Amount', description: `Please enter a valid donation amount. Minimum is ৳${minDonationAmount}.` });
         return;
     }
     if (!name && !isAnonymous) {
@@ -236,8 +239,8 @@ export default function DonatePage() {
                 type="number"
                 placeholder="Or enter a custom amount"
                 className="pl-7 text-lg h-14"
-                min="10"
-                step="1"
+                min={campaign?.minAmount ?? 0.01}
+                step="0.01"
                 value={amount}
                 onChange={(e) => setAmount(e.target.value)}
               />

@@ -31,6 +31,7 @@ interface Campaign {
     id: string;
     title: string;
     slug: string;
+    minAmount?: number;
 }
 
 
@@ -110,11 +111,25 @@ function PoolDonationForm() {
 
   const handleProceedToPay = async () => {
     const donationAmount = Number(totalAmount);
-    if (isNaN(donationAmount) || donationAmount < selectedCampaigns.length * 0.01) {
+    
+    // Check if the amount per campaign is valid
+    for (const campaign of selectedCampaigns) {
+        const minAmount = campaign.minAmount ?? 0.01;
+        if (amountPerCampaign < minAmount) {
+            toast({
+                variant: 'destructive',
+                title: 'Invalid Amount',
+                description: `The total amount is too low. Each campaign must receive at least ৳${minAmount}.`,
+            });
+            return;
+        }
+    }
+
+    if (isNaN(donationAmount) || donationAmount <= 0) {
       toast({
         variant: 'destructive',
         title: 'Invalid Amount',
-        description: `Please enter a valid total amount. Minimum is ৳${(selectedCampaigns.length * 0.01).toFixed(2)}.`,
+        description: `Please enter a valid total amount.`,
       });
       return;
     }
