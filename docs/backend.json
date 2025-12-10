@@ -48,6 +48,7 @@
         "voteOptions": { "type": "array", "items": { "type": "string" }, "description": "List of categories or items that users can vote on for this campaign." },
         "qrCodeUrl": { "type": "string", "format": "uri", "description": "URL of the campaign's QR code image." },
         "shortLink": { "type": "string", "format": "uri", "description": "A shortened link for sharing the campaign." },
+        "telegramLink": { "type": "string", "format": "uri", "description": "Link to a Telegram channel/group for campaign proof." },
         "createdBy": { "type": "string", "description": "UID of the admin who created the campaign." },
         "startDate": { "type": "string", "format": "date-time" },
         "endDate": { "type": "string", "format": "date-time" },

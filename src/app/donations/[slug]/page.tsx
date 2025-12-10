@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Gift, HandHeart, QrCode } from 'lucide-react';
+import { ArrowRight, Gift, HandHeart, QrCode, Send } from 'lucide-react';
 import Link from 'next/link';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
@@ -30,6 +30,7 @@ interface Campaign {
   raised: number;
   imageUrl: string;
   voteOptions?: string[];
+  telegramLink?: string;
 }
 
 interface Donation {
@@ -173,6 +174,13 @@ export default function CampaignDetailsPage() {
                             Scan QR Code <QrCode className="ml-2 h-5 w-5" />
                         </Link>
                     </Button>
+                    {campaign.telegramLink && (
+                        <Button asChild variant="outline" size="lg" className="w-full sm:w-auto">
+                            <a href={campaign.telegramLink} target='_blank' rel="noopener noreferrer">
+                                View Proof on Telegram <Send className="ml-2 h-5 w-5" />
+                            </a>
+                        </Button>
+                    )}
                 </div>
               </div>
             </CardContent>

@@ -23,6 +23,7 @@ interface CampaignData {
   category: 'Seasonal' | 'Emergency' | 'Regular';
   imageUrl: string;
   voteOptions?: string;
+  telegramLink?: string;
 }
 
 export const createCampaign = async (data: CampaignData) => {
@@ -36,6 +37,7 @@ export const createCampaign = async (data: CampaignData) => {
     await addDoc(campaignCollection, {
       ...data,
       voteOptions: voteOptionsArray,
+      telegramLink: data.telegramLink || null,
       slug: `${data.title
         .toLowerCase()
         .replace(/[^a-z0-9\s-]/g, '') // remove special characters
@@ -66,6 +68,11 @@ export const updateCampaign = async (
         ? data.voteOptions.split(',').map(s => s.trim()).filter(Boolean)
         : [];
     }
+
+    if (data.telegramLink !== undefined) {
+      updateData.telegramLink = data.telegramLink || null;
+    }
+
 
     await updateDoc(campaignDocRef, updateData);
   } catch (error) {

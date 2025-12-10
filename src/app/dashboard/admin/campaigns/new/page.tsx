@@ -43,6 +43,7 @@ const formSchema = z.object({
   category: z.enum(['Seasonal', 'Emergency', 'Regular']).default('Regular'),
   imageUrl: z.string().url('Please enter a valid image URL.'),
   voteOptions: z.string().optional().describe('Comma-separated list of voting options for the campaign.'),
+  telegramLink: z.string().url('Please enter a valid URL.').optional().or(z.literal('')),
 });
 
 export default function NewCampaignPage() {
@@ -59,6 +60,7 @@ export default function NewCampaignPage() {
       category: 'Regular',
       imageUrl: '',
       voteOptions: '',
+      telegramLink: '',
     },
   });
 
@@ -196,6 +198,25 @@ export default function NewCampaignPage() {
                   </FormControl>
                    <CardDescription>
                     Optional. Enter comma-separated values for users to vote on.
+                  </CardDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="telegramLink"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Telegram Proof Link</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="https://t.me/your_channel_or_group"
+                      {...field}
+                    />
+                  </FormControl>
+                   <CardDescription>
+                    Optional. Link to a Telegram channel/group for showing proof.
                   </CardDescription>
                   <FormMessage />
                 </FormItem>
