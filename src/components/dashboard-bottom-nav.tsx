@@ -52,7 +52,7 @@ export function DashboardBottomNav() {
         <div className="w-full h-full overflow-x-auto whitespace-nowrap">
           <div className="flex justify-center items-center h-full max-w-lg mx-auto px-2">
               {items.map((item) => {
-              const isActive = pathname === item.href;
+              const isActive = pathname.startsWith(item.href) && (item.href !== '/dashboard/admin' || pathname === '/dashboard/admin');
               return (
                   <Link
                   key={item.label}

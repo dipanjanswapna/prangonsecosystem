@@ -49,9 +49,10 @@ export const saveDonation = async (data: DonationData): Promise<string> => {
                 raised: increment(data.amount)
             });
 
+            // If the donation is tied to a user and not anonymous, update points and level
             if (data.userId && !data.isAnonymous) {
                 const userRef = doc(firestore, 'users', data.userId);
-                const pointsEarned = Math.floor(data.amount);
+                const pointsEarned = Math.floor(data.amount); // 1 BDT = 1 Point
                 
                 const userDoc: DocumentSnapshot = await transaction.get(userRef);
                 const currentPoints = userDoc.data()?.points || 0;
@@ -67,6 +68,7 @@ export const saveDonation = async (data: DonationData): Promise<string> => {
             return newDonationRef.id;
         });
 
+        // The transaction was successful, return the new donation ID
         return newDonationId;
 
     } catch (error) {

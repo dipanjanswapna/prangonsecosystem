@@ -109,6 +109,7 @@
         "type": "object",
         "properties": {
             "campaignId": { "type": "string" },
+            "campaignTitle": { "type": "string" },
             "category": { "type": "string", "enum": ["education", "health", "logistics", "food", "shelter"] },
             "description": { "type": "string" },
             "cost": { "type": "number" },
@@ -142,6 +143,10 @@
     "/campaigns/{campaignId}/usageItems/{usageItemId}": {
         "schema": { "$ref": "#/entities/UsageItem" },
         "description": "Stores items on which campaign funds were spent, nested under the campaign."
+    },
+    "/usageItems/{usageItemId}": {
+        "schema": { "$ref": "#/entities/UsageItem" },
+        "description": "Global collection for all usage items for easier querying by admins."
     },
     "/allocations/{allocationId}": {
         "schema": { "$ref": "#/entities/Allocation" },
