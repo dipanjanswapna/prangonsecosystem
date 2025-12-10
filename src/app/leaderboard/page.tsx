@@ -35,7 +35,7 @@ interface User {
 interface Campaign {
     id: string;
     title: string;
-    raisedAmount: number;
+    raised: number;
     imageId: string;
 }
 
@@ -90,7 +90,7 @@ function DonorLeaderboard() {
 }
 
 function CampaignLeaderboard() {
-    const { data: campaigns, loading } = useCollection<Campaign>('campaigns', undefined, undefined, { field: 'raisedAmount', direction: 'desc' }, 10);
+    const { data: campaigns, loading } = useCollection<Campaign>('campaigns', undefined, undefined, { field: 'raised', direction: 'desc' }, 10);
     
     const campaignImages = useMemo(() => {
         return campaigns.map(campaign => {
@@ -126,7 +126,7 @@ function CampaignLeaderboard() {
                         <p className="font-semibold text-base">{campaign.title}</p>
                     </div>
                     <div className="font-bold text-lg">
-                        ৳{campaign.raisedAmount?.toLocaleString() || 0}
+                        ৳{campaign.raised?.toLocaleString() || 0}
                     </div>
                 </div>
             ))

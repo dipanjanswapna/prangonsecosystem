@@ -37,8 +37,8 @@
         "title": { "type": "string", "description": "Title of the campaign." },
         "slug": { "type": "string", "description": "URL-friendly slug for the campaign." },
         "description": { "type": "string", "description": "Detailed description of the campaign." },
-        "goalAmount": { "type": "number", "description": "The target amount to be raised." },
-        "raisedAmount": { "type": "number", "description": "The total amount raised so far." },
+        "goal": { "type": "number", "description": "The target amount to be raised." },
+        "raised": { "type": "number", "description": "The total amount raised so far." },
         "minAmount": { "type": "number", "description": "Minimum donation amount.", "default": 0.01 },
         "status": { "type": "string", "enum": ["draft", "active", "completed", "archived"], "description": "Current status of the campaign." },
         "category": { "type": "string", "enum": ["Seasonal", "Emergency", "Regular"], "description": "The category of the campaign." },
@@ -47,9 +47,10 @@
         "shortLink": { "type": "string", "format": "uri", "description": "A shortened link for sharing the campaign." },
         "createdBy": { "type": "string", "description": "UID of the admin who created the campaign." },
         "startDate": { "type": "string", "format": "date-time" },
-        "endDate": { "type": "string", "format": "date-time" }
+        "endDate": { "type": "string", "format": "date-time" },
+        "imageId": { "type": "string", "description": "ID of the placeholder image for the campaign." }
       },
-      "required": ["title", "slug", "description", "goalAmount", "status", "createdBy"]
+      "required": ["title", "slug", "description", "goal", "status", "createdBy", "imageId"]
     },
     "Donation": {
       "title": "Donation Record",
