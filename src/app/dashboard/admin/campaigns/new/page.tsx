@@ -36,14 +36,25 @@ import { createCampaign } from '@/lib/campaigns';
 
 const formSchema = z.object({
   title: z.string().min(10, 'Title must be at least 10 characters.'),
+  shortDescription: z
+    .string()
+    .min(20, 'Short description must be at least 20 characters.')
+    .max(160, 'Short description cannot exceed 160 characters.'),
   description: z
     .string()
-    .min(20, 'Description must be at least 20 characters.'),
+    .min(50, 'Full description must be at least 50 characters.'),
   goal: z.coerce.number().min(1000, 'Goal must be at least ৳1000.'),
   category: z.enum(['Seasonal', 'Emergency', 'Regular']).default('Regular'),
   imageUrl: z.string().url('Please enter a valid image URL.'),
-  voteOptions: z.string().optional().describe('Comma-separated list of voting options for the campaign.'),
-  telegramLink: z.string().url('Please enter a valid URL.').optional().or(z.literal('')),
+  voteOptions: z
+    .string()
+    .optional()
+    .describe('Comma-separated list of voting options for the campaign.'),
+  telegramLink: z
+    .string()
+    .url('Please enter a valid URL.')
+    .optional()
+    .or(z.literal('')),
 });
 
 export default function NewCampaignPage() {
@@ -55,6 +66,7 @@ export default function NewCampaignPage() {
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: '',
+      shortDescription: '',
       description: '',
       goal: 10000,
       category: 'Regular',
@@ -114,10 +126,26 @@ export default function NewCampaignPage() {
             />
             <FormField
               control={form.control}
+              name="shortDescription"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Short Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="A brief, one-sentence summary for the campaign list page."
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Full Description</FormLabel>
+                  <FormLabel>Full Description (About this campaign)</FormLabel>
                   <FormControl>
                     <Textarea
                       placeholder="Describe the campaign's purpose, goals, and how the funds will be used. You can use line breaks for paragraphs."
@@ -185,7 +213,7 @@ export default function NewCampaignPage() {
                 </FormItem>
               )}
             />
-             <FormField
+            <FormField
               control={form.control}
               name="voteOptions"
               render={({ field }) => (
@@ -197,8 +225,9 @@ export default function NewCampaignPage() {
                       {...field}
                     />
                   </FormControl>
-                   <CardDescription>
-                    Optional. Enter comma-separated values for users to vote on.
+                  <CardDescription>
+                    Optional. Enter comma-separated values for users to vote
+                    on.
                   </CardDescription>
                   <FormMessage />
                 </FormItem>
@@ -216,8 +245,9 @@ export default function NewCampaignPage() {
                       {...field}
                     />
                   </FormControl>
-                   <CardDescription>
-                    Optional. Link to a Telegram channel/group for showing proof.
+                  <CardDescription>
+                    Optional. Link to a Telegram channel/group for showing
+                    proof.
                   </CardDescription>
                   <FormMessage />
                 </FormItem>
@@ -235,3 +265,5 @@ export default function NewCampaignPage() {
     </Card>
   );
 }
+
+    

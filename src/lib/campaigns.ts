@@ -18,6 +18,7 @@ const nanoid = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 10);
 
 interface CampaignData {
   title: string;
+  shortDescription: string;
   description: string;
   goal: number;
   category: 'Seasonal' | 'Emergency' | 'Regular';
@@ -90,3 +91,5 @@ export const deleteCampaign = async (campaignId: string) => {
     throw new Error('Could not delete campaign.');
   }
 };
+
+    

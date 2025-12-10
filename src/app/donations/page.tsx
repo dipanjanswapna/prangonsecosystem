@@ -26,7 +26,7 @@ interface Campaign {
     id: string;
     title: string;
     slug: string;
-    description: string;
+    shortDescription: string;
     goal: number;
     raised: number;
     imageUrl: string;
@@ -169,7 +169,7 @@ export default function DonationsPage() {
                         className="h-5 w-5 mt-1"
                     />
                     </div>
-                    <CardDescription>{campaign.description}</CardDescription>
+                    <CardDescription>{campaign.shortDescription}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-grow space-y-4">
                     <div>
@@ -215,3 +215,5 @@ export default function DonationsPage() {
     </div>
   );
 }
+
+    

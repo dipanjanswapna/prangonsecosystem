@@ -38,7 +38,8 @@
       "properties": {
         "title": { "type": "string", "description": "Title of the campaign." },
         "slug": { "type": "string", "description": "URL-friendly slug for the campaign." },
-        "description": { "type": "string", "description": "Detailed description of the campaign, supports markdown." },
+        "shortDescription": { "type": "string", "description": "A brief, one-sentence summary of the campaign for list views." },
+        "description": { "type": "string", "description": "The full, detailed description of the campaign for its dedicated page. Supports markdown." },
         "goal": { "type": "number", "description": "The target amount to be raised." },
         "raised": { "type": "number", "description": "The total amount raised so far." },
         "minAmount": { "type": "number", "description": "Minimum donation amount.", "default": 0.01 },
@@ -54,7 +55,7 @@
         "endDate": { "type": "string", "format": "date-time" },
         "imageUrl": { "type": "string", "format": "uri", "description": "URL of the campaign's cover image." }
       },
-      "required": ["title", "slug", "description", "goal", "status", "createdBy", "imageUrl"]
+      "required": ["title", "slug", "shortDescription", "description", "goal", "status", "createdBy", "imageUrl"]
     },
     "Donation": {
       "title": "Donation Record",
@@ -175,3 +176,5 @@
     }
   }
 }
+
+    
