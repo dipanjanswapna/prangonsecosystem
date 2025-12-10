@@ -47,19 +47,17 @@ export function DashboardBottomNav() {
 
   return (
     <div className="fixed bottom-0 left-0 z-50 w-full h-20 bg-background border-t">
-      <div className="grid h-full grid-cols-5 mx-auto">
+      <div className={`grid h-full grid-cols-${items.length} mx-auto`}>
         {items.map((item) => {
-          const isActive = pathname.startsWith(item.href) && (item.href !== '/' || pathname === '/');
+          const isActive = pathname === item.href;
           return (
             <Link
               key={item.label}
               href={item.href}
               className={cn(
                 buttonVariants({ variant: 'ghost', size: 'lg' }),
-                'flex flex-col items-center justify-center h-full rounded-none group',
-                isActive
-                  ? 'bg-primary/10 text-primary'
-                  : 'text-muted-foreground',
+                'flex flex-col items-center justify-center h-full rounded-none group text-muted-foreground',
+                isActive && 'text-primary bg-primary/10'
               )}
             >
               <item.icon className={cn('h-6 w-6 mb-1', isActive ? 'text-primary' : 'group-hover:text-foreground')} />
