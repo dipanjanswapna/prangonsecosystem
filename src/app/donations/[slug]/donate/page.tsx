@@ -25,6 +25,8 @@ import { Separator } from '@/components/ui/separator';
 import { useCollection } from '@/firebase/firestore/use-collection';
 import { Skeleton } from '@/components/ui/skeleton';
 
+declare const bKash: any;
+
 interface Campaign {
   id: string;
   title: string;
@@ -63,6 +65,7 @@ function DonatePageContent() {
   const [email, setEmail] = useState(user?.email || '');
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [bKashLoading, setBKashLoading] = useState(false);
   const [donationFrequency, setDonationFrequency] = useState<'one-time' | 'monthly'>('one-time');
   const [isCorporateMatch, setIsCorporateMatch] = useState(false);
   const [corporateName, setCorporateName] = useState('');
@@ -221,8 +224,68 @@ function DonatePageContent() {
 
       // Save the donation with a 'pending' status first to get an ID
       const newDonationId = await saveDonation(donationData);
+      
+      if (selectedGateway === 'bKash') {
+        setBKashLoading(true);
+        bKash.init({
+          paymentMode: 'checkout',
+          paymentRequest: {
+            amount: String(donationAmount),
+            intent: 'sale',
+          },
+          createRequest: async function (request: any) {
+            try {
+              const createResponse = await fetch('/api/bkash/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  amount: donationAmount,
+                  invoiceNumber: newDonationId,
+                  payerReference: user?.email || email || 'N/A',
+                }),
+              });
+              const createData = await createResponse.json();
+              if (createData && createData.paymentID) {
+                bKash.create().onSuccess(createData);
+              } else {
+                bKash.create().onError();
+                throw new Error(createData.statusMessage || 'bKash create payment failed.');
+              }
+            } catch (error: any) {
+                bKash.create().onError();
+                toast({ variant: 'destructive', title: 'bKash Error', description: error.message });
+            }
+          },
+          executeRequestOnAuthorization: async function () {
+            try {
+                const executeResponse = await fetch('/api/bkash/execute', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        paymentID: bKash.payment.getPaymentID(),
+                        ongon_donation_id: newDonationId
+                    }),
+                });
+                const executeData = await executeResponse.json();
+                if (executeResponse.ok) {
+                    toast({ title: "Payment Successful!", description: "Thank you for your generous donation." });
+                    router.push(`/donations/invoice/${newDonationId}`);
+                } else {
+                    bKash.execute().onError();
+                    throw new Error(executeData.message || 'Payment execution failed.');
+                }
+            } catch (error: any) {
+                 bKash.execute().onError();
+                 toast({ variant: 'destructive', title: 'bKash Execution Error', description: error.message });
+            }
+          },
+          onClose: function () {
+            setIsLoading(false);
+            setBKashLoading(false);
+          },
+        });
 
-      if (selectedGateway === 'SurjoPay') {
+      } else if (selectedGateway === 'SurjoPay') {
         const response = await fetch('/api/shurjopay', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -263,6 +326,7 @@ function DonatePageContent() {
         }
       } else {
         // Handle other gateways or direct success for manual methods
+        setIsLoading(false);
         router.push(`/donations/invoice/${newDonationId}`);
       }
     } catch (error: any) {
@@ -273,6 +337,7 @@ function DonatePageContent() {
         description: error.message || 'Could not start the transaction. Please try again.',
       });
       setIsLoading(false);
+      setBKashLoading(false);
     }
   };
 
@@ -404,12 +469,12 @@ function DonatePageContent() {
         </CardContent>
         <CardFooter>
           <Button size="lg" className="w-full text-lg" onClick={handleProceedToPay} disabled={isLoading}>
-            {isLoading ? (
+            {isLoading && !bKashLoading ? (
                 <Loader2 className="mr-2 h-5 w-5 animate-spin" />
             ) : (
                 <HandHeart className="mr-2 h-5 w-5" />
             )}
-            {isLoading ? 'Processing...' : 'Proceed to Pay'}
+            {bKashLoading ? 'Processing with bKash...' : isLoading ? 'Processing...' : 'Proceed to Pay'}
           </Button>
         </CardFooter>
       </Card>
