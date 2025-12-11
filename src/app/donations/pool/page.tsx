@@ -89,7 +89,6 @@ function PoolDonationForm() {
   const [isAnonymous, setIsAnonymous] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [bKashLoading, setBKashLoading] = useState(false);
-  const [isBKashReady, setIsBKashReady] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -97,91 +96,6 @@ function PoolDonationForm() {
       setEmail(user.email || '');
     }
   }, [user]);
-
-  useEffect(() => {
-    if (selectedGateway === 'bKash' && typeof bKash !== 'undefined') {
-      const primaryDonationId = (window as any).ongon_pool_donation_ids?.[0];
-      if (!primaryDonationId) return;
-
-      const donationAmount = Number(totalAmount) || 1;
-
-      bKash.init({
-        paymentMode: 'checkout',
-        paymentRequest: {
-          amount: String(donationAmount),
-          intent: 'sale',
-        },
-        createRequest: async (request: any) => {
-          try {
-            const createResponse = await fetch('/api/bkash/create', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                amount: request.amount,
-                invoiceNumber: primaryDonationId,
-                payerReference: user?.email || email || 'N/A',
-              }),
-            });
-            const createData = await createResponse.json();
-            if (createData && createData.paymentID) {
-              bKash.create().onSuccess(createData);
-            } else {
-              bKash.create().onError();
-              throw new Error(
-                createData.statusMessage || 'bKash create payment failed.'
-              );
-            }
-          } catch (error: any) {
-            bKash.create().onError();
-            toast({
-              variant: 'destructive',
-              title: 'bKash Error',
-              description: error.message,
-            });
-            setIsLoading(false);
-            setBKashLoading(false);
-          }
-        },
-        executeRequestOnAuthorization: async () => {
-          try {
-            const executeResponse = await fetch('/api/bkash/execute', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                paymentID: bKash.payment.getPaymentID(),
-                ongon_donation_id: primaryDonationId,
-              }),
-            });
-            const executeData = await executeResponse.json();
-            if (executeResponse.ok) {
-              toast({
-                title: 'Payment Successful!',
-                description: `Thank you! Your donation has been recorded.`,
-              });
-              router.push(`/donations/invoice/${primaryDonationId}`);
-            } else {
-              bKash.execute().onError();
-              throw new Error(executeData.message || 'Payment execution failed.');
-            }
-          } catch (error: any) {
-            bKash.execute().onError();
-            toast({
-              variant: 'destructive',
-              title: 'bKash Execution Error',
-              description: error.message,
-            });
-            setIsLoading(false);
-            setBKashLoading(false);
-          }
-        },
-        onClose: () => {
-          setIsLoading(false);
-          setBKashLoading(false);
-        },
-      });
-      setIsBKashReady(true);
-    }
-  }, [selectedGateway, user, email, totalAmount, toast, router]);
 
   if (selectedCampaigns.length === 0 && allCampaigns.length > 0) {
     notFound();
@@ -251,7 +165,6 @@ function PoolDonationForm() {
     setIsLoading(true);
 
     try {
-      const primaryCampaign = selectedCampaigns[0];
       const allDonationIds: string[] = [];
 
       for (const campaign of selectedCampaigns) {
@@ -271,15 +184,86 @@ function PoolDonationForm() {
         allDonationIds.push(donationId);
       }
 
+      const primaryDonationId = allDonationIds[0];
       (window as any).ongon_pool_donation_ids = allDonationIds;
 
       if (selectedGateway === 'bKash') {
-        if (!isBKashReady) {
-          throw new Error('bKash is not ready. Please select it again.');
-        }
         setBKashLoading(true);
-        bKash.reconfigure({
-          paymentRequest: { amount: String(donationAmount), intent: 'sale' },
+        bKash.init({
+          paymentMode: 'checkout',
+          paymentRequest: {
+            amount: String(donationAmount),
+            intent: 'sale',
+          },
+          createRequest: async (request: any) => {
+            try {
+              const createResponse = await fetch('/api/bkash/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  amount: request.amount,
+                  invoiceNumber: primaryDonationId,
+                  payerReference: user?.email || email || 'N/A',
+                }),
+              });
+              const createData = await createResponse.json();
+              if (createData && createData.paymentID) {
+                bKash.create().onSuccess(createData);
+              } else {
+                bKash.create().onError();
+                throw new Error(
+                  createData.statusMessage || 'bKash create payment failed.'
+                );
+              }
+            } catch (error: any) {
+              bKash.create().onError();
+              toast({
+                variant: 'destructive',
+                title: 'bKash Error',
+                description: error.message,
+              });
+              setIsLoading(false);
+              setBKashLoading(false);
+            }
+          },
+          executeRequestOnAuthorization: async () => {
+            try {
+              // We only execute for the primary donation, but we need to update all
+              const executeResponse = await fetch('/api/bkash/execute', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  paymentID: bKash.payment.getPaymentID(),
+                  ongon_donation_id: primaryDonationId, // Only one ID needed to trigger transaction
+                }),
+              });
+              const executeData = await executeResponse.json();
+              if (executeResponse.ok) {
+                toast({
+                  title: 'Payment Successful!',
+                  description: `Thank you for contributing to ${selectedCampaigns.length} campaigns.`,
+                });
+                 // In a real pool scenario, you might redirect to a generic success page
+                router.push(`/donations/invoice/${primaryDonationId}`);
+              } else {
+                bKash.execute().onError();
+                throw new Error(executeData.message || 'Payment execution failed.');
+              }
+            } catch (error: any) {
+              bKash.execute().onError();
+              toast({
+                variant: 'destructive',
+                title: 'bKash Execution Error',
+                description: error.message,
+              });
+              setIsLoading(false);
+              setBKashLoading(false);
+            }
+          },
+          onClose: () => {
+            setIsLoading(false);
+            setBKashLoading(false);
+          },
         });
         bKash.create().onSuccess();
       } else {

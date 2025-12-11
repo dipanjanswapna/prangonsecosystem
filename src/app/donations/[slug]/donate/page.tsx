@@ -126,81 +126,6 @@ function DonatePageContent() {
     }
   }, [user]);
 
-  useEffect(() => {
-    if (selectedGateway === 'bKash' && typeof bKash !== 'undefined') {
-      setIsLoading(true);
-      setBKashLoading(true);
-
-      const donationAmount = Number(amount) || 1; // Use a placeholder amount for init
-      
-      bKash.init({
-        paymentMode: 'checkout',
-        paymentRequest: {
-          amount: String(donationAmount),
-          intent: 'sale',
-        },
-        createRequest: async (request: any) => {
-          try {
-            const createResponse = await fetch('/api/bkash/create', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                amount: request.amount, // Use the amount from the request
-                invoiceNumber: (window as any).ongon_donation_id,
-                payerReference: user?.email || email || 'N/A',
-              }),
-            });
-            const createData = await createResponse.json();
-            if (createData && createData.paymentID) {
-              bKash.create().onSuccess(createData);
-            } else {
-              bKash.create().onError();
-              throw new Error(createData.statusMessage || 'bKash create payment failed.');
-            }
-          } catch (error: any) {
-              bKash.create().onError();
-              toast({ variant: 'destructive', title: 'bKash Error', description: error.message });
-              setIsLoading(false);
-              setBKashLoading(false);
-          }
-        },
-        executeRequestOnAuthorization: async () => {
-          try {
-              const executeResponse = await fetch('/api/bkash/execute', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ 
-                      paymentID: bKash.payment.getPaymentID(),
-                      ongon_donation_id: (window as any).ongon_donation_id
-                  }),
-              });
-              const executeData = await executeResponse.json();
-              if (executeResponse.ok) {
-                  toast({ title: "Payment Successful!", description: "Thank you for your generous donation." });
-                  router.push(`/donations/invoice/${(window as any).ongon_donation_id}`);
-              } else {
-                  bKash.execute().onError();
-                  throw new Error(executeData.message || 'Payment execution failed.');
-              }
-          } catch (error: any) {
-               bKash.execute().onError();
-               toast({ variant: 'destructive', title: 'bKash Execution Error', description: error.message });
-               setIsLoading(false);
-               setBKashLoading(false);
-          }
-        },
-        onClose: () => {
-          setIsLoading(false);
-          setBKashLoading(false);
-        },
-      });
-      setIsBKashReady(true);
-      setIsLoading(false);
-      setBKashLoading(false);
-    }
-  }, [selectedGateway, user, email, toast, router]);
-
-
   if (loading) {
       return (
           <div className='max-w-4xl mx-auto'>
@@ -302,12 +227,69 @@ function DonatePageContent() {
       (window as any).ongon_donation_id = newDonationId; // Store for bKash callbacks
       
       if (selectedGateway === 'bKash') {
-        if (!isBKashReady) {
-            throw new Error("bKash is not ready. Please wait a moment and try again.");
-        }
         setBKashLoading(true);
-        bKash.reconfigure({paymentRequest: { amount: String(donationAmount), intent: 'sale' }});
-        bKash.create().onSuccess();
+        bKash.init({
+            paymentMode: 'checkout',
+            paymentRequest: {
+              amount: String(donationAmount),
+              intent: 'sale',
+            },
+            createRequest: async (request: any) => {
+              try {
+                const createResponse = await fetch('/api/bkash/create', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    amount: request.amount, // Use the amount from the request
+                    invoiceNumber: (window as any).ongon_donation_id,
+                    payerReference: user?.email || email || 'N/A',
+                  }),
+                });
+                const createData = await createResponse.json();
+                if (createData && createData.paymentID) {
+                  bKash.create().onSuccess(createData);
+                } else {
+                  bKash.create().onError();
+                  throw new Error(createData.statusMessage || 'bKash create payment failed.');
+                }
+              } catch (error: any) {
+                  bKash.create().onError();
+                  toast({ variant: 'destructive', title: 'bKash Error', description: error.message });
+                  setIsLoading(false);
+                  setBKashLoading(false);
+              }
+            },
+            executeRequestOnAuthorization: async () => {
+              try {
+                  const executeResponse = await fetch('/api/bkash/execute', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({ 
+                          paymentID: bKash.payment.getPaymentID(),
+                          ongon_donation_id: (window as any).ongon_donation_id
+                      }),
+                  });
+                  const executeData = await executeResponse.json();
+                  if (executeResponse.ok) {
+                      toast({ title: "Payment Successful!", description: "Thank you for your generous donation." });
+                      router.push(`/donations/invoice/${(window as any).ongon_donation_id}`);
+                  } else {
+                      bKash.execute().onError();
+                      throw new Error(executeData.message || 'Payment execution failed.');
+                  }
+              } catch (error: any) {
+                   bKash.execute().onError();
+                   toast({ variant: 'destructive', title: 'bKash Execution Error', description: error.message });
+                   setIsLoading(false);
+                   setBKashLoading(false);
+              }
+            },
+            onClose: () => {
+              setIsLoading(false);
+              setBKashLoading(false);
+            },
+          });
+          bKash.create().onSuccess();
       } else if (selectedGateway === 'SurjoPay') {
         const response = await fetch('/api/shurjopay', {
           method: 'POST',
