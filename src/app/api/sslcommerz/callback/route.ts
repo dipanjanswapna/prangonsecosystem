@@ -8,12 +8,20 @@ import crypto from 'crypto';
 const { firebaseApp } = initializeFirebase();
 const firestore = getFirestore(firebaseApp);
 
-const SSLCOMMERZ_VALIDATION_API = process.env.NODE_ENV === 'production' 
+const isProduction = process.env.NODE_ENV === 'production';
+
+const SSLCOMMERZ_VALIDATION_API = isProduction
   ? 'https://securepay.sslcommerz.com/validator/api/validationserverAPI.php'
   : 'https://sandbox.sslcommerz.com/validator/api/validationserverAPI.php';
 
-const STORE_ID = process.env.SSLCOMMERZ_STORE_ID;
-const STORE_PASSWORD = process.env.SSLCOMMERZ_STORE_PASSWORD;
+const STORE_ID = isProduction
+  ? process.env.SSLCOMMERZ_STORE_ID_LIVE
+  : process.env.SSLCOMMERZ_STORE_ID_SANDBOX;
+
+const STORE_PASSWORD = isProduction
+  ? process.env.SSLCOMMERZ_STORE_PASSWORD_LIVE
+  : process.env.SSLCOMMERZ_STORE_PASSWORD_SANDBOX;
+
 
 async function validatePayment(val_id: string) {
     if (!STORE_ID || !STORE_PASSWORD) {

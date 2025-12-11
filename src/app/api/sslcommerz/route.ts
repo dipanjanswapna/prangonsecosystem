@@ -5,16 +5,24 @@ import { customAlphabet } from 'nanoid';
 
 const nanoid = customAlphabet('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', 10);
 
-const SSLCOMMERZ_API = process.env.NODE_ENV === 'production' 
+const isProduction = process.env.NODE_ENV === 'production';
+
+const SSLCOMMERZ_API = isProduction 
   ? 'https://securepay.sslcommerz.com/gwprocess/v4/api.php'
   : 'https://sandbox.sslcommerz.com/gwprocess/v4/api.php';
 
-const STORE_ID = process.env.SSLCOMMERZ_STORE_ID;
-const STORE_PASSWORD = process.env.SSLCOMMERZ_STORE_PASSWORD;
+const STORE_ID = isProduction 
+  ? process.env.SSLCOMMERZ_STORE_ID_LIVE
+  : process.env.SSLCOMMERZ_STORE_ID_SANDBOX;
+  
+const STORE_PASSWORD = isProduction
+    ? process.env.SSLCOMMERZ_STORE_PASSWORD_LIVE
+    : process.env.SSLCOMMERZ_STORE_PASSWORD_SANDBOX;
 
 export async function POST(request: Request) {
   if (!STORE_ID || !STORE_PASSWORD) {
-    return NextResponse.json({ message: 'SSLCommerz credentials are not configured.' }, { status: 500 });
+    console.error('SSLCommerz credentials are not configured in .env file.');
+    return NextResponse.json({ message: 'SSLCommerz credentials are not configured. Please check server logs.' }, { status: 500 });
   }
     
   try {
@@ -67,6 +75,8 @@ export async function POST(request: Request) {
     if (data.status === 'SUCCESS' && data.GatewayPageURL) {
       return NextResponse.json({ checkout_url: data.GatewayPageURL });
     } else {
+      // Log the actual error reason from SSLCommerz for better debugging
+      console.error('SSLCommerz session creation failed:', data.failedreason);
       throw new Error(data.failedreason || 'Failed to create SSLCommerz session.');
     }
   } catch (error: any) {
