@@ -47,13 +47,17 @@ export const signUp = async (email:string, password:string, fullName:string, rol
   await updateFirebaseProfile(user, { displayName: fullName });
 
   const isPrivilegedRole = ![ROLES.USER, ROLES.ADMIN, ROLES.VOLUNTEER].includes(role);
-  const status = isPrivilegedRole ? 'pending' : 'approved';
-  const profileStatus = isPrivilegedRole ? 'incomplete' : 'complete';
+  let status = isPrivilegedRole ? 'pending' : 'approved';
+  let profileStatus = isPrivilegedRole ? 'incomplete' : 'complete';
   
   let volunteerStatus = 'none';
+  let isVolunteer = false;
   if (role === ROLES.VOLUNTEER) {
     volunteerStatus = 'pending';
+    isVolunteer = true;
     role = ROLES.USER; // Volunteers are fundamentally users with an extra flag
+    status = 'approved';
+    profileStatus = 'complete';
   }
 
 
@@ -65,7 +69,7 @@ export const signUp = async (email:string, password:string, fullName:string, rol
     role: role,
     status: status,
     profile_status: profileStatus,
-    isVolunteer: volunteerStatus !== 'none',
+    isVolunteer: isVolunteer,
     volunteerStatus: volunteerStatus,
     createdAt: serverTimestamp(),
     lastLogin: serverTimestamp(),
@@ -158,9 +162,14 @@ export const updateUserRoleAndStatus = async (uid: string, role: Role, status: '
     await updateDoc(userDocRef, { role, status });
 };
 
-export const updateUserVolunteerStatus = async (uid: string, volunteerStatus: 'pending' | 'approved' | 'rejected') => {
+export const updateUserVolunteerStatus = async (uid: string, volunteerStatus: 'approved' | 'rejected') => {
     const userDocRef = doc(firestore, 'users', uid);
-    await updateDoc(userDocRef, { volunteerStatus: volunteerStatus, isVolunteer: volunteerStatus === 'approved' });
+    const isApproved = volunteerStatus === 'approved';
+    await updateDoc(userDocRef, { 
+      volunteerStatus: volunteerStatus, 
+      // If approved, ensure isVolunteer is true. If rejected, it remains true to indicate they applied.
+      isVolunteer: isApproved ? true : true 
+    });
 };
 
 

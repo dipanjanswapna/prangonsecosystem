@@ -75,7 +75,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
 
     if (userProfile) {
       const { role, status, profile_status } = userProfile;
-      const isPrivilegedRole = ![ROLES.USER, ROLES.ADMIN].includes(role);
+      const isPrivilegedRole = ![ROLES.USER, ROLES.ADMIN, ROLES.VOLUNTEER].includes(role);
 
       // Step 1: Check for incomplete profiles for privileged roles
       if (isPrivilegedRole && profile_status === 'incomplete' && pathname !== '/auth/update-profile') {
@@ -102,7 +102,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       const isDashboardPage = pathname.startsWith('/dashboard/');
       if (isDashboardPage && !pathname.startsWith(expectedDashboardPath)) {
         // Allow admin to access special pages like all-users
-        const allowedAdminPaths = ['/dashboard/all-users', '/dashboard/admin/donations', '/dashboard/admin/reports', '/dashboard/admin/campaigns'];
+        const allowedAdminPaths = ['/dashboard/all-users', '/dashboard/admin/donations', '/dashboard/admin/reports', '/dashboard/admin/campaigns', '/dashboard/admin/volunteers'];
         if(!(userRole === ROLES.ADMIN && allowedAdminPaths.some(p => pathname.startsWith(p)))) {
            router.replace(expectedDashboardPath);
         }
@@ -131,7 +131,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   }
 
   if (isProtectedRoute && user && userProfile) {
-    const isPrivilegedRole = ![ROLES.USER, ROLES.ADMIN].includes(userProfile.role);
+    const isPrivilegedRole = ![ROLES.USER, ROLES.ADMIN, ROLES.VOLUNTEER].includes(userProfile.role);
 
      // Don't show access denied on profile page
     if (pathname.startsWith('/auth/profile')) {
