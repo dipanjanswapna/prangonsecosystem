@@ -56,16 +56,21 @@ export async function POST(request: NextRequest) {
     
     if (verificationDetails && verificationDetails.sp_code === '1000') {
         finalStatus = 'success';
-    } else {
+    } else if (verificationDetails && verificationDetails.sp_code === '1002') {
+        finalStatus = 'cancelled';
+    }
+    else {
         finalStatus = 'failed';
     }
 
-    // Update the donation document in Firestore
-    const donationRef = doc(firestore, 'donations', ongon_donation_id);
-    await updateDoc(donationRef, {
-        status: finalStatus,
-        transactionId: verificationDetails.bank_trx_id || sp_order_id,
-    });
+    // Update the donation document in Firestore only if the status is not pending
+    if (finalStatus !== 'pending') {
+      const donationRef = doc(firestore, 'donations', ongon_donation_id);
+      await updateDoc(donationRef, {
+          status: finalStatus,
+          transactionId: verificationDetails.bank_trx_id || sp_order_id,
+      });
+    }
     
     // The client-side will handle the redirect
     return NextResponse.json({ status: 'ok', finalStatus: finalStatus, donationId: ongon_donation_id });

@@ -99,7 +99,7 @@ function DonatePageContent() {
         } catch (error: any) {
           toast({ variant: 'destructive', title: 'Payment Verification Failed', description: error.message });
           setIsLoading(false);
-          router.push(`/donations/${campaign.slug}`);
+          router.replace(`/donations/${campaign.slug}`);
         } finally {
           localStorage.removeItem('shurjopay_order_id');
           localStorage.removeItem('ongon_donation_id');
@@ -111,7 +111,7 @@ function DonatePageContent() {
         toast({ variant: 'destructive', title: 'Payment Cancelled', description: 'Your transaction was cancelled or failed.' });
         localStorage.removeItem('shurjopay_order_id');
         localStorage.removeItem('ongon_donation_id');
-        router.push(`/donations/${campaign.slug}`);
+        router.replace(`/donations/${campaign.slug}/donate`);
     }
   }, [searchParams, router, toast, campaign]);
 

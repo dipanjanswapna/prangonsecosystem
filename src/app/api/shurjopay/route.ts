@@ -46,7 +46,7 @@ async function createShurjoPayPayment(
   }
 ) {
   const orderId = `${SHURJOPAY_PREFIX}${nanoid()}`;
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002';
 
   const returnUrl = `${baseUrl}/donations/${paymentData.campaignSlug}/donate?status=success`;
   const cancelUrl = `${baseUrl}/donations/${paymentData.campaignSlug}/donate?status=cancel`;
