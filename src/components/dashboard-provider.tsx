@@ -101,8 +101,8 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       
       const isDashboardPage = pathname.startsWith('/dashboard/');
       if (isDashboardPage && !pathname.startsWith(expectedDashboardPath)) {
-        // Allow admin to access special pages like all-users
-        const allowedAdminPaths = ['/dashboard/all-users', '/dashboard/admin/donations', '/dashboard/admin/reports', '/dashboard/admin/campaigns', '/dashboard/admin/volunteers'];
+        // Allow admin to access special pages
+        const allowedAdminPaths = ['/dashboard/all-users', '/dashboard/admin/donations', '/dashboard/admin/reports', '/dashboard/admin/campaigns', '/dashboard/admin/volunteers', '/dashboard/admin/blood-requests'];
         if(!(userRole === ROLES.ADMIN && allowedAdminPaths.some(p => pathname.startsWith(p)))) {
            router.replace(expectedDashboardPath);
         }

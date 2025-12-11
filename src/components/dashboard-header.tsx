@@ -20,6 +20,9 @@ import { usePathname } from 'next/navigation';
 
 
 function getBreadcrumb(pathname: string) {
+    if (pathname.includes('/dashboard/admin/blood-requests')) return 'Blood Requests';
+    if (pathname.includes('/dashboard/admin/volunteers')) return 'Volunteers';
+    if (pathname.includes('/dashboard/admin/campaigns')) return 'Campaigns';
     if (pathname.includes('/dashboard/admin/reports')) return 'Reports';
     if (pathname.includes('/dashboard/admin/donations')) return 'Donations';
     if (pathname.includes('/dashboard/admin')) return 'Admin';

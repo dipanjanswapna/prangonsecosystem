@@ -264,7 +264,7 @@ export default function AllUsersPage() {
               approval status here.
             </CardDescription>
           </div>
-          <Button onClick={downloadAsCSV} disabled={loading || users.length === 0}>
+          <Button onClick={downloadAsCSV} disabled={loading || !users || users.length === 0}>
             <FileDown className="mr-2 h-4 w-4" />
             Export to CSV
           </Button>
@@ -434,6 +434,11 @@ export default function AllUsersPage() {
                   ))}
             </TableBody>
           </Table>
+           {!loading && users.length === 0 && (
+            <div className="text-center py-12 border-2 border-dashed rounded-lg mt-4">
+                <p className="text-muted-foreground">No users found in the system.</p>
+            </div>
+        )}
         </CardContent>
       </Card>
 
