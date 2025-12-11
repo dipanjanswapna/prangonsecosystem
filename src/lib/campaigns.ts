@@ -91,5 +91,3 @@ export const deleteCampaign = async (campaignId: string) => {
     throw new Error('Could not delete campaign.');
   }
 };
-
-    
