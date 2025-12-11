@@ -52,7 +52,6 @@ export const saveDonation = async (data: DonationData): Promise<string> => {
                 ...data,
                 invoiceId: invoiceId,
                 createdAt: serverTimestamp(),
-                status: 'success', // Simulating successful payment for now
             };
             
             if (!donationPayload.isCorporateMatch) {
@@ -62,13 +61,15 @@ export const saveDonation = async (data: DonationData): Promise<string> => {
             // Write 1: Create the new donation document.
             transaction.set(newDonationRef, donationPayload);
             
-            // Write 2: Increment the 'raised' amount on the campaign.
-            transaction.update(campaignRef, {
-                raised: increment(data.amount)
-            });
+            // Write 2: Increment the 'raised' amount on the campaign if payment is successful.
+            if(data.status === 'success') {
+                transaction.update(campaignRef, {
+                    raised: increment(data.amount)
+                });
+            }
 
-            // Write 3: If user doc was read, update user's points and level.
-            if (userRef && userDoc && userDoc.exists()) {
+            // Write 3: If user doc was read and payment is successful, update user's points and level.
+            if (userRef && userDoc && userDoc.exists() && data.status === 'success') {
                 const pointsEarned = Math.floor(data.amount / 100);
                 const currentPoints = userDoc.data()?.points || 0;
                 const newTotalPoints = currentPoints + pointsEarned;
