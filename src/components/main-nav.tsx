@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronDown, LayoutDashboard, PlusCircle, Trophy, HeartHandshake } from 'lucide-react';
+import { ChevronDown, LayoutDashboard, Trophy, HeartHandshake, BrainCircuit } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -135,6 +135,25 @@ export function MainNav({ isMobile = false }: { isMobile?: boolean }) {
             className={cn(
                 'absolute bottom-0 left-1/2 h-0.5 -translate-x-1/2 rounded-full bg-primary transition-all duration-300',
                 pathname === '/leaderboard' ? 'w-4' : 'w-0 group-hover:w-4'
+            )}
+            ></span>
+        )}
+        </Link>
+        <Link
+        href="/ai-tools"
+        className={cn(
+            'group relative px-3 py-2 text-sm font-medium transition-colors hover:text-primary flex items-center gap-1',
+            pathname === '/ai-tools' ? 'text-primary' : 'text-foreground/80',
+            isMobile ? 'w-full text-base' : ''
+        )}
+        >
+        <BrainCircuit className="h-4 w-4" />
+        AI Tools
+        {!isMobile && (
+            <span
+            className={cn(
+                'absolute bottom-0 left-1/2 h-0.5 -translate-x-1/2 rounded-full bg-primary transition-all duration-300',
+                pathname === '/ai-tools' ? 'w-4' : 'w-0 group-hover:w-4'
             )}
             ></span>
         )}
