@@ -144,24 +144,66 @@ export default function DonatePage() {
 
     setIsLoading(true);
 
-    try {
-      const donationData: any = {
-        userId: user?.uid || null,
-        campaignId: String(campaign.id),
-        campaignTitle: campaign.title,
-        amount: donationAmount,
-        currency: 'BDT',
-        gateway: selectedGateway,
-        status: 'pending' as const, 
-        isAnonymous,
-        donorName: isAnonymous ? 'Anonymous' : name,
-        donorEmail: isAnonymous ? null : email,
-        frequency: donationFrequency,
-        isCorporateMatch: isCorporateMatch,
-        corporateName: isCorporateMatch ? corporateName : null,
-      };
+    const donationData: any = {
+      userId: user?.uid || null,
+      campaignId: String(campaign.id),
+      campaignTitle: campaign.title,
+      amount: donationAmount,
+      currency: 'BDT',
+      gateway: selectedGateway,
+      status: 'pending' as const, 
+      isAnonymous,
+      donorName: isAnonymous ? 'Anonymous' : name,
+      donorEmail: isAnonymous ? null : email,
+      frequency: donationFrequency,
+      isCorporateMatch: isCorporateMatch,
+      corporateName: isCorporateMatch ? corporateName : null,
+    };
 
-      const newDonationId = await saveDonation(donationData);
+    if (selectedGateway === 'SurjoPay') {
+      try {
+        const response = await fetch('/api/shurjopay', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            amount: donationAmount,
+            customer_name: donationData.donorName,
+            customer_address: 'N/A',
+            customer_phone: 'N/A',
+            customer_city: 'N/A',
+            customer_email: donationData.donorEmail,
+          }),
+        });
+
+        const paymentResponse = await response.json();
+
+        if (paymentResponse.checkout_url) {
+          // Store pending donation before redirecting
+          const newDonationId = await saveDonation({ ...donationData, status: 'pending' });
+          localStorage.setItem('shurjopay_order_id', paymentResponse.sp_order_id);
+          localStorage.setItem('ongon_donation_id', newDonationId);
+          
+          router.push(paymentResponse.checkout_url);
+        } else {
+          throw new Error(paymentResponse.message || 'Failed to initiate shurjoPay payment.');
+        }
+
+      } catch (error: any) {
+        console.error("shurjoPay initiation failed:", error);
+        toast({
+          variant: 'destructive',
+          title: 'Payment Initiation Failed',
+          description: error.message || 'Could not start shurjoPay transaction. Please try again.',
+        });
+        setIsLoading(false);
+      }
+      return; // Stop execution for shurjoPay
+    }
+
+
+    try {
+      // This part handles other gateways
+      const newDonationId = await saveDonation({ ...donationData, status: 'success' }); // Assume success for others
 
       toast({
           title: 'Processing Donation...',

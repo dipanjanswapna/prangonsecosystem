@@ -45,6 +45,12 @@ const nextConfig: NextConfig = {
         hostname: 'i.postimg.cc',
         port: '',
         pathname: '/**',
+      },
+       {
+        protocol: 'https',
+        hostname: 'sandbox.shurjopayment.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
