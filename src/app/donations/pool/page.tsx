@@ -284,7 +284,6 @@ function PoolDonationForm() {
             setBKashLoading(false);
           },
         });
-        bKash.create().onSuccess();
       } else {
         toast({
           title: 'Donation Recorded!',

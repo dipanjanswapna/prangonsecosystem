@@ -306,7 +306,6 @@ function DonatePageContent() {
               setBKashLoading(false);
             },
           });
-          bKash.create().onSuccess();
       } else if (selectedGateway === 'SurjoPay') {
         const response = await fetch('/api/shurjopay', {
           method: 'POST',
