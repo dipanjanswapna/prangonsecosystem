@@ -13,30 +13,47 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useUser } from '@/firebase/auth/use-user';
-import { Copy, Gift, Loader2 } from 'lucide-react';
+import { Copy, Gift, Loader2, Droplets } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDoc } from '@/firebase/firestore/use-doc';
 import { useToast } from '@/hooks/use-toast';
 import { updateUserProfile } from '@/lib/auth';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { format } from 'date-fns';
 
 interface UserProfile {
   referralCode?: string;
   name: string;
+  bloodGroup?: string;
+  totalDonations?: number;
+  lastDonationDate?: { seconds: number, nanoseconds: number };
 }
 
 
 export default function ProfilePage() {
   const { user, loading } = useUser();
+  const router = useRouter();
+  const { toast } = useToast();
+
   const { data: userProfile, loading: profileLoading } = useDoc<UserProfile>(
     user ? `users/${user.uid}` : null
   );
-  const router = useRouter();
-  const { toast } = useToast();
   
-  const [name, setName] = useState(userProfile?.name || user?.displayName || '');
+  const [name, setName] = useState('');
+  const [bloodGroup, setBloodGroup] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.push('/auth/login');
+    }
+    if (userProfile) {
+        setName(userProfile.name || user?.displayName || '');
+        setBloodGroup(userProfile.bloodGroup || 'Not Set');
+    }
+  }, [user, loading, router, userProfile]);
 
   const referralLink = `${process.env.NEXT_PUBLIC_BASE_URL}/auth/register?ref=${userProfile?.referralCode}`;
 
@@ -48,20 +65,15 @@ export default function ProfilePage() {
     });
   };
 
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/auth/login');
-    }
-    if (userProfile) {
-        setName(userProfile.name);
-    }
-  }, [user, loading, router, userProfile]);
-  
   const handleSaveChanges = async () => {
     if (!user) return;
     setIsSaving(true);
     try {
-        await updateUserProfile(user.uid, { name });
+        const dataToUpdate: { name: string; bloodGroup?: string } = { name };
+        if (bloodGroup !== 'Not Set') {
+            dataToUpdate.bloodGroup = bloodGroup;
+        }
+        await updateUserProfile(user.uid, dataToUpdate);
         toast({
             title: 'Profile Updated',
             description: 'Your changes have been saved successfully.',
@@ -157,6 +169,53 @@ export default function ProfilePage() {
             {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Save Changes
           </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+            <CardTitle className="font-headline flex items-center gap-2">
+                <Droplets className="h-6 w-6" />
+                Blood Donation Information
+            </CardTitle>
+            <CardDescription>
+              Manage your blood donation details. This helps us find matches faster.
+            </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                    <Label htmlFor="blood-group">Blood Group</Label>
+                    <Select value={bloodGroup} onValueChange={setBloodGroup}>
+                        <SelectTrigger id="blood-group">
+                            <SelectValue placeholder="Select your blood group" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="Not Set">Not Set</SelectItem>
+                            <SelectItem value="A+">A+</SelectItem>
+                            <SelectItem value="A-">A-</SelectItem>
+                            <SelectItem value="B+">B+</SelectItem>
+                            <SelectItem value="B-">B-</SelectItem>
+                            <SelectItem value="AB+">AB+</SelectItem>
+                            <SelectItem value="AB-">AB-</SelectItem>
+                            <SelectItem value="O+">O+</SelectItem>
+                            <SelectItem value="O-">O-</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+                 <div className="space-y-2">
+                    <Label>Total Donations</Label>
+                    <Input readOnly disabled value={userProfile?.totalDonations || 0} />
+                </div>
+            </div>
+            <div className='space-y-2'>
+                <Label>Last Donation Date</Label>
+                <Input readOnly disabled value={userProfile?.lastDonationDate ? format(new Date(userProfile.lastDonationDate.seconds * 1000), 'PPP') : 'N/A'} />
+            </div>
+            <Button onClick={handleSaveChanges} disabled={isSaving}>
+                {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Save Blood Group
+            </Button>
         </CardContent>
       </Card>
       

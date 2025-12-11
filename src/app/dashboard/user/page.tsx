@@ -12,7 +12,7 @@ import { Progress } from '@/components/ui/progress';
 import { useUser } from '@/firebase/auth/use-user';
 import { useDoc } from '@/firebase/firestore/use-doc';
 import { useToast } from '@/hooks/use-toast';
-import { Book, BrainCircuit, Calculator, Copy, Gift, Package, Star, Trophy, Users, CalendarDays } from 'lucide-react';
+import { Book, BrainCircuit, Calculator, Copy, Gift, Package, Star, Trophy, Users, CalendarDays, Droplets, HeartHandshake } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -23,6 +23,8 @@ interface UserProfile {
   level?: 'Bronze' | 'Silver' | 'Gold' | 'Platinum';
   points?: number;
   lastGiftClaimedAt?: Timestamp;
+  bloodGroup?: string;
+  totalDonations?: number;
 }
 
 const levelThresholds = {
@@ -85,8 +87,7 @@ export default function UserDashboard() {
 
 
   return (
-    <div className="space-y-6">
-      <div className="grid gap-6">
+    <div className="grid gap-6">
         
         {userProfile && (
             <Card>
@@ -147,20 +148,71 @@ export default function UserDashboard() {
             </Card>
         )}
 
-        <Card>
-          <CardHeader>
-             <CardTitle className="flex items-center gap-2">
-                <Package className="h-5 w-5" />
-                My Donations
-             </CardTitle>
-             <CardDescription>View your contribution history and see the impact you're making.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button asChild>
-                <Link href="/dashboard/user/donations">View My Donations</Link>
-            </Button>
-          </CardContent>
-        </Card>
+        <div className="grid md:grid-cols-2 gap-6">
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Package className="h-5 w-5" />
+                        My Monetary Donations
+                    </CardTitle>
+                    <CardDescription>View your financial contribution history and see the impact you're making.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Button asChild>
+                        <Link href="/dashboard/user/donations">View My Donations</Link>
+                    </Button>
+                </CardContent>
+            </Card>
+             <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <HeartHandshake className="h-5 w-5" />
+                        My Blood Donations
+                    </CardTitle>
+                    <CardDescription>View your blood donation history and manage your information.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Button asChild>
+                        <Link href="/dashboard/user/donations">View Blood Donations</Link>
+                    </Button>
+                </CardContent>
+            </Card>
+        </div>
+        
+        <div className="grid md:grid-cols-2 gap-6">
+             <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Droplets className="h-5 w-5" />
+                        My Blood Group
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    {userProfile?.bloodGroup && userProfile.bloodGroup !== 'Not Set' ? (
+                        <div>
+                             <p className="text-sm text-muted-foreground">Your registered blood group is:</p>
+                             <p className="text-3xl font-bold">{userProfile.bloodGroup}</p>
+                        </div>
+                    ) : (
+                         <p className="text-sm text-muted-foreground">Your blood group is not set. Please update your profile to become a potential donor.</p>
+                    )}
+                     <Button asChild variant="outline">
+                        <Link href="/auth/profile">Update Profile</Link>
+                    </Button>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>Total Blood Donations</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-4xl font-bold">{userProfile?.totalDonations || 0}</p>
+                    <p className="text-sm text-muted-foreground">lives impacted by you</p>
+                </CardContent>
+            </Card>
+        </div>
+
 
         {userProfile?.referralCode && (
           <Card>
@@ -217,6 +269,5 @@ export default function UserDashboard() {
           </div>
         </div>
       </div>
-    </div>
   );
 }

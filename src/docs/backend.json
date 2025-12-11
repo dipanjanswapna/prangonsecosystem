@@ -30,7 +30,7 @@
         "referredBy": { "type": "string", "description": "The UID of the user who referred this user." },
         "lastGiftClaimedAt": { "type": "string", "format": "date-time", "description": "Timestamp of when the user last claimed a gift by resetting their points." },
         "pointsExpireAt": { "type": "string", "format": "date-time", "description": "Timestamp indicating when the user's points will expire (e.g., 1 year after earning)." },
-        "bloodGroup": { "type": "string", "description": "User's blood group.", "enum": ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"] },
+        "bloodGroup": { "type": "string", "description": "User's blood group.", "enum": ["Not Set", "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"] },
         "lastDonationDate": { "type": "string", "format": "date-time", "description": "The date of the user's last blood donation." },
         "totalDonations": { "type": "number", "description": "Total number of times the user has donated blood.", "default": 0 }
       },
@@ -158,6 +158,8 @@
             "contactPhone": { "type": "string" },
             "neededBy": { "type": "string", "format": "date-time" },
             "status": { "type": "string", "enum": ["pending", "fulfilled", "closed"], "default": "pending" },
+            "donorId": { "type": "string", "description": "UID of the user who fulfilled the request." },
+            "donorName": { "type": "string", "description": "Name of the user who fulfilled the request." },
             "createdAt": { "type": "string", "format": "date-time" }
         },
         "required": ["requesterId", "patientName", "bloodGroup", "reason", "quantity", "hospitalName", "location", "contactPhone", "neededBy", "status"]
@@ -175,6 +177,18 @@
             "pointsAwarded": { "type": "number", "default": 10 }
         },
         "required": ["donorId", "recipientId", "bloodRequestId", "donationDate"]
+    },
+     "BloodDonationResponse": {
+      "title": "Blood Donation Response",
+      "description": "A record of a user responding to a blood request.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "The UID of the user responding." },
+        "userName": { "type": "string", "description": "The name of the user responding." },
+        "userPhotoURL": { "type": "string", "format": "uri", "description": "The photo URL of the user responding." },
+        "respondedAt": { "type": "string", "format": "date-time", "description": "Timestamp of the response." }
+      },
+      "required": ["userId", "userName", "respondedAt"]
     }
   },
   "auth": {
@@ -216,6 +230,10 @@
     "/bloodRequests/{requestId}": {
         "schema": { "$ref": "#/entities/BloodRequest" },
         "description": "Stores all active and fulfilled blood donation requests."
+    },
+     "/bloodRequests/{requestId}/responses/{userId}": {
+      "schema": { "$ref": "#/entities/BloodDonationResponse" },
+      "description": "Stores users who have responded to a specific blood request."
     },
     "/bloodDonations/{donationId}": {
         "schema": { "$ref": "#/entities/BloodDonationRecord" },

@@ -53,7 +53,7 @@ const getStatusVariant = (status: string) => {
   }
 };
 
-export default function UserDonationsPage() {
+export default function UserContributionsPage() {
   const { user } = useUser();
   const { data: donations, loading } = useCollection<Donation>(
     'donations',
@@ -67,11 +67,10 @@ export default function UserDonationsPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Package className="h-6 w-6" />
-            My Donation History
+            My Contributions
           </CardTitle>
           <CardDescription>
-            Here is a list of all your contributions. Thank you for your
-            generosity!
+            Here is a list of all your monetary donations and blood donations. Thank you for your generosity!
           </CardDescription>
         </CardHeader>
       </Card>
