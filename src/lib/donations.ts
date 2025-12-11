@@ -1,6 +1,6 @@
 'use client';
 
-import { getFirestore, collection, addDoc, serverTimestamp, doc, runTransaction, increment, type DocumentSnapshot, updateDoc } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, serverTimestamp, doc, runTransaction, increment, type DocumentSnapshot, updateDoc, setDoc } from 'firebase/firestore';
 import { initializeFirebase } from '@/firebase';
 import { customAlphabet } from 'nanoid'
 
