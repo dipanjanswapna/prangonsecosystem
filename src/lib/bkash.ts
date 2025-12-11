@@ -1,8 +1,12 @@
-
 'use server';
 
 // bKash API Configuration
-const BKASH_API_BASE_URL = 'https://tokenized.sandbox.bka.sh/v1.2.0-beta/tokenized';
+const isProduction = process.env.NODE_ENV === 'production';
+
+const BKASH_API_BASE_URL = isProduction
+    ? 'https://tokenized.pay.bka.sh/v1.2.0-beta/tokenized'
+    : 'https://tokenized.sandbox.bka.sh/v1.2.0-beta/tokenized';
+    
 const BKASH_USERNAME = process.env.BKASH_USERNAME;
 const BKASH_PASSWORD = process.env.BKASH_PASSWORD;
 const BKASH_APP_KEY = process.env.BKASH_APP_KEY;
