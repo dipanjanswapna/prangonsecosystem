@@ -17,6 +17,7 @@ const navItems = [
   { href: '/', label: 'Home' },
   { href: '/about', label: 'About Us' },
   { href: '/donations', label: 'Donations' },
+  { href: '/blood-donation', label: 'Blood Donation', icon: HeartHandshake },
   {
     label: 'More',
     children: [
@@ -25,6 +26,8 @@ const navItems = [
       { href: '/services', label: 'Services' },
       { href: '/blog', label: 'Blog' },
       { href: '/library', label: 'eBook Library' },
+      { href: '/leaderboard', label: 'Leaderboard', icon: Trophy },
+      { href: '/ai-tools', label: 'AI Tools', icon: BrainCircuit },
       { href: '/donor-wall', label: 'Donor Wall' },
       { href: '/contact', label: 'Contact Us' },
       { href: '/whats-new', label: "What's New" },
@@ -62,7 +65,10 @@ export function MainNav({ isMobile = false }: { isMobile?: boolean }) {
           <DropdownMenuContent>
             {item.children.map((child) => (
               <DropdownMenuItem key={child.href} asChild>
-                <Link href={child.href}>{child.label}</Link>
+                <Link href={child.href} className="flex items-center gap-2">
+                  {child.icon && <child.icon className="h-4 w-4" />}
+                  {child.label}
+                </Link>
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
@@ -72,14 +78,15 @@ export function MainNav({ isMobile = false }: { isMobile?: boolean }) {
 
     return (
       <Link
-        key={item.href}
+        key={item.href || item.label}
         href={item.href!}
         className={cn(
-          'group relative px-3 py-2 text-sm font-medium transition-colors hover:text-primary',
+          'group relative flex items-center gap-1 px-3 py-2 text-sm font-medium transition-colors hover:text-primary',
           pathname === item.href ? 'text-primary' : 'text-foreground/80',
           isMobile ? 'w-full text-base' : ''
         )}
       >
+        {item.icon && <item.icon className="h-4 w-4" />}
         {item.label}
         {!isMobile && (
           <span
@@ -101,63 +108,6 @@ export function MainNav({ isMobile = false }: { isMobile?: boolean }) {
       )}
     >
       {navItems.map(renderNavItem)}
-      <Link
-        href="/blood-donation"
-        className={cn(
-            'group relative px-3 py-2 text-sm font-medium transition-colors hover:text-primary flex items-center gap-1',
-            pathname === '/blood-donation' ? 'text-primary' : 'text-foreground/80',
-            isMobile ? 'w-full text-base' : ''
-        )}
-        >
-        <HeartHandshake className="h-4 w-4" />
-        Blood Donation
-        {!isMobile && (
-            <span
-            className={cn(
-                'absolute bottom-0 left-1/2 h-0.5 -translate-x-1/2 rounded-full bg-primary transition-all duration-300',
-                pathname === '/blood-donation' ? 'w-4' : 'w-0 group-hover:w-4'
-            )}
-            ></span>
-        )}
-      </Link>
-      <Link
-        href="/leaderboard"
-        className={cn(
-            'group relative px-3 py-2 text-sm font-medium transition-colors hover:text-primary flex items-center gap-1',
-            pathname === '/leaderboard' ? 'text-primary' : 'text-foreground/80',
-            isMobile ? 'w-full text-base' : ''
-        )}
-        >
-        <Trophy className="h-4 w-4" />
-        Leaderboard
-        {!isMobile && (
-            <span
-            className={cn(
-                'absolute bottom-0 left-1/2 h-0.5 -translate-x-1/2 rounded-full bg-primary transition-all duration-300',
-                pathname === '/leaderboard' ? 'w-4' : 'w-0 group-hover:w-4'
-            )}
-            ></span>
-        )}
-        </Link>
-        <Link
-        href="/ai-tools"
-        className={cn(
-            'group relative px-3 py-2 text-sm font-medium transition-colors hover:text-primary flex items-center gap-1',
-            pathname === '/ai-tools' ? 'text-primary' : 'text-foreground/80',
-            isMobile ? 'w-full text-base' : ''
-        )}
-        >
-        <BrainCircuit className="h-4 w-4" />
-        AI Tools
-        {!isMobile && (
-            <span
-            className={cn(
-                'absolute bottom-0 left-1/2 h-0.5 -translate-x-1/2 rounded-full bg-primary transition-all duration-300',
-                pathname === '/ai-tools' ? 'w-4' : 'w-0 group-hover:w-4'
-            )}
-            ></span>
-        )}
-        </Link>
        {user && isMobile && (
         <Link
           href="/dashboard"
