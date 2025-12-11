@@ -204,83 +204,75 @@ function DonatePageContent() {
 
     setIsLoading(true);
 
-    const donationData: any = {
-      userId: user?.uid || null,
-      campaignId: String(campaign.id),
-      campaignTitle: campaign.title,
-      amount: donationAmount,
-      currency: 'BDT',
-      gateway: selectedGateway,
-      status: 'pending' as const, 
-      isAnonymous,
-      donorName: isAnonymous ? 'Anonymous' : name,
-      donorEmail: isAnonymous ? null : email,
-      frequency: donationFrequency,
-      isCorporateMatch: isCorporateMatch,
-      corporateName: isCorporateMatch ? corporateName : null,
-    };
+    try {
+      const donationData: any = {
+        userId: user?.uid || null,
+        campaignId: String(campaign.id),
+        campaignTitle: campaign.title,
+        amount: donationAmount,
+        currency: 'BDT',
+        gateway: selectedGateway,
+        status: 'pending' as const,
+        isAnonymous,
+        donorName: isAnonymous ? 'Anonymous' : name,
+        donorEmail: isAnonymous ? null : email,
+        frequency: donationFrequency,
+        isCorporateMatch: isCorporateMatch,
+        corporateName: isCorporateMatch ? corporateName : null,
+      };
 
-    if (selectedGateway === 'SurjoPay') {
-      try {
-        // Save the donation with a 'pending' status first
-        const newDonationId = await saveDonation({ ...donationData, status: 'pending' });
-        
+      // Save the donation with a 'pending' status first to get an ID
+      const newDonationId = await saveDonation(donationData);
+
+      if (selectedGateway === 'SurjoPay') {
         const response = await fetch('/api/shurjopay', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             amount: donationAmount,
             customer_name: donationData.donorName,
-            customer_address: 'N/A', // Assuming not collected
-            customer_phone: 'N/A', // Assuming not collected
-            customer_city: 'N/A', // Assuming not collected
+            customer_address: 'N/A',
+            customer_phone: 'N/A',
+            customer_city: 'N/A',
             customer_email: donationData.donorEmail,
             campaignSlug: campaign.slug,
           }),
         });
-
         const paymentResponse = await response.json();
-
         if (paymentResponse.checkout_url) {
-          // Store IDs in local storage before redirecting
           localStorage.setItem('shurjopay_order_id', paymentResponse.sp_order_id);
           localStorage.setItem('ongon_donation_id', newDonationId);
-          
           window.location.href = paymentResponse.checkout_url;
         } else {
           throw new Error(paymentResponse.message || 'Failed to initiate shurjoPay payment.');
         }
-
-      } catch (error: any) {
-        console.error("shurjoPay initiation failed:", error);
-        toast({
-          variant: 'destructive',
-          title: 'Payment Initiation Failed',
-          description: error.message || 'Could not start shurjoPay transaction. Please try again.',
+      } else if (selectedGateway === 'SSLCommerz') {
+        const response = await fetch('/api/sslcommerz', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            donationId: newDonationId,
+            amount: donationAmount,
+            customer_name: donationData.donorName,
+            customer_email: donationData.donorEmail,
+          }),
         });
-        setIsLoading(false);
+        const paymentResponse = await response.json();
+        if (paymentResponse.checkout_url) {
+            window.location.href = paymentResponse.checkout_url;
+        } else {
+            throw new Error(paymentResponse.message || 'Failed to initiate SSLCommerz payment.');
+        }
+      } else {
+        // Handle other gateways or direct success for manual methods
+        router.push(`/donations/invoice/${newDonationId}`);
       }
-      return; // Stop execution for shurjoPay
-    }
-
-
-    try {
-      // This part handles other gateways
-      const newDonationId = await saveDonation(donationData);
-
-      toast({
-          title: 'Processing Donation...',
-          description: 'Thank you for your contribution! Redirecting to invoice...',
-      });
-      
-      router.push(`/donations/invoice/${newDonationId}`);
-
-    } catch (error) {
-      console.error("Donation failed:", error);
+    } catch (error: any) {
+      console.error("Payment initiation failed:", error);
       toast({
         variant: 'destructive',
-        title: 'Donation Failed',
-        description: 'Could not save your donation. Please try again.',
+        title: 'Payment Initiation Failed',
+        description: error.message || 'Could not start the transaction. Please try again.',
       });
       setIsLoading(false);
     }
@@ -434,5 +426,3 @@ export default function DonatePage() {
         </Suspense>
     )
 }
-
-    
