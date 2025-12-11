@@ -8,7 +8,7 @@ const nanoid = customAlphabet('1234567890', 8);
 const SHURJOPAY_API_BASE = 'https://sandbox.shurjopayment.com/api';
 const SHURJOPAY_USERNAME = process.env.SHURJOPAY_USERNAME || 'sp_sandbox';
 const SHURJOPAY_PASSWORD = process.env.SHURJOPAY_PASSWORD || 'pyyk97hu&6u6';
-const SHURJOPAY_PREFIX = process.env.SHURJOPAY_PREFIX || 'sp';
+const SHURJOPAY_PREFIX = process.env.SHURJOPAY_PREFIX || 'ongon';
 
 async function getShurjoPayToken() {
   try {
@@ -42,14 +42,14 @@ async function createShurjoPayPayment(
     customer_phone: string;
     customer_city: string;
     customer_email: string;
+    campaignSlug: string;
   }
 ) {
   const orderId = `${SHURJOPAY_PREFIX}${nanoid()}`;
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-  // We point both return and cancel to our donation page.
-  // The page itself will handle query params to determine status.
-  const returnUrl = `${baseUrl}/donations/${paymentData.customer_email}?status=success`;
-  const cancelUrl = `${baseUrl}/donations/${paymentData.customer_email}?status=cancel`;
+
+  const returnUrl = `${baseUrl}/donations/${paymentData.campaignSlug}/donate?status=success`;
+  const cancelUrl = `${baseUrl}/donations/${paymentData.campaignSlug}/donate?status=cancel`;
   
   const payload = {
       prefix: SHURJOPAY_PREFIX,
@@ -64,7 +64,7 @@ async function createShurjoPayPayment(
       customer_address: paymentData.customer_address,
       customer_phone: paymentData.customer_phone,
       customer_city: paymentData.customer_city,
-      customer_email: donationData.customer_email,
+      customer_email: paymentData.customer_email,
       client_ip: '127.0.0.1', // In a real app, you'd get this from the request
   };
 
@@ -95,10 +95,8 @@ export async function POST(request: Request) {
     const paymentData = await request.json();
     const tokenData = await getShurjoPayToken();
 
-    // The customer_email is actually the campaign slug here for the return URL
     const paymentResponse = await createShurjoPayPayment(tokenData, {
         ...paymentData,
-        customer_email: paymentData.campaignSlug 
     });
     
     return NextResponse.json(paymentResponse, { status: 200 });

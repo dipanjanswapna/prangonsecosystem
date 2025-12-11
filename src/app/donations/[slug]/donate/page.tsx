@@ -85,11 +85,12 @@ function DonatePageContent() {
             body: JSON.stringify({ ongon_donation_id: ongonDonationId, sp_order_id: spOrderId }),
           });
 
-          if (!response.ok) throw new Error('Verification failed');
+          if (!response.ok) throw new Error('Verification failed on our server.');
 
           const result = await response.json();
 
           if(result.finalStatus === 'success') {
+            toast({ title: "Payment Successful!", description: "Redirecting to your invoice." });
             router.push(`/donations/invoice/${ongonDonationId}`);
           } else {
             throw new Error('Payment was not successful according to shurjoPay.');
@@ -98,6 +99,7 @@ function DonatePageContent() {
         } catch (error: any) {
           toast({ variant: 'destructive', title: 'Payment Verification Failed', description: error.message });
           setIsLoading(false);
+          router.push(`/donations/${campaign.slug}`);
         } finally {
           localStorage.removeItem('shurjopay_order_id');
           localStorage.removeItem('ongon_donation_id');
@@ -109,8 +111,17 @@ function DonatePageContent() {
         toast({ variant: 'destructive', title: 'Payment Cancelled', description: 'Your transaction was cancelled or failed.' });
         localStorage.removeItem('shurjopay_order_id');
         localStorage.removeItem('ongon_donation_id');
+        router.push(`/donations/${campaign.slug}`);
     }
-  }, [searchParams, router, toast]);
+  }, [searchParams, router, toast, campaign]);
+
+  useEffect(() => {
+    if (user) {
+        setName(user.displayName || '');
+        setEmail(user.email || '');
+    }
+  }, [user]);
+
 
   if (loading) {
       return (
@@ -209,6 +220,7 @@ function DonatePageContent() {
 
     if (selectedGateway === 'SurjoPay') {
       try {
+        // Save the donation with a 'pending' status first
         const newDonationId = await saveDonation({ ...donationData, status: 'pending' });
         
         const response = await fetch('/api/shurjopay', {
@@ -217,16 +229,18 @@ function DonatePageContent() {
           body: JSON.stringify({
             amount: donationAmount,
             customer_name: donationData.donorName,
-            customer_address: 'N/A',
-            customer_phone: 'N/A',
-            customer_city: 'N/A',
+            customer_address: 'N/A', // Assuming not collected
+            customer_phone: 'N/A', // Assuming not collected
+            customer_city: 'N/A', // Assuming not collected
             customer_email: donationData.donorEmail,
+            campaignSlug: campaign.slug,
           }),
         });
 
         const paymentResponse = await response.json();
 
         if (paymentResponse.checkout_url) {
+          // Store IDs in local storage before redirecting
           localStorage.setItem('shurjopay_order_id', paymentResponse.sp_order_id);
           localStorage.setItem('ongon_donation_id', newDonationId);
           
