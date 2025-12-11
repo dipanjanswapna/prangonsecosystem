@@ -56,7 +56,7 @@ export default function UserBloodRequestsPage() {
     undefined,
     { field: 'createdAt', direction: 'desc' },
     undefined,
-    [['requesterId', '==', user?.uid]]
+    user?.uid ? [['requesterId', '==', user.uid]] : undefined
   );
 
   return (

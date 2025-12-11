@@ -91,7 +91,10 @@ export async function POST(request: NextRequest) {
         // Mark donation as failed in Firestore
         const donationRef = doc(firestore, 'donations', ongon_donation_id);
         await runTransaction(firestore, async (transaction) => {
-            transaction.update(donationRef, { status: 'failed' });
+            const donationDoc = await transaction.get(donationRef);
+            if (donationDoc.exists() && donationDoc.data().status !== 'failed') {
+               transaction.update(donationRef, { status: 'failed' });
+            }
         });
 
         throw new Error(executeResponse.statusMessage || 'bKash payment execution failed.');
