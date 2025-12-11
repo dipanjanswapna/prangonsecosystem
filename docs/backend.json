@@ -15,7 +15,7 @@
         "isVolunteer": { "type": "boolean", "description": "Indicates if the user has signed up as a volunteer.", "default": false },
         "volunteerStatus": { "type": "string", "description": "The approval status of the user's volunteer application.", "enum": ["none", "pending", "approved", "rejected"], "default": "none" },
         "level": { "type": "string", "description": "User's gamification level based on total points. Bronze: 0+, Silver: 1000+, Gold: 5000+, Platinum: 10000+.", "enum": ["Bronze", "Silver", "Gold", "Platinum"], "default": "Bronze" },
-        "points": { "type": "number", "description": "User's engagement points for rewards. (100 BDT = 1 Point)", "default": 0 },
+        "points": { "type": "number", "description": "User's engagement points for rewards. (100 BDT = 1 Point, 1 Blood Donation = 10 Points)", "default": 0 },
         "badges": { "type": "array", "description": "List of badges earned by the user.", "items": { "type": "string" } },
         "createdAt": { "type": "string", "format": "date-time", "description": "The timestamp when the user was created." },
         "lastLogin": { "type": "string", "format": "date-time", "description": "The timestamp of the user's last login." },
@@ -29,7 +29,10 @@
         "referralCode": { "type": "string", "description": "Unique code for referring new users." },
         "referredBy": { "type": "string", "description": "The UID of the user who referred this user." },
         "lastGiftClaimedAt": { "type": "string", "format": "date-time", "description": "Timestamp of when the user last claimed a gift by resetting their points." },
-        "pointsExpireAt": { "type": "string", "format": "date-time", "description": "Timestamp indicating when the user's points will expire (e.g., 1 year after earning)." }
+        "pointsExpireAt": { "type": "string", "format": "date-time", "description": "Timestamp indicating when the user's points will expire (e.g., 1 year after earning)." },
+        "bloodGroup": { "type": "string", "description": "User's blood group.", "enum": ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"] },
+        "lastDonationDate": { "type": "string", "format": "date-time", "description": "The date of the user's last blood donation." },
+        "totalDonations": { "type": "number", "description": "Total number of times the user has donated blood.", "default": 0 }
       },
       "required": ["uid", "name", "email", "role", "status", "profile_status", "createdAt", "referralCode"]
     },
@@ -138,6 +141,42 @@
         "votedAt": { "type": "string", "format": "date-time", "description": "Timestamp of when the vote was cast." }
       },
       "required": ["userId", "campaignId", "category", "votedAt"]
+    },
+    "BloodRequest": {
+        "title": "Blood Request",
+        "description": "Represents a request for blood donation.",
+        "type": "object",
+        "properties": {
+            "requesterId": { "type": "string", "description": "The UID of the user who created the request." },
+            "patientName": { "type": "string" },
+            "bloodGroup": { "type": "string", "enum": ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"] },
+            "reason": { "type": "string" },
+            "quantity": { "type": "number", "description": "Number of bags needed." },
+            "hospitalName": { "type": "string" },
+            "location": { "type": "string" },
+            "contactPerson": { "type": "string" },
+            "contactPhone": { "type": "string" },
+            "neededBy": { "type": "string", "format": "date-time" },
+            "status": { "type": "string", "enum": ["pending", "fulfilled", "closed"], "default": "pending" },
+            "donorId": { "type": "string", "description": "UID of the user who fulfilled the request." },
+            "donorName": { "type": "string", "description": "Name of the user who fulfilled the request." },
+            "createdAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["requesterId", "patientName", "bloodGroup", "reason", "quantity", "hospitalName", "location", "contactPhone", "neededBy", "status"]
+    },
+    "BloodDonationRecord": {
+        "title": "Blood Donation Record",
+        "description": "Represents a successful blood donation.",
+        "type": "object",
+        "properties": {
+            "donorId": { "type": "string", "description": "UID of the blood donor." },
+            "recipientId": { "type": "string", "description": "UID of the blood recipient/requester." },
+            "bloodRequestId": { "type": "string" },
+            "donationDate": { "type": "string", "format": "date-time" },
+            "notes": { "type": "string" },
+            "pointsAwarded": { "type": "number", "default": 10 }
+        },
+        "required": ["donorId", "recipientId", "bloodRequestId", "donationDate"]
     }
   },
   "auth": {
@@ -175,8 +214,14 @@
     "/votes/{voteId}": {
       "schema": { "$ref": "#/entities/Vote" },
       "description": "Stores all votes cast by users for different campaign fund allocations."
+    },
+    "/bloodRequests/{requestId}": {
+        "schema": { "$ref": "#/entities/BloodRequest" },
+        "description": "Stores all active and fulfilled blood donation requests."
+    },
+    "/bloodDonations/{donationId}": {
+        "schema": { "$ref": "#/entities/BloodDonationRecord" },
+        "description": "Stores the history of all blood donations made through the platform."
     }
   }
 }
-
-    
