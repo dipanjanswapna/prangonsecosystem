@@ -102,3 +102,16 @@ export const markRequestAsFulfilled = async (
     throw new Error('Failed to mark request as fulfilled.');
   }
 };
+
+export const updateBloodRequestStatus = async (
+  requestId: string,
+  status: 'fulfilled' | 'closed'
+) => {
+  const requestRef = doc(firestore, 'bloodRequests', requestId);
+  try {
+    await updateDoc(requestRef, { status });
+  } catch (error) {
+    console.error('Error updating blood request status: ', error);
+    throw new Error('Could not update request status.');
+  }
+};
