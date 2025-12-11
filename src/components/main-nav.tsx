@@ -1,6 +1,13 @@
 'use client';
 
-import { ChevronDown, LayoutDashboard, Trophy, HeartHandshake, BrainCircuit } from 'lucide-react';
+import {
+  ChevronDown,
+  LayoutDashboard,
+  Trophy,
+  HeartHandshake,
+  BrainCircuit,
+  Droplets,
+} from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -12,22 +19,23 @@ import {
 } from './ui/dropdown-menu';
 import { Button } from './ui/button';
 import { useUser } from '@/firebase/auth/use-user';
+import { useEffect, useState } from 'react';
 
 const navItems = [
   { href: '/', label: 'Home' },
   { href: '/about', label: 'About Us' },
   { href: '/donations', label: 'Donations' },
-  { href: '/blood-donation', label: 'Blood Donation', icon: HeartHandshake },
   {
     label: 'More',
     children: [
+      { href: '/blood-donation', label: 'Blood Donation', icon: Droplets },
+      { href: '/leaderboard', label: 'Leaderboard', icon: Trophy },
+      { href: '/ai-tools', label: 'AI Tools', icon: BrainCircuit },
       { href: '/projects', label: 'Projects' },
       { href: '/portfolio', label: 'Portfolio' },
       { href: '/services', label: 'Services' },
       { href: '/blog', label: 'Blog' },
       { href: '/library', label: 'eBook Library' },
-      { href: '/leaderboard', label: 'Leaderboard', icon: Trophy },
-      { href: '/ai-tools', label: 'AI Tools', icon: BrainCircuit },
       { href: '/donor-wall', label: 'Donor Wall' },
       { href: '/contact', label: 'Contact Us' },
       { href: '/whats-new', label: "What's New" },
@@ -37,7 +45,12 @@ const navItems = [
 
 export function MainNav({ isMobile = false }: { isMobile?: boolean }) {
   const pathname = usePathname();
-  const { user } = useUser();
+  const { user, loading } = useUser();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const renderNavItem = (item: (typeof navItems)[0]) => {
     const isActive =
@@ -108,7 +121,7 @@ export function MainNav({ isMobile = false }: { isMobile?: boolean }) {
       )}
     >
       {navItems.map(renderNavItem)}
-       {user && isMobile && (
+       {isClient && user && isMobile && (
         <Link
           href="/dashboard"
           className={cn(
