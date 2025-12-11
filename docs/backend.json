@@ -9,9 +9,11 @@
         "name": { "type": "string", "description": "The user's full name." },
         "email": { "type": "string", "format": "email", "description": "The user's email address." },
         "photoURL": { "type": "string", "format": "uri", "description": "URL of the user's profile picture." },
-        "role": { "type": "string", "description": "The user's role in the system.", "enum": ["admin", "moderator", "manager", "collaborator", "user"] },
+        "role": { "type": "string", "description": "The user's role in the system.", "enum": ["admin", "moderator", "manager", "collaborator", "user", "volunteer"] },
         "status": { "type": "string", "description": "The approval status of the user's account.", "enum": ["pending", "approved", "rejected"] },
         "profile_status": { "type": "string", "description": "The completion status of the user's profile.", "enum": ["incomplete", "pending_review", "complete"] },
+        "isVolunteer": { "type": "boolean", "description": "Indicates if the user has signed up as a volunteer.", "default": false },
+        "volunteerStatus": { "type": "string", "description": "The approval status of the user's volunteer application.", "enum": ["none", "pending", "approved", "rejected"], "default": "none" },
         "level": { "type": "string", "description": "User's gamification level based on total points. Bronze: 0+, Silver: 1000+, Gold: 5000+, Platinum: 10000+.", "enum": ["Bronze", "Silver", "Gold", "Platinum"], "default": "Bronze" },
         "points": { "type": "number", "description": "User's engagement points for rewards. (100 BDT = 1 Point)", "default": 0 },
         "badges": { "type": "array", "description": "List of badges earned by the user.", "items": { "type": "string" } },
@@ -22,7 +24,7 @@
         "experienceYears": { "type": "number", "description": "Moderator's years of experience." },
         "department": { "type": "string", "description": "Manager's department." },
         "teamSize": { "type": "number", "description": "Manager's team size." },
-        "skills": { "type": "string", "description": "Collaborator's listed skills." },
+        "skills": { "type": "array", "description": "List of skills for volunteers or collaborators.", "items": { "type": "string" } },
         "portfolioLink": { "type": "string", "format": "uri", "description": "Link to the collaborator's portfolio." },
         "referralCode": { "type": "string", "description": "Unique code for referring new users." },
         "referredBy": { "type": "string", "description": "The UID of the user who referred this user." },
@@ -38,7 +40,8 @@
       "properties": {
         "title": { "type": "string", "description": "Title of the campaign." },
         "slug": { "type": "string", "description": "URL-friendly slug for the campaign." },
-        "description": { "type": "string", "description": "Detailed description of the campaign." },
+        "shortDescription": { "type": "string", "description": "A brief, one-sentence summary of the campaign for list views." },
+        "description": { "type": "string", "description": "The full, detailed description of the campaign for its dedicated page. Supports markdown." },
         "goal": { "type": "number", "description": "The target amount to be raised." },
         "raised": { "type": "number", "description": "The total amount raised so far." },
         "minAmount": { "type": "number", "description": "Minimum donation amount.", "default": 0.01 },
@@ -54,7 +57,7 @@
         "endDate": { "type": "string", "format": "date-time" },
         "imageUrl": { "type": "string", "format": "uri", "description": "URL of the campaign's cover image." }
       },
-      "required": ["title", "slug", "description", "goal", "status", "createdBy", "imageUrl"]
+      "required": ["title", "slug", "shortDescription", "description", "goal", "status", "createdBy", "imageUrl"]
     },
     "Donation": {
       "title": "Donation Record",
