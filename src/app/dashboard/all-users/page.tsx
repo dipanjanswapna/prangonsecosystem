@@ -77,7 +77,7 @@ interface User {
   experienceYears?: number;
   department?: string;
   teamSize?: number;
-  skills?: string;
+  skills?: string[];
   portfolioLink?: string;
 }
 
@@ -229,6 +229,7 @@ export default function AllUsersPage() {
     // Convert Timestamps to ISO strings for readability
     const sanitizedData = users.map(user => ({
       ...user,
+      skills: Array.isArray(user.skills) ? user.skills.join(', ') : user.skills,
       createdAt: user.createdAt ? new Date(user.createdAt.seconds * 1000).toISOString() : '',
       profileUpdatedAt: user.profileUpdatedAt ? new Date(user.profileUpdatedAt.seconds * 1000).toISOString() : '',
       lastGiftClaimedAt: user.lastGiftClaimedAt ? new Date(user.lastGiftClaimedAt.seconds * 1000).toISOString() : ''
@@ -540,11 +541,13 @@ export default function AllUsersPage() {
                             </div>
                         </>
                     )}
-                    {selectedUser.role === ROLES.COLLABORATOR && (
+                     {selectedUser.role === ROLES.COLLABORATOR && (
                         <>
-                            <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
-                                <p className="text-muted-foreground">Skills</p>
-                                <p className="font-medium whitespace-pre-wrap">{selectedUser.skills || 'N/A'}</p>
+                            <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-start gap-4">
+                                <p className="text-muted-foreground mt-1">Skills</p>
+                                <p className="font-medium whitespace-pre-wrap">
+                                    {Array.isArray(selectedUser.skills) ? selectedUser.skills.join(', ') : selectedUser.skills || 'N/A'}
+                                </p>
                             </div>
                             <div className="grid grid-cols-[120px_1fr] md:grid-cols-[150px_1fr] items-center gap-4">
                                 <p className="text-muted-foreground">Portfolio</p>
