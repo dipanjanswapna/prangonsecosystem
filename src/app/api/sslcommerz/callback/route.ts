@@ -31,18 +31,27 @@ async function validatePayment(val_id: string) {
     return data;
 }
 
+const getDonorLevel = (points: number): 'Bronze' | 'Silver' | 'Gold' | 'Platinum' => {
+    if (points >= 10000) return 'Platinum';
+    if (points >= 5000) return 'Gold';
+    if (points >= 1000) return 'Silver';
+    return 'Bronze';
+};
+
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.formData();
-    const status = body.get('status');
-    const tran_id = body.get('tran_id') as string;
+    const status = body.get('status') as string;
+    // The tran_id from SSLCommerz, not our internal one.
+    // const tran_id = body.get('tran_id') as string;
     const val_id = body.get('val_id') as string;
-    const amount = parseFloat(body.get('amount') as string);
+    // Our internal donation ID passed via value_a
     const donationId = body.get('value_a') as string;
 
     if (!donationId) {
-       return NextResponse.json({ message: 'Donation ID is missing.' }, { status: 400 });
+       console.error("SSLCommerz callback missing 'value_a' (donationId).");
+       return NextResponse.redirect(new URL('/donations?error=missing_id', process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002'));
     }
     
     const redirectUrl = new URL(`/donations/invoice/${donationId}`, process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002');
@@ -57,7 +66,7 @@ export async function POST(request: NextRequest) {
                 const donationDoc = await transaction.get(donationRef);
 
                 if (!donationDoc.exists() || donationDoc.data().status === 'success') {
-                    // Already processed, do nothing.
+                    // Already processed, do nothing to prevent double processing.
                     return;
                 }
                 
@@ -69,19 +78,29 @@ export async function POST(request: NextRequest) {
                 
                 // Update campaign's raised amount
                 const campaignId = donationDoc.data().campaignId;
-                const campaignRef = doc(firestore, 'campaigns', campaignId);
-                transaction.update(campaignRef, {
-                    raised: increment(parseFloat(validationData.amount))
-                });
+                if (campaignId) {
+                    const campaignRef = doc(firestore, 'campaigns', campaignId);
+                    transaction.update(campaignRef, {
+                        raised: increment(parseFloat(validationData.amount))
+                    });
+                }
                 
                 // Update user points if applicable
                 const userId = donationDoc.data().userId;
                 if (userId && !donationDoc.data().isAnonymous) {
                      const userRef = doc(firestore, 'users', userId);
-                     const pointsEarned = Math.floor(parseFloat(validationData.amount) / 100);
-                     transaction.update(userRef, {
-                         points: increment(pointsEarned),
-                     });
+                     const userDoc = await transaction.get(userRef);
+                     if (userDoc.exists()) {
+                         const pointsEarned = Math.floor(parseFloat(validationData.amount) / 100);
+                         const currentPoints = userDoc.data()?.points || 0;
+                         const newTotalPoints = currentPoints + pointsEarned;
+                         const newLevel = getDonorLevel(newTotalPoints);
+                         
+                         transaction.update(userRef, {
+                             points: increment(pointsEarned),
+                             level: newLevel
+                         });
+                     }
                 }
             });
 
@@ -103,7 +122,7 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error('[SSLCommerz Callback Error]', error);
     // Redirect to a generic error page or home
-    const errorRedirectUrl = new URL('/', process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002');
+    const errorRedirectUrl = new URL('/donations', process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002');
     errorRedirectUrl.searchParams.append('error', 'callback_processing_failed');
     return NextResponse.redirect(errorRedirectUrl.toString());
   }

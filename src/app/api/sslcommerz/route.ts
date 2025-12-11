@@ -29,9 +29,10 @@ export async function POST(request: Request) {
     formData.append('total_amount', amount.toString());
     formData.append('currency', 'BDT');
     formData.append('tran_id', tran_id);
-    formData.append('success_url', `${baseUrl}/api/sslcommerz/callback?status=success&donation_id=${donationId}`);
-    formData.append('fail_url', `${baseUrl}/api/sslcommerz/callback?status=fail&donation_id=${donationId}`);
-    formData.append('cancel_url', `${baseUrl}/api/sslcommerz/callback?status=cancel&donation_id=${donationId}`);
+    // These URLs will receive a POST request from SSLCommerz
+    formData.append('success_url', `${baseUrl}/api/sslcommerz/callback`);
+    formData.append('fail_url', `${baseUrl}/api/sslcommerz/callback`);
+    formData.append('cancel_url', `${baseUrl}/api/sslcommerz/callback`);
     formData.append('ipn_url', `${baseUrl}/api/sslcommerz/ipn`);
 
     // Product Information
@@ -52,7 +53,7 @@ export async function POST(request: Request) {
     // Shipment Information (Not required for non-physical goods)
     formData.append('shipping_method', 'NO');
 
-    // Optional parameters for passing donationId
+    // Custom parameter to pass our internal donationId
     formData.append('value_a', donationId);
 
 

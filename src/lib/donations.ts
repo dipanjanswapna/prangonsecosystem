@@ -33,7 +33,22 @@ const getDonorLevel = (points: number): 'Bronze' | 'Silver' | 'Gold' | 'Platinum
 
 export const saveDonation = async (data: DonationData): Promise<string> => {
     try {
-        const newDonationId = await runTransaction(firestore, async (transaction) => {
+        const newDonationRef = doc(collection(firestore, 'donations'));
+        const invoiceId = `ONGN-${nanoid()}`;
+
+        const donationPayload: any = {
+            ...data,
+            invoiceId: invoiceId,
+            createdAt: serverTimestamp(),
+        };
+        
+        if (data.status !== 'success') {
+            await setDoc(newDonationRef, donationPayload);
+            return newDonationRef.id;
+        }
+
+        // If status is 'success' (e.g., manual entry), run a transaction to update everything atomically.
+        await runTransaction(firestore, async (transaction) => {
             let userRef;
             let userDoc: DocumentSnapshot | null = null;
             
@@ -42,34 +57,20 @@ export const saveDonation = async (data: DonationData): Promise<string> => {
                 userRef = doc(firestore, 'users', data.userId);
                 userDoc = await transaction.get(userRef);
             }
-
-            // --- WRITE PHASE ---
-            const newDonationRef = doc(collection(firestore, 'donations'));
-            const campaignRef = doc(firestore, 'campaigns', data.campaignId);
-            const invoiceId = `ONGN-${nanoid()}`;
-
-            const donationPayload: any = {
-                ...data,
-                invoiceId: invoiceId,
-                createdAt: serverTimestamp(),
-            };
             
-            if (!donationPayload.isCorporateMatch) {
-                delete donationPayload.corporateName;
-            }
+            // --- WRITE PHASE ---
+            const campaignRef = doc(firestore, 'campaigns', data.campaignId);
 
             // Write 1: Create the new donation document.
             transaction.set(newDonationRef, donationPayload);
             
-            // Write 2: Increment the 'raised' amount on the campaign if payment is successful.
-            if(data.status === 'success') {
-                transaction.update(campaignRef, {
-                    raised: increment(data.amount)
-                });
-            }
+            // Write 2: Increment the 'raised' amount on the campaign.
+            transaction.update(campaignRef, {
+                raised: increment(data.amount)
+            });
 
-            // Write 3: If user doc was read and payment is successful, update user's points and level.
-            if (userRef && userDoc && userDoc.exists() && data.status === 'success') {
+            // Write 3: If user exists, update their points and level.
+            if (userRef && userDoc && userDoc.exists()) {
                 const pointsEarned = Math.floor(data.amount / 100);
                 const currentPoints = userDoc.data()?.points || 0;
                 const newTotalPoints = currentPoints + pointsEarned;
@@ -80,14 +81,12 @@ export const saveDonation = async (data: DonationData): Promise<string> => {
                     level: newLevel,
                 });
             }
-            
-            return newDonationRef.id;
         });
 
-        return newDonationId;
+        return newDonationRef.id;
 
     } catch (error) {
-        console.error("Error saving donation and updating points/level: ", error);
+        console.error("Error saving donation and updating related documents: ", error);
         throw new Error("Could not process your donation.");
     }
 };
