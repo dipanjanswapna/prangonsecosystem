@@ -72,8 +72,10 @@ function DonatePageContent() {
     const spOrderId = localStorage.getItem('shurjopay_order_id');
     const ongonDonationId = localStorage.getItem('ongon_donation_id');
     const status = searchParams.get('status');
+    const orderId = searchParams.get('order_id');
 
-    if (status === 'success' && spOrderId && ongonDonationId) {
+
+    if (status === 'success' && spOrderId && ongonDonationId && orderId) {
       setIsLoading(true);
       toast({ title: "Verifying Payment...", description: "Please wait while we confirm your transaction." });
       
@@ -99,7 +101,7 @@ function DonatePageContent() {
         } catch (error: any) {
           toast({ variant: 'destructive', title: 'Payment Verification Failed', description: error.message });
           setIsLoading(false);
-          router.replace(`/donations/${campaign.slug}`);
+          router.replace(`/donations/${campaign.slug}/donate`);
         } finally {
           localStorage.removeItem('shurjopay_order_id');
           localStorage.removeItem('ongon_donation_id');
@@ -184,11 +186,11 @@ function DonatePageContent() {
         return;
     }
     if (!name && !isAnonymous) {
-        toast({ variant: 'destructive', title: 'Name Required', description: 'Please enter your name or choose to be anonymous.' });
+        toast({ variant: 'destructive', title: 'Name Required', description: 'Please enter your name or choose to be an anonymous.' });
         return;
     }
     if (!email && !isAnonymous) {
-        toast({ variant: 'destructive', title: 'Email Required', description: 'Please enter your email or choose to be anonymous.' });
+        toast({ variant: 'destructive', title: 'Email Required', description: 'Please enter your email or choose to be an anonymous.' });
         return;
     }
      if (!selectedGateway) {
@@ -264,7 +266,7 @@ function DonatePageContent() {
 
     try {
       // This part handles other gateways
-      const newDonationId = await saveDonation({ ...donationData, status: 'success' }); // Assume success for others
+      const newDonationId = await saveDonation(donationData);
 
       toast({
           title: 'Processing Donation...',
@@ -432,3 +434,5 @@ export default function DonatePage() {
         </Suspense>
     )
 }
+
+    
