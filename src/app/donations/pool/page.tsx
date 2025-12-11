@@ -64,6 +64,21 @@ function GatewayIcon({
   );
 }
 
+const loadScript = (src: string) => {
+  return new Promise((resolve, reject) => {
+    if (document.querySelector(`script[src="${src}"]`)) {
+      resolve(true);
+      return;
+    }
+    const script = document.createElement('script');
+    script.src = src;
+    script.onload = () => resolve(true);
+    script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
+    document.head.appendChild(script);
+  });
+};
+
+
 function PoolDonationForm() {
   const searchParams = useSearchParams();
   const { user } = useUser();
@@ -189,6 +204,10 @@ function PoolDonationForm() {
 
       if (selectedGateway === 'bKash') {
         setBKashLoading(true);
+
+        await loadScript("https://code.jquery.com/jquery-3.7.1.min.js");
+        await loadScript("https://scripts.sandbox.bka.sh/versions/1.1.0-beta/checkout/bKash-checkout-sandbox.js");
+
         bKash.init({
           paymentMode: 'checkout',
           paymentRequest: {
