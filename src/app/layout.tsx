@@ -33,6 +33,11 @@ export default function RootLayout({
           href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap"
           rel="stylesheet"
         />
+        <script
+          src="https://code.jquery.com/jquery-3.7.1.min.js"
+          integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+          crossOrigin="anonymous"
+        ></script>
         <script src="https://scripts.sandbox.bka.sh/versions/1.1.0-beta/checkout/bKash-checkout-sandbox.js"></script>
       </head>
       <body className="font-body antialiased">
