@@ -58,7 +58,7 @@ function DonatePageContent() {
 
 
   const [amount, setAmount] = useState('');
-  const [selectedGateway, setSelectedGateway] = useState<string | null>(null);
+  const [selectedGateway, setSelectedGateway] = useState<string | null>('bKash');
   const [name, setName] = useState(user?.displayName || '');
   const [email, setEmail] = useState(user?.email || '');
   const [isAnonymous, setIsAnonymous] = useState(false);
@@ -72,10 +72,8 @@ function DonatePageContent() {
     const spOrderId = localStorage.getItem('shurjopay_order_id');
     const ongonDonationId = localStorage.getItem('ongon_donation_id');
     const status = searchParams.get('status');
-    const orderId = searchParams.get('order_id');
-
-
-    if (status === 'success' && spOrderId && ongonDonationId && orderId) {
+    
+    if (status === 'success' && spOrderId && ongonDonationId) {
       setIsLoading(true);
       toast({ title: "Verifying Payment...", description: "Please wait while we confirm your transaction." });
       
