@@ -45,7 +45,11 @@ async function createShurjoPayPayment(
   }
 ) {
   const orderId = `${SHURJOPAY_PREFIX}${nanoid()}`;
-  const returnUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/api/shurjopay/callback`;
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  // We point both return and cancel to our donation page.
+  // The page itself will handle query params to determine status.
+  const returnUrl = `${baseUrl}/donations/${paymentData.customer_email}?status=success`;
+  const cancelUrl = `${baseUrl}/donations/${paymentData.customer_email}?status=cancel`;
   
   const payload = {
       prefix: SHURJOPAY_PREFIX,
@@ -55,12 +59,12 @@ async function createShurjoPayPayment(
       order_id: orderId,
       currency: 'BDT',
       return_url: returnUrl,
-      cancel_url: returnUrl,
+      cancel_url: cancelUrl,
       customer_name: paymentData.customer_name,
       customer_address: paymentData.customer_address,
       customer_phone: paymentData.customer_phone,
       customer_city: paymentData.customer_city,
-      customer_email: paymentData.customer_email,
+      customer_email: donationData.customer_email,
       client_ip: '127.0.0.1', // In a real app, you'd get this from the request
   };
 
@@ -90,7 +94,12 @@ export async function POST(request: Request) {
   try {
     const paymentData = await request.json();
     const tokenData = await getShurjoPayToken();
-    const paymentResponse = await createShurjoPayPayment(tokenData, paymentData);
+
+    // The customer_email is actually the campaign slug here for the return URL
+    const paymentResponse = await createShurjoPayPayment(tokenData, {
+        ...paymentData,
+        customer_email: paymentData.campaignSlug 
+    });
     
     return NextResponse.json(paymentResponse, { status: 200 });
 

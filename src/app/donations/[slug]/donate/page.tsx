@@ -1,6 +1,6 @@
 'use client';
 
-import { notFound, useRouter, useParams } from 'next/navigation';
+import { notFound, useRouter, useParams, useSearchParams } from 'next/navigation';
 import {
   Card,
   CardContent,
@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Building, HandHeart, Loader2 } from 'lucide-react';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { saveDonation } from '@/lib/donations';
@@ -46,8 +46,10 @@ function GatewayIcon({ name, src, isSelected, onClick }: { name: string; src: st
   );
 }
 
-export default function DonatePage() {
+
+function DonatePageContent() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const { user } = useUser();
   const router = useRouter();
   const { toast } = useToast();
@@ -64,6 +66,51 @@ export default function DonatePage() {
   const [donationFrequency, setDonationFrequency] = useState<'one-time' | 'monthly'>('one-time');
   const [isCorporateMatch, setIsCorporateMatch] = useState(false);
   const [corporateName, setCorporateName] = useState('');
+
+  // Effect to handle shurjoPay callback
+  useEffect(() => {
+    const spOrderId = localStorage.getItem('shurjopay_order_id');
+    const ongonDonationId = localStorage.getItem('ongon_donation_id');
+    const status = searchParams.get('status');
+
+    if (status === 'success' && spOrderId && ongonDonationId) {
+      setIsLoading(true);
+      toast({ title: "Verifying Payment...", description: "Please wait while we confirm your transaction." });
+      
+      const verifyPayment = async () => {
+        try {
+          const response = await fetch('/api/shurjopay/callback', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ongon_donation_id: ongonDonationId, sp_order_id: spOrderId }),
+          });
+
+          if (!response.ok) throw new Error('Verification failed');
+
+          const result = await response.json();
+
+          if(result.finalStatus === 'success') {
+            router.push(`/donations/invoice/${ongonDonationId}`);
+          } else {
+            throw new Error('Payment was not successful according to shurjoPay.');
+          }
+
+        } catch (error: any) {
+          toast({ variant: 'destructive', title: 'Payment Verification Failed', description: error.message });
+          setIsLoading(false);
+        } finally {
+          localStorage.removeItem('shurjopay_order_id');
+          localStorage.removeItem('ongon_donation_id');
+        }
+      };
+
+      verifyPayment();
+    } else if (status === 'cancel' || status === 'fail') {
+        toast({ variant: 'destructive', title: 'Payment Cancelled', description: 'Your transaction was cancelled or failed.' });
+        localStorage.removeItem('shurjopay_order_id');
+        localStorage.removeItem('ongon_donation_id');
+    }
+  }, [searchParams, router, toast]);
 
   if (loading) {
       return (
@@ -162,6 +209,8 @@ export default function DonatePage() {
 
     if (selectedGateway === 'SurjoPay') {
       try {
+        const newDonationId = await saveDonation({ ...donationData, status: 'pending' });
+        
         const response = await fetch('/api/shurjopay', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -178,12 +227,10 @@ export default function DonatePage() {
         const paymentResponse = await response.json();
 
         if (paymentResponse.checkout_url) {
-          // Store pending donation before redirecting
-          const newDonationId = await saveDonation({ ...donationData, status: 'pending' });
           localStorage.setItem('shurjopay_order_id', paymentResponse.sp_order_id);
           localStorage.setItem('ongon_donation_id', newDonationId);
           
-          router.push(paymentResponse.checkout_url);
+          window.location.href = paymentResponse.checkout_url;
         } else {
           throw new Error(paymentResponse.message || 'Failed to initiate shurjoPay payment.');
         }
@@ -362,4 +409,12 @@ export default function DonatePage() {
       </Card>
     </div>
   );
+}
+
+export default function DonatePage() {
+    return (
+        <Suspense fallback={<div className='max-w-4xl mx-auto'><Skeleton className='h-[80vh] w-full'/></div>}>
+            <DonatePageContent />
+        </Suspense>
+    )
 }
