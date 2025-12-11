@@ -42,6 +42,7 @@ export const navItems = {
   [ROLES.USER]: [
     { href: '/dashboard/user', icon: Home, label: 'Dashboard' },
     { href: '/dashboard/user/donations', icon: Package, label: 'Donations' },
+    { href: '/dashboard/user/blood-requests', icon: Droplets, label: 'Blood Requests' },
     { href: '/auth/profile', icon: User, label: 'Profile' },
   ],
 };

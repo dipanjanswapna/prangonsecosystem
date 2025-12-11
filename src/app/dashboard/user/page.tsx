@@ -167,13 +167,13 @@ export default function UserDashboard() {
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <HeartHandshake className="h-5 w-5" />
-                        My Blood Donations
+                        My Blood Requests
                     </CardTitle>
-                    <CardDescription>View your blood donation history and manage your information.</CardDescription>
+                    <CardDescription>View your blood request history and manage your active requests.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Button asChild>
-                        <Link href="/dashboard/user/donations">View Blood Donations</Link>
+                        <Link href="/dashboard/user/blood-requests">View Blood Requests</Link>
                     </Button>
                 </CardContent>
             </Card>
