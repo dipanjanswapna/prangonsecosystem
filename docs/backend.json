@@ -177,6 +177,18 @@
             "pointsAwarded": { "type": "number", "default": 10 }
         },
         "required": ["donorId", "recipientId", "bloodRequestId", "donationDate"]
+    },
+     "BloodDonationResponse": {
+      "title": "Blood Donation Response",
+      "description": "A record of a user responding to a blood request.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "The UID of the user responding." },
+        "userName": { "type": "string", "description": "The name of the user responding." },
+        "userPhotoURL": { "type": "string", "format": "uri", "description": "The photo URL of the user responding." },
+        "respondedAt": { "type": "string", "format": "date-time", "description": "Timestamp of the response." }
+      },
+      "required": ["userId", "userName", "respondedAt"]
     }
   },
   "auth": {
@@ -218,6 +230,10 @@
     "/bloodRequests/{requestId}": {
         "schema": { "$ref": "#/entities/BloodRequest" },
         "description": "Stores all active and fulfilled blood donation requests."
+    },
+     "/bloodRequests/{requestId}/responses/{userId}": {
+      "schema": { "$ref": "#/entities/BloodDonationResponse" },
+      "description": "Stores users who have responded to a specific blood request."
     },
     "/bloodDonations/{donationId}": {
         "schema": { "$ref": "#/entities/BloodDonationRecord" },

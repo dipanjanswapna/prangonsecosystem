@@ -37,7 +37,7 @@ import {
 import { useCollection } from '@/firebase/firestore/use-collection';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
-import { markRequestAsFulfilled } from '@/lib/blood';
+import { markRequestAsFulfilled, respondToRequest } from '@/lib/blood';
 
 interface BloodRequest {
   id: string;
@@ -58,11 +58,18 @@ interface BloodRequest {
 }
 
 interface UserProfile {
-    id: string;
-    name: string;
-    photoURL?: string;
+  id: string;
+  uid: string;
+  name: string;
+  photoURL?: string;
 }
 
+interface DonationResponse {
+    id: string;
+    userId: string;
+    userName: string;
+    userPhotoURL?: string;
+}
 
 const bloodGroupStyles: { [key: string]: string } = {
   'A+': 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/50 dark:text-red-300 dark:border-red-700',
@@ -118,30 +125,50 @@ const RequestDetailsSkeleton = () => (
 export default function RequestDetailsPage() {
   const params = useParams();
   const { id } = params;
+  const requestId = id as string;
   const { user, loading: userLoading } = useUser();
   const { data: request, loading: requestLoading } = useDoc<BloodRequest>(
-    id ? `bloodRequests/${id}` : null
+    requestId ? `bloodRequests/${requestId}` : null
   );
+  const { data: responses, loading: responsesLoading } = useCollection<DonationResponse>(
+    requestId ? `bloodRequests/${requestId}/responses` : null
+  );
+
   const [showContact, setShowContact] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
 
-  const handleMarkAsFulfilled = async (donor: UserProfile) => {
-      if (!request) return;
-      try {
-          await markRequestAsFulfilled(request.id, donor.id);
-          toast({
-              title: "Request Fulfilled!",
-              description: "Thank you for updating. The donor has been awarded points."
-          });
-          router.push('/blood-donation');
-      } catch (error: any) {
-          toast({
-              variant: 'destructive',
-              title: 'Update Failed',
-              description: error.message || "Could not mark the request as fulfilled."
-          })
+  const handleMarkAsFulfilled = async (donor: DonationResponse) => {
+    if (!request) return;
+    try {
+      await markRequestAsFulfilled(request.id, donor.userId, donor.userName);
+      toast({
+        title: 'Request Fulfilled!',
+        description: 'Thank you for updating. The donor has been awarded points.',
+      });
+      router.push('/blood-donation');
+    } catch (error: any) {
+      toast({
+        variant: 'destructive',
+        title: 'Update Failed',
+        description: error.message || 'Could not mark the request as fulfilled.',
+      });
+    }
+  };
+
+  const handleRespondToRequest = async () => {
+      if (!user) {
+          toast({ variant: 'destructive', title: 'Login Required', description: 'You must be logged in to respond.' });
+          return;
       }
+       if (!request) return;
+      try {
+          await respondToRequest(request.id, user);
+          toast({ title: "Response Recorded", description: "The requester has been notified of your willingness to donate." });
+      } catch(error: any) {
+           toast({ variant: 'destructive', title: 'Response Failed', description: error.message || 'Could not record your response.' });
+      }
+
   }
 
   if (requestLoading || userLoading) {
@@ -154,6 +181,7 @@ export default function RequestDetailsPage() {
 
   const isRequester = user?.uid === request.requesterId;
   const isFulfilled = request.status === 'fulfilled';
+  const hasUserResponded = responses.some(res => res.userId === user?.uid);
 
   return (
     <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -170,14 +198,14 @@ export default function RequestDetailsPage() {
                 {request.bloodGroup}
               </div>
               {isFulfilled ? (
-                  <div className="flex items-center gap-2 text-green-600 dark:text-green-400 font-semibold py-1 px-3 rounded-full bg-green-100 dark:bg-green-900/30">
-                      <BadgeCheck className="h-5 w-5" />
-                      <span>Fulfilled</span>
-                  </div>
+                <div className="flex items-center gap-2 text-green-600 dark:text-green-400 font-semibold py-1 px-3 rounded-full bg-green-100 dark:bg-green-900/30">
+                  <BadgeCheck className="h-5 w-5" />
+                  <span>Fulfilled</span>
+                </div>
               ) : (
                 <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-semibold py-1 px-3 rounded-full bg-amber-100 dark:bg-amber-900/30">
-                    <AlertTriangle className="h-5 w-5" />
-                    <span>Pending</span>
+                  <AlertTriangle className="h-5 w-5" />
+                  <span>Pending</span>
                 </div>
               )}
             </div>
@@ -209,7 +237,9 @@ export default function RequestDetailsPage() {
                 <div>
                   <p className="font-semibold">Date Needed By</p>
                   <p className="text-muted-foreground">
-                    {new Date(request.neededBy.seconds * 1000).toLocaleDateString()}
+                    {new Date(
+                      request.neededBy.seconds * 1000
+                    ).toLocaleDateString()}
                   </p>
                 </div>
               </div>
@@ -217,7 +247,9 @@ export default function RequestDetailsPage() {
                 <User className="h-5 w-5 mt-0.5 text-muted-foreground" />
                 <div>
                   <p className="font-semibold">Contact Person</p>
-                  <p className="text-muted-foreground">{request.contactPerson}</p>
+                  <p className="text-muted-foreground">
+                    {request.contactPerson}
+                  </p>
                 </div>
               </div>
               <div className="flex items-start gap-3">
@@ -225,7 +257,12 @@ export default function RequestDetailsPage() {
                 <div>
                   <p className="font-semibold">Contact Phone</p>
                   {showContact ? (
-                    <a href={`tel:${request.contactPhone}`} className='text-primary font-bold text-lg hover:underline'>{request.contactPhone}</a>
+                    <a
+                      href={`tel:${request.contactPhone}`}
+                      className="text-primary font-bold text-lg hover:underline"
+                    >
+                      {request.contactPhone}
+                    </a>
                   ) : (
                     <Button
                       variant="outline"
@@ -252,32 +289,44 @@ export default function RequestDetailsPage() {
           </CardContent>
           <CardFooter>
             {!isRequester && !isFulfilled && (
-              <Button size="lg" className="w-full">
-                <HeartHandshake className="mr-2 h-5 w-5" /> I Will Donate
+              <Button size="lg" className="w-full" onClick={handleRespondToRequest} disabled={hasUserResponded}>
+                <HeartHandshake className="mr-2 h-5 w-5" />
+                {hasUserResponded ? 'Response Sent' : 'I Will Donate'}
               </Button>
             )}
-             {isRequester && !isFulfilled && (
-                <Dialog>
-                    <DialogTrigger asChild>
-                        <Button size="lg" className="w-full" variant="secondary">
-                            <BadgeCheck className="mr-2 h-5 w-5" /> Mark as Fulfilled
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <DialogHeader>
-                        <DialogTitle>Who was the donor?</DialogTitle>
-                        <DialogDescription>
-                            Select the hero who donated blood to award them points for their contribution.
-                        </DialogDescription>
-                        </DialogHeader>
-                        <DonorSelectionDialog onSelectDonor={handleMarkAsFulfilled} />
-                    </DialogContent>
-                </Dialog>
+            {isRequester && !isFulfilled && (
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button
+                    size="lg"
+                    className="w-full"
+                    variant="secondary"
+                    disabled={responses.length === 0}
+                  >
+                    <BadgeCheck className="mr-2 h-5 w-5" /> Mark as Fulfilled
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Who was the donor?</DialogTitle>
+                    <DialogDescription>
+                      Select the hero who donated blood to award them points for
+                      their contribution.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DonorSelectionDialog
+                    responses={responses}
+                    loading={responsesLoading}
+                    onSelectDonor={handleMarkAsFulfilled}
+                  />
+                </DialogContent>
+              </Dialog>
             )}
             {isFulfilled && request.donorName && (
-                 <div className="w-full text-center text-green-600 dark:text-green-400">
-                    This request was fulfilled by the hero: <strong>{request.donorName}</strong>.
-                 </div>
+              <div className="w-full text-center text-green-600 dark:text-green-400">
+                This request was fulfilled by the hero:{' '}
+                <strong>{request.donorName}</strong>.
+              </div>
             )}
           </CardFooter>
         </Card>
@@ -286,14 +335,19 @@ export default function RequestDetailsPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-                <Info className="h-5 w-5" />
-                Important Information
+              <Info className="h-5 w-5" />
+              Important Information
             </CardTitle>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground space-y-2">
-            <p>Please verify all details with the contact person before proceeding.</p>
+            <p>
+              Please verify all details with the contact person before
+              proceeding.
+            </p>
             <p>Ensure you meet all health requirements for blood donation.</p>
-            <p>Do not pay any money for blood donation. It is a voluntary act.</p>
+            <p>
+              Do not pay any money for blood donation. It is a voluntary act.
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -301,33 +355,52 @@ export default function RequestDetailsPage() {
   );
 }
 
-function DonorSelectionDialog({ onSelectDonor }: { onSelectDonor: (donor: UserProfile) => void }) {
-    const { data: users, loading } = useCollection<UserProfile>('users');
-    const [selectedDonor, setSelectedDonor] = useState<UserProfile | null>(null);
+function DonorSelectionDialog({
+  responses,
+  loading,
+  onSelectDonor,
+}: {
+  responses: DonationResponse[];
+  loading: boolean;
+  onSelectDonor: (donor: DonationResponse) => void;
+}) {
+  const [selectedDonor, setSelectedDonor] = useState<DonationResponse | null>(
+    null
+  );
 
-    return (
-        <div>
-            <div className="max-h-64 overflow-y-auto space-y-2 my-4 pr-2">
-                {loading && <Loader2 className="mx-auto animate-spin" />}
-                {users.map(user => (
-                    <div
-                        key={user.id}
-                        onClick={() => setSelectedDonor(user)}
-                        className={cn("flex items-center gap-3 p-2 rounded-lg cursor-pointer border-2",
-                            selectedDonor?.id === user.id ? 'border-primary bg-primary/10' : 'border-transparent hover:bg-muted'
-                        )}
-                    >
-                        <Avatar>
-                            <AvatarImage src={user.photoURL} />
-                            <AvatarFallback>{user.name?.charAt(0) || 'U'}</AvatarFallback>
-                        </Avatar>
-                        <span className="font-medium">{user.name}</span>
-                    </div>
-                ))}
-            </div>
-            <Button className="w-full" disabled={!selectedDonor} onClick={() => selectedDonor && onSelectDonor(selectedDonor)}>
-                Confirm Donor & Fulfill
-            </Button>
-        </div>
-    )
+  return (
+    <div>
+      <div className="max-h-64 overflow-y-auto space-y-2 my-4 pr-2">
+        {loading && <Loader2 className="mx-auto animate-spin" />}
+        {responses.map((res) => (
+          <div
+            key={res.id}
+            onClick={() => setSelectedDonor(res)}
+            className={cn(
+              'flex items-center gap-3 p-2 rounded-lg cursor-pointer border-2',
+              selectedDonor?.id === res.id
+                ? 'border-primary bg-primary/10'
+                : 'border-transparent hover:bg-muted'
+            )}
+          >
+            <Avatar>
+              <AvatarImage src={res.userPhotoURL} />
+              <AvatarFallback>{res.userName?.charAt(0) || 'U'}</AvatarFallback>
+            </Avatar>
+            <span className="font-medium">{res.userName}</span>
+          </div>
+        ))}
+         {!loading && responses.length === 0 && (
+            <p className="text-center text-muted-foreground">No donors have responded yet.</p>
+        )}
+      </div>
+      <Button
+        className="w-full"
+        disabled={!selectedDonor}
+        onClick={() => selectedDonor && onSelectDonor(selectedDonor)}
+      >
+        Confirm Donor & Fulfill
+      </Button>
+    </div>
+  );
 }
