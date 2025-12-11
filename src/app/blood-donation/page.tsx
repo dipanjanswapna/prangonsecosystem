@@ -14,6 +14,7 @@ import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { ArrowRight, Droplets, PlusCircle, Hospital, User } from 'lucide-react';
 import Link from 'next/link';
+import { useMemo } from 'react';
 
 interface BloodRequest {
   id: string;
@@ -60,14 +61,19 @@ const RequestCardSkeleton = () => (
 )
 
 export default function BloodDonationPage() {
-  const { data: requests, loading } = useCollection<BloodRequest>(
+  const { data, loading } = useCollection<BloodRequest>(
     'bloodRequests',
     undefined,
     undefined,
-    { field: 'createdAt', direction: 'desc' },
+    undefined,
     undefined,
     [['status', '==', 'pending']]
   );
+
+  const requests = useMemo(() => {
+    if (!data) return [];
+    return [...data].sort((a, b) => b.createdAt.seconds - a.createdAt.seconds);
+  }, [data]);
 
   return (
     <div className="space-y-12">
