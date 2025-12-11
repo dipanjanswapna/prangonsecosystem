@@ -173,6 +173,7 @@ function PoolDonationForm() {
           isAnonymous,
           donorName: isAnonymous ? 'Anonymous' : name,
           donorEmail: isAnonymous ? null : email,
+          frequency: 'one-time' as const
         };
         return saveDonation(donationData);
       });
