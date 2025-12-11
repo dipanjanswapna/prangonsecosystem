@@ -96,7 +96,7 @@ export default function UserDashboard() {
                         <Trophy className="h-5 w-5 text-amber-500" />
                         My Status & Rewards
                     </CardTitle>
-                    <CardDescription>Your current level, points, and progress toward the next reward. (1 Point = 100 BDT Donated)</CardDescription>
+                    <CardDescription>Your current level, points, and progress toward the next reward. (1 Point = 100 BDT Donated, 1 Blood Donation = 10 Points)</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                     <div className="space-y-4">

@@ -70,7 +70,7 @@ export default function UserContributionsPage() {
             My Contributions
           </CardTitle>
           <CardDescription>
-            Here is a list of all your monetary donations and blood donations. Thank you for your generosity!
+            Here is a list of all your monetary donations. Thank you for your generosity!
           </CardDescription>
         </CardHeader>
       </Card>

@@ -30,7 +30,7 @@
         "referredBy": { "type": "string", "description": "The UID of the user who referred this user." },
         "lastGiftClaimedAt": { "type": "string", "format": "date-time", "description": "Timestamp of when the user last claimed a gift by resetting their points." },
         "pointsExpireAt": { "type": "string", "format": "date-time", "description": "Timestamp indicating when the user's points will expire (e.g., 1 year after earning)." },
-        "bloodGroup": { "type": "string", "description": "User's blood group.", "enum": ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"] },
+        "bloodGroup": { "type": "string", "description": "User's blood group.", "enum": ["Not Set", "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"] },
         "lastDonationDate": { "type": "string", "format": "date-time", "description": "The date of the user's last blood donation." },
         "totalDonations": { "type": "number", "description": "Total number of times the user has donated blood.", "default": 0 }
       },
