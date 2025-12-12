@@ -15,7 +15,7 @@ import { Label } from '@/components/ui/label';
 import { useUser } from '@/firebase/auth/use-user';
 import { Copy, Gift, Loader2, Droplets, User as UserIcon, MapPin, Calendar as CalendarIcon } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState, Suspense } from 'react';
+import { useEffect, useState, Suspense, useMemo } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDoc } from '@/firebase/firestore/use-doc';
 import { useToast } from '@/hooks/use-toast';
@@ -26,7 +26,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
-
+import geoData from '@/lib/bd-geo-data.json';
 
 interface UserAddress {
   streetAddress?: string;
@@ -76,6 +76,32 @@ function ProfilePageContent() {
   const [isSaving, setIsSaving] = useState(false);
   
   const isOwnProfile = !uidFromQuery || uidFromQuery === user?.uid;
+
+  const handleAddressChange = (field: keyof UserAddress, value: string) => {
+    setAddress(prev => {
+        const newAddress = { ...prev, [field]: value };
+        // Reset dependent fields when a higher-level field changes
+        if (field === 'division') {
+            newAddress.district = '';
+            newAddress.upazila = '';
+        } else if (field === 'district') {
+            newAddress.upazila = '';
+        }
+        return newAddress;
+    });
+  };
+
+  const districtsForSelectedDivision = useMemo(() => {
+    if (!address.division) return [];
+    const selectedDivision = geoData.divisions.find(d => d.name === address.division);
+    return selectedDivision?.districts || [];
+  }, [address.division]);
+
+  const upazilasForSelectedDistrict = useMemo(() => {
+    if (!address.district) return [];
+    const selectedDistrict = districtsForSelectedDivision.find(d => d.name === address.district);
+    return selectedDistrict?.upazilas || [];
+  }, [address.district, districtsForSelectedDivision]);
 
   useEffect(() => {
     if (!loading && !user && !uidFromQuery) {
@@ -258,27 +284,54 @@ function ProfilePageContent() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-            <div className="space-y-2">
-                <Label htmlFor="street-address">Street Address / Village</Label>
-                <Textarea id="street-address" value={address.streetAddress || ''} onChange={(e) => setAddress(prev => ({...prev, streetAddress: e.target.value}))} readOnly={!isOwnProfile} />
-            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                  <div className="space-y-2">
-                    <Label htmlFor="thana">Thana</Label>
-                    <Input id="thana" value={address.thana || ''} onChange={(e) => setAddress(prev => ({...prev, thana: e.target.value}))} readOnly={!isOwnProfile}/>
-                </div>
-                 <div className="space-y-2">
-                    <Label htmlFor="upazila">Upazila</Label>
-                    <Input id="upazila" value={address.upazila || ''} onChange={(e) => setAddress(prev => ({...prev, upazila: e.target.value}))} readOnly={!isOwnProfile}/>
+                    <Label htmlFor="division">Division</Label>
+                     <Select value={address.division} onValueChange={(value) => handleAddressChange('division', value)} disabled={!isOwnProfile}>
+                        <SelectTrigger id="division">
+                            <SelectValue placeholder="Select Division" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {geoData.divisions.map(division => (
+                                <SelectItem key={division.id} value={division.name}>{division.name}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </div>
                  <div className="space-y-2">
                     <Label htmlFor="district">District</Label>
-                    <Input id="district" value={address.district || ''} onChange={(e) => setAddress(prev => ({...prev, district: e.target.value}))} readOnly={!isOwnProfile}/>
+                     <Select value={address.district} onValueChange={(value) => handleAddressChange('district', value)} disabled={!isOwnProfile || !address.division}>
+                        <SelectTrigger id="district">
+                            <SelectValue placeholder="Select District" />
+                        </SelectTrigger>
+                        <SelectContent>
+                             {districtsForSelectedDivision.map(district => (
+                                <SelectItem key={district.id} value={district.name}>{district.name}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </div>
                  <div className="space-y-2">
-                    <Label htmlFor="division">Division</Label>
-                    <Input id="division" value={address.division || ''} onChange={(e) => setAddress(prev => ({...prev, division: e.target.value}))} readOnly={!isOwnProfile}/>
+                    <Label htmlFor="upazila">Upazila</Label>
+                     <Select value={address.upazila} onValueChange={(value) => handleAddressChange('upazila', value)} disabled={!isOwnProfile || !address.district}>
+                        <SelectTrigger id="upazila">
+                            <SelectValue placeholder="Select Upazila" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {upazilasForSelectedDistrict.map(upazila => (
+                                <SelectItem key={upazila.id} value={upazila.name}>{upazila.name}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
                 </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="thana">Thana</Label>
+                    <Input id="thana" value={address.thana || ''} onChange={(e) => handleAddressChange('thana', e.target.value)} readOnly={!isOwnProfile}/>
+                </div>
+            </div>
+             <div className="space-y-2">
+                <Label htmlFor="street-address">Street Address / Village</Label>
+                <Textarea id="street-address" value={address.streetAddress || ''} onChange={(e) => handleAddressChange('streetAddress', e.target.value)} readOnly={!isOwnProfile} />
             </div>
         </CardContent>
       </Card>
@@ -376,5 +429,3 @@ export default function ProfilePage() {
         </Suspense>
     )
 }
-
-    
