@@ -11,6 +11,7 @@ import {
   increment,
   setDoc,
   getDoc,
+  arrayUnion,
 } from 'firebase/firestore';
 import { initializeFirebase } from '@/firebase';
 import type { User } from 'firebase/auth';
@@ -65,7 +66,7 @@ export const updateBloodRequest = async (
     try {
         const requestDocRef = doc(firestore, 'bloodRequests', requestId);
         
-        const updateData: Partial<BloodRequestData> = { ...data };
+        const updateData: Partial<BloodRequestData & { updatedAt: any }> = { ...data };
 
         // Firestore does not accept `undefined`. Convert to `null`.
         if (updateData.prescriptionUrl === undefined) {
@@ -74,11 +75,10 @@ export const updateBloodRequest = async (
         if (updateData.notes === undefined) {
             updateData.notes = null;
         }
+        
+        updateData.updatedAt = serverTimestamp();
 
-        await updateDoc(requestDocRef, {
-            ...updateData,
-            updatedAt: serverTimestamp(),
-        });
+        await updateDoc(requestDocRef, updateData as any);
     } catch(error) {
         console.error('Error updating blood request: ', error);
         throw new Error('Could not update blood request.');
@@ -86,17 +86,32 @@ export const updateBloodRequest = async (
 }
 
 export const respondToRequest = async (requestId: string, user: User) => {
+    const responseDocRef = doc(firestore, `bloodRequests/${requestId}/responses/${user.uid}`);
+    const userRef = doc(firestore, 'users', user.uid);
     try {
-        const responseDocRef = doc(firestore, `bloodRequests/${requestId}/responses/${user.uid}`);
-        await setDoc(responseDocRef, {
-            userId: user.uid,
-            userName: user.displayName,
-            userPhotoURL: user.photoURL,
-            respondedAt: serverTimestamp(),
+        await runTransaction(firestore, async (transaction) => {
+            const responseDoc = await transaction.get(responseDocRef);
+            if (responseDoc.exists()) {
+                throw new Error("You have already responded to this request.");
+            }
+
+            // 1. Add the response document
+            transaction.set(responseDocRef, {
+                userId: user.uid,
+                userName: user.displayName,
+                userPhotoURL: user.photoURL,
+                respondedAt: serverTimestamp(),
+            });
+
+            // 2. Award 2 points to the user for responding
+            transaction.update(userRef, {
+                points: increment(2),
+                requestResponses: arrayUnion(requestId)
+            });
         });
     } catch(error) {
         console.error('Error responding to request: ', error);
-        throw new Error('Could not record your response.');
+        throw error;
     }
 }
 
@@ -107,7 +122,6 @@ export const markRequestAsFulfilled = async (
 ) => {
   const requestRef = doc(firestore, 'bloodRequests', requestId);
   const donorRef = doc(firestore, 'users', donorId);
-  const bloodDonationRef = doc(collection(firestore, 'bloodDonations'));
 
   try {
     await runTransaction(firestore, async (transaction) => {
@@ -117,17 +131,23 @@ export const markRequestAsFulfilled = async (
       }
       
       const requesterId = requestDoc.data().requesterId;
+      const requesterRef = doc(firestore, 'users', requesterId);
+      const bloodDonationRef = doc(collection(firestore, 'bloodDonations'));
 
       const donorDoc = await transaction.get(donorRef);
       if (!donorDoc.exists()) {
-        // If donor doc doesn't exist, we can't award points, but we can still fulfill the request.
          console.warn(`Donor profile ${donorId} not found. Cannot award points.`);
       } else {
-        // Award points to the donor and update their donation stats
+        // Award 10 points to the donor and update their donation stats
         transaction.update(donorRef, {
-          points: increment(10),
+          points: increment(10), // +10 points for successful donation
           totalDonations: increment(1),
           lastDonationDate: serverTimestamp(),
+          donationHistory: arrayUnion({
+              date: serverTimestamp(),
+              location: requestDoc.data().hospitalName,
+              requestId: requestId,
+          })
         });
       }
 
@@ -138,7 +158,12 @@ export const markRequestAsFulfilled = async (
         donorName: donorName,
       });
       
-      // 2. Create a permanent record of the blood donation
+      // 2. Award "Gratitude Badge" to the request creator
+      transaction.update(requesterRef, {
+          badges: arrayUnion('Gratitude Badge')
+      });
+      
+      // 3. Create a permanent record of the blood donation
       transaction.set(bloodDonationRef, {
           donorId: donorId,
           recipientId: requesterId,
@@ -182,5 +207,3 @@ export const toggleBloodRequestVerification = async (requestId: string) => {
         throw new Error('Could not update verification status.');
     }
 }
-
-    

@@ -13,7 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useUser } from '@/firebase/auth/use-user';
-import { Copy, Gift, Loader2, Droplets, User as UserIcon, MapPin, Calendar as CalendarIcon, HeartPulse, AlertCircle, CheckCircle } from 'lucide-react';
+import { Copy, Gift, Loader2, Droplets, User as UserIcon, MapPin, Calendar as CalendarIcon, HeartPulse, AlertCircle, CheckCircle, Award } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState, Suspense, useMemo } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -29,6 +29,8 @@ import { Badge } from '@/components/ui/badge';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
+import { Separator } from '@/components/ui/separator';
+
 
 interface UserAddress {
   streetAddress?: string;
@@ -61,6 +63,7 @@ interface UserProfile {
   height?: UserHeight;
   isEligible?: boolean;
   medicalConditions?: string;
+  badges?: string[];
 }
 
 function ProfilePageContent() {
@@ -269,6 +272,24 @@ function ProfilePageContent() {
           {isOwnProfile ? "Manage your account settings and profile information." : "Viewing public profile information."}
         </p>
       </div>
+
+       {userProfile?.badges && userProfile.badges.length > 0 && (
+          <Card>
+              <CardHeader>
+                  <CardTitle className="font-headline flex items-center gap-2">
+                      <Award className='h-6 w-6' />
+                      My Badges
+                  </CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-wrap gap-2">
+                  {userProfile.badges.map(badge => (
+                      <Badge key={badge} variant="secondary" className="text-base py-1 px-3">
+                          {badge}
+                      </Badge>
+                  ))}
+              </CardContent>
+          </Card>
+      )}
       
       {isOwnProfile && (
            <Card>

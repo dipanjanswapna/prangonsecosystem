@@ -35,7 +35,7 @@
         },
         "isEligible": { "type": "boolean", "description": "Indicates if the user is currently eligible to donate blood.", "default": true },
         "medicalConditions": { "type": "string", "description": "A brief note about any medical conditions like diabetes, hepatitis, etc." },
-        "donationHistory": { "type": "array", "description": "An array of objects recording past donations.", "items": { "type": "object", "properties": { "date": {"type": "string", "format": "date-time"}, "location": {"type": "string"} } } },
+        "donationHistory": { "type": "array", "description": "An array of objects recording past donations.", "items": { "type": "object", "properties": { "date": {"type": "string", "format": "date-time"}, "location": {"type": "string"}, "requestId": {"type": "string"} } } },
         "requestResponses": { "type": "array", "description": "An array of request IDs the user has responded to.", "items": { "type": "string" } },
         "role": { "type": "string", "description": "The user's role in the system.", "enum": ["admin", "moderator", "manager", "collaborator", "user", "volunteer"] },
         "status": { "type": "string", "description": "The approval status of the user's account.", "enum": ["pending", "approved", "rejected"] },
@@ -278,5 +278,3 @@
     }
   }
 }
-
-    
