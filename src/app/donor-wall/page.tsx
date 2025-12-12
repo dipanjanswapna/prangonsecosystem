@@ -1,3 +1,4 @@
+
 'use client';
 import {
   Card,
@@ -17,6 +18,7 @@ interface Donation {
   campaignTitle: string;
   amount: number;
   createdAt: Timestamp;
+  isAnonymous: boolean;
 }
 
 function DonationCardSkeleton() {
@@ -42,12 +44,13 @@ export default function DonorWallPage() {
     undefined,
     undefined,
     { field: 'createdAt', direction: 'desc' },
-    20, // Fetch the 20 most recent donations
+    50, // Fetch more to filter on client
     [
-        ['status', '==', 'success'],
-        ['isAnonymous', '==', false]
+        ['status', '==', 'success']
     ]
   );
+  
+  const publicDonations = donations.filter(d => !d.isAnonymous).slice(0, 20);
   
   return (
     <div className="max-w-6xl mx-auto space-y-8">
@@ -65,7 +68,7 @@ export default function DonorWallPage() {
         {loading ? (
              Array.from({ length: 12 }).map((_, i) => <DonationCardSkeleton key={i} />)
         ) : (
-            donations.map(donation => (
+            publicDonations.map(donation => (
                 <Card key={donation.id} className="flex flex-col transform transition-all duration-300 hover:scale-105 hover:shadow-xl">
                     <CardHeader className="pb-2">
                         <div className="flex items-center gap-2">
@@ -85,7 +88,7 @@ export default function DonorWallPage() {
             ))
         )}
       </div>
-       {!loading && donations.length === 0 && (
+       {!loading && publicDonations.length === 0 && (
          <Card>
             <CardContent className="pt-6 text-center text-muted-foreground">
                 <p>No public donations have been made recently. Be the first to appear on our Wall of Generosity!</p>
