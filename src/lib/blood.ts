@@ -56,6 +56,22 @@ export const createBloodRequest = async (
   }
 };
 
+export const updateBloodRequest = async (
+  requestId: string,
+  data: Partial<BloodRequestData>
+) => {
+    try {
+        const requestDocRef = doc(firestore, 'bloodRequests', requestId);
+        await updateDoc(requestDocRef, {
+            ...data,
+            updatedAt: serverTimestamp(),
+        });
+    } catch(error) {
+        console.error('Error updating blood request: ', error);
+        throw new Error('Could not update blood request.');
+    }
+}
+
 export const respondToRequest = async (requestId: string, user: User) => {
     try {
         const responseDocRef = doc(firestore, `bloodRequests/${requestId}/responses/${user.uid}`);

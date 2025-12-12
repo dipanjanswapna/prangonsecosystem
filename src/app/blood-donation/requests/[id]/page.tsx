@@ -28,7 +28,8 @@ import {
   UserRound,
   Clock,
   Briefcase,
-  FileText
+  FileText,
+  Edit,
 } from 'lucide-react';
 import { notFound, useParams, useRouter } from 'next/navigation';
 import { useEffect, useState, useMemo } from 'react';
@@ -239,7 +240,7 @@ export default function RequestDetailsPage() {
   }
 
   const isRequester = user?.uid === request.requesterId;
-  const isFulfilled = request.status === 'fulfilled';
+  const isPending = request.status === 'pending';
   const hasUserResponded = responses.some(res => res.userId === user?.uid);
 
   return (
@@ -247,7 +248,7 @@ export default function RequestDetailsPage() {
       <div className="md:col-span-2">
         <Card>
           <CardHeader>
-            <div className="flex items-center justify-between">
+             <div className="flex items-start justify-between">
               <div
                 className={cn(
                   'flex items-center justify-center h-20 w-20 rounded-full font-bold text-3xl border-4',
@@ -257,21 +258,20 @@ export default function RequestDetailsPage() {
                 {request.bloodGroup}
               </div>
               <div className="flex flex-col items-end gap-2">
-                {isFulfilled ? (
-                    <div className="flex items-center gap-2 text-green-600 dark:text-green-400 font-semibold py-1 px-3 rounded-full bg-green-100 dark:bg-green-900/30">
-                    <BadgeCheck className="h-5 w-5" />
-                    <span>Fulfilled</span>
-                    </div>
-                ) : (
-                    <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-semibold py-1 px-3 rounded-full bg-amber-100 dark:bg-amber-900/30">
-                    <AlertTriangle className="h-5 w-5" />
-                    <span>Pending</span>
-                    </div>
-                )}
+                 <Badge variant={request.status === 'fulfilled' ? 'secondary' : request.status === 'pending' ? 'default' : 'destructive'} className='capitalize'>
+                    {request.status}
+                 </Badge>
                 {request.urgencyLevel && (
                     <Badge className={cn('capitalize', urgencyStyles[request.urgencyLevel])}>
                         {request.urgencyLevel}
                     </Badge>
+                )}
+                {isRequester && isPending && (
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href={`/blood-donation/requests/${request.id}/edit`}>
+                      <Edit className="mr-2 h-4 w-4" /> Edit
+                    </Link>
+                  </Button>
                 )}
               </div>
             </div>
@@ -379,13 +379,13 @@ export default function RequestDetailsPage() {
             </div>
           </CardContent>
           <CardFooter>
-            {!isRequester && !isFulfilled && (
+            {!isRequester && isPending && (
               <Button size="lg" className="w-full" onClick={handleRespondToRequest} disabled={hasUserResponded}>
                 <HeartHandshake className="mr-2 h-5 w-5" />
                 {hasUserResponded ? 'Response Sent' : 'I Will Donate'}
               </Button>
             )}
-            {isRequester && !isFulfilled && (
+            {isRequester && isPending && (
               <Dialog>
                 <DialogTrigger asChild>
                   <Button
@@ -412,7 +412,7 @@ export default function RequestDetailsPage() {
                 </DialogContent>
               </Dialog>
             )}
-            {isFulfilled && request.donorName && (
+            {!isPending && request.donorName && (
               <div className="w-full text-center text-green-600 dark:text-green-400">
                 This request was fulfilled by the hero:{' '}
                 <strong>{request.donorName}</strong>.
