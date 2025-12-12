@@ -90,19 +90,19 @@ function CTASection() {
 }
 
 function EmergencyBanner() {
-    const { data: campaigns, loading } = useCollection<Campaign>(
-    'campaigns',
+    const { data: criticalRequests, loading } = useCollection<Campaign>(
+    'bloodRequests',
     undefined,
     undefined,
     undefined,
     1,
     [
-      ['category', '==', 'Emergency'],
-      ['status', '==', 'active'],
+      ['urgencyLevel', '==', 'Critical'],
+      ['status', '==', 'pending'],
     ]
   );
 
-  const emergencyCampaign = campaigns?.[0];
+  const emergencyRequest = criticalRequests?.[0];
 
     if (loading) {
         return (
@@ -110,7 +110,7 @@ function EmergencyBanner() {
         )
     }
 
-    if (!emergencyCampaign) {
+    if (!emergencyRequest) {
         return null;
     }
 
@@ -125,12 +125,12 @@ function EmergencyBanner() {
                         <AlertTriangle className="h-6 w-6" />
                     </div>
                     <div>
-                        <h3 className="font-bold text-xl font-headline">URGENT: {emergencyCampaign.title}</h3>
-                        <p className="text-white/90 max-w-2xl">{emergencyCampaign.description}</p>
+                        <h3 className="font-bold text-xl font-headline">URGENT: {emergencyRequest.title}</h3>
+                        <p className="text-white/90 max-w-2xl">{emergencyRequest.description}</p>
                     </div>
                 </div>
                 <Button asChild variant="secondary" size="lg" className="shrink-0">
-                    <Link href={`/donations/${emergencyCampaign.slug}/donate`}>
+                    <Link href={`/blood-donation/requests/${emergencyRequest.id}`}>
                         Donate Now <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                 </Button>
@@ -215,5 +215,3 @@ export default function HomePage() {
     </div>
   );
 }
-
-    
