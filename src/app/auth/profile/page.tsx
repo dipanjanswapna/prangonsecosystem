@@ -13,7 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useUser } from '@/firebase/auth/use-user';
-import { Copy, Gift, Loader2, Droplets, User as UserIcon, MapPin, Calendar as CalendarIcon } from 'lucide-react';
+import { Copy, Gift, Loader2, Droplets, User as UserIcon, MapPin, Calendar as CalendarIcon, HeartPulse } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState, Suspense, useMemo } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -27,6 +27,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import geoData from '@/lib/bd-geo-data.json';
+import { Switch } from '@/components/ui/switch';
 
 interface UserAddress {
   streetAddress?: string;
@@ -34,6 +35,11 @@ interface UserAddress {
   upazila?: string;
   district?: string;
   division?: string;
+}
+
+interface UserHeight {
+    feet?: number;
+    inches?: number;
 }
 
 interface UserProfile {
@@ -50,6 +56,10 @@ interface UserProfile {
   gender?: 'Male' | 'Female' | 'Other';
   address?: UserAddress;
   profession?: string;
+  weight?: number;
+  height?: UserHeight;
+  isEligible?: boolean;
+  medicalConditions?: string;
 }
 
 function ProfilePageContent() {
@@ -72,6 +82,10 @@ function ProfilePageContent() {
   const [gender, setGender] = useState('');
   const [profession, setProfession] = useState('');
   const [address, setAddress] = useState<UserAddress>({});
+  const [weight, setWeight] = useState<number | string>('');
+  const [height, setHeight] = useState<UserHeight>({});
+  const [isEligible, setIsEligible] = useState(true);
+  const [medicalConditions, setMedicalConditions] = useState('');
   
   const [isSaving, setIsSaving] = useState(false);
   
@@ -115,6 +129,10 @@ function ProfilePageContent() {
         setGender(userProfile.gender || '');
         setProfession(userProfile.profession || '');
         setAddress(userProfile.address || {});
+        setWeight(userProfile.weight || '');
+        setHeight(userProfile.height || {});
+        setIsEligible(userProfile.isEligible === false ? false : true);
+        setMedicalConditions(userProfile.medicalConditions || '');
     }
   }, [user, loading, router, userProfile, uidFromQuery]);
 
@@ -139,7 +157,11 @@ function ProfilePageContent() {
             dateOfBirth: dateOfBirth ? dateOfBirth.toISOString() : undefined,
             gender: gender as UserProfile['gender'],
             address,
-            profession
+            profession,
+            weight: Number(weight) || undefined,
+            height,
+            isEligible,
+            medicalConditions,
         };
         
         await updateUserProfile(user.uid, dataToUpdate);
@@ -332,6 +354,41 @@ function ProfilePageContent() {
              <div className="space-y-2">
                 <Label htmlFor="street-address">Street Address / Village</Label>
                 <Textarea id="street-address" value={address.streetAddress || ''} onChange={(e) => handleAddressChange('streetAddress', e.target.value)} readOnly={!isOwnProfile} />
+            </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+            <CardTitle className="font-headline flex items-center gap-2">
+                <HeartPulse className="h-6 w-6" />
+                Health & Eligibility
+            </CardTitle>
+            <CardDescription>
+              {isOwnProfile ? "Provide your health information to help determine your donation eligibility." : "Health & eligibility information."}
+            </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                    <Label htmlFor="weight">Weight (KG)</Label>
+                    <Input id="weight" type="number" value={weight} onChange={(e) => setWeight(e.target.value)} readOnly={!isOwnProfile} placeholder="e.g., 70" />
+                </div>
+                <div className="space-y-2">
+                    <Label>Height</Label>
+                    <div className="flex gap-2">
+                        <Input type="number" value={height.feet || ''} onChange={(e) => setHeight(p => ({...p, feet: Number(e.target.value)}))} readOnly={!isOwnProfile} placeholder="Feet" />
+                        <Input type="number" value={height.inches || ''} onChange={(e) => setHeight(p => ({...p, inches: Number(e.target.value)}))} readOnly={!isOwnProfile} placeholder="Inches" />
+                    </div>
+                </div>
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="medical-conditions">Medical Conditions</Label>
+                <Textarea id="medical-conditions" value={medicalConditions} onChange={(e) => setMedicalConditions(e.target.value)} readOnly={!isOwnProfile} placeholder="e.g., Diabetes, High Blood Pressure. Leave blank if none." />
+            </div>
+            <div className="flex items-center space-x-2">
+                <Switch id="eligibility-status" checked={isEligible} onCheckedChange={setIsEligible} disabled={!isOwnProfile} />
+                <Label htmlFor="eligibility-status">Are you currently eligible to donate blood?</Label>
             </div>
         </CardContent>
       </Card>

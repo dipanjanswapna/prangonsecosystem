@@ -213,7 +213,7 @@ export const updateUserProfile = async (uid: string, data: any) => {
     const isPrivilegedRole = ![ROLES.USER, ROLES.ADMIN].includes(role);
 
     // Only set profile status to pending_review if it's not a simple user data update
-    const simpleUpdateKeys = ['name', 'phone', 'bloodGroup', 'address', 'dateOfBirth', 'gender', 'profession'];
+    const simpleUpdateKeys = ['name', 'phone', 'bloodGroup', 'address', 'dateOfBirth', 'gender', 'profession', 'weight', 'height', 'isEligible', 'medicalConditions'];
     const isComplexUpdate = Object.keys(data).some(key => !simpleUpdateKeys.includes(key));
 
     if (isPrivilegedRole && isComplexUpdate) {
