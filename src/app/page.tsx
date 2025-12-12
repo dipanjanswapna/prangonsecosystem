@@ -9,13 +9,12 @@ import { HeroCarousel } from '@/components/hero-carousel';
 import { useCollection } from '@/firebase/firestore/use-collection';
 import { Skeleton } from '@/components/ui/skeleton';
 
-interface Campaign {
+interface BloodRequest {
   id: string;
-  slug: string;
-  title: string;
-  description: string;
-  category: 'Seasonal' | 'Emergency' | 'Regular';
-  status: 'active' | 'completed';
+  patientName: string;
+  bloodGroup: string;
+  urgencyLevel: 'Normal' | 'Urgent' | 'Critical';
+  status: 'pending' | 'fulfilled' | 'closed';
 }
 
 function WavyBackground() {
@@ -90,7 +89,7 @@ function CTASection() {
 }
 
 function EmergencyBanner() {
-    const { data: criticalRequests, loading } = useCollection<Campaign>(
+    const { data: criticalRequests, loading } = useCollection<BloodRequest>(
     'bloodRequests',
     undefined,
     undefined,
@@ -125,13 +124,13 @@ function EmergencyBanner() {
                         <AlertTriangle className="h-6 w-6" />
                     </div>
                     <div>
-                        <h3 className="font-bold text-xl font-headline">URGENT: {emergencyRequest.title}</h3>
-                        <p className="text-white/90 max-w-2xl">{emergencyRequest.description}</p>
+                        <h3 className="font-bold text-xl font-headline">CRITICAL BLOOD REQUEST: {emergencyRequest.bloodGroup} Needed</h3>
+                        <p className="text-white/90 max-w-2xl">A patient named {emergencyRequest.patientName} urgently needs your help. Please respond immediately.</p>
                     </div>
                 </div>
                 <Button asChild variant="secondary" size="lg" className="shrink-0">
                     <Link href={`/blood-donation/requests/${emergencyRequest.id}`}>
-                        Donate Now <ArrowRight className="ml-2 h-4 w-4" />
+                        View Details & Respond
                     </Link>
                 </Button>
             </div>
