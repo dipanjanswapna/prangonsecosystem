@@ -19,14 +19,22 @@ const firestore = getFirestore(firebaseApp);
 
 interface BloodRequestData {
   patientName: string;
-  bloodGroup: string;
+  patientAge: number;
+  patientGender: 'Male' | 'Female' | 'Other';
+  bloodGroup: 'A+' | 'A-' | 'B+' | 'B-' | 'AB+' | 'AB-' | 'O+' | 'O-';
+  donationType: 'Whole Blood' | 'Platelets' | 'Plasma';
   quantity: number;
   hospitalName: string;
   location: string;
   contactPerson: string;
   contactPhone: string;
+  alternateContact?: string;
   reason: string;
   neededBy: Date;
+  urgencyLevel: 'Normal' | 'Urgent' | 'Critical';
+  preferredTime: 'Morning' | 'Afternoon' | 'Evening' | 'Night' | 'Anytime';
+  prescriptionUrl?: string;
+  notes?: string;
 }
 
 export const createBloodRequest = async (

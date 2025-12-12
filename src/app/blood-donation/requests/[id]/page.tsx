@@ -26,6 +26,9 @@ import {
   MessageSquare,
   PhoneCall,
   UserRound,
+  Clock,
+  Briefcase,
+  FileText
 } from 'lucide-react';
 import { notFound, useParams, useRouter } from 'next/navigation';
 import { useEffect, useState, useMemo } from 'react';
@@ -48,11 +51,16 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import Link from 'next/link';
+import { Badge } from '@/components/ui/badge';
+
 
 interface BloodRequest {
   id: string;
   patientName: string;
+  patientAge?: number;
+  patientGender?: 'Male' | 'Female' | 'Other';
   bloodGroup: string;
+  donationType: 'Whole Blood' | 'Platelets' | 'Plasma';
   reason: string;
   quantity: number;
   hospitalName: string;
@@ -65,6 +73,9 @@ interface BloodRequest {
   requesterId: string;
   donorId?: string;
   donorName?: string;
+  urgencyLevel?: 'Normal' | 'Urgent' | 'Critical';
+  preferredTime?: string;
+  notes?: string;
 }
 
 interface UserProfile {
@@ -95,6 +106,12 @@ const bloodGroupStyles: { [key: string]: string } = {
   'O+': 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/50 dark:text-green-300 dark:border-green-700',
   'O-': 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/50 dark:text-green-300 dark:border-green-700',
 };
+
+const urgencyStyles: { [key: string]: string } = {
+    'Normal': 'bg-blue-100 text-blue-800',
+    'Urgent': 'bg-amber-100 text-amber-800',
+    'Critical': 'bg-red-100 text-red-800',
+}
 
 const RequestDetailsSkeleton = () => (
   <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -239,29 +256,43 @@ export default function RequestDetailsPage() {
               >
                 {request.bloodGroup}
               </div>
-              {isFulfilled ? (
-                <div className="flex items-center gap-2 text-green-600 dark:text-green-400 font-semibold py-1 px-3 rounded-full bg-green-100 dark:bg-green-900/30">
-                  <BadgeCheck className="h-5 w-5" />
-                  <span>Fulfilled</span>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-semibold py-1 px-3 rounded-full bg-amber-100 dark:bg-amber-900/30">
-                  <AlertTriangle className="h-5 w-5" />
-                  <span>Pending</span>
-                </div>
-              )}
+              <div className="flex flex-col items-end gap-2">
+                {isFulfilled ? (
+                    <div className="flex items-center gap-2 text-green-600 dark:text-green-400 font-semibold py-1 px-3 rounded-full bg-green-100 dark:bg-green-900/30">
+                    <BadgeCheck className="h-5 w-5" />
+                    <span>Fulfilled</span>
+                    </div>
+                ) : (
+                    <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 font-semibold py-1 px-3 rounded-full bg-amber-100 dark:bg-amber-900/30">
+                    <AlertTriangle className="h-5 w-5" />
+                    <span>Pending</span>
+                    </div>
+                )}
+                {request.urgencyLevel && (
+                    <Badge className={cn('capitalize', urgencyStyles[request.urgencyLevel])}>
+                        {request.urgencyLevel}
+                    </Badge>
+                )}
+              </div>
             </div>
             <CardTitle className="pt-4 font-headline text-3xl">
               Urgent need for {request.quantity} bag(s) of{' '}
-              {request.bloodGroup} blood
+              {request.donationType || 'blood'}
             </CardTitle>
             <CardDescription>
-              For patient: {request.patientName}
+              For patient: {request.patientName} ({request.patientAge}, {request.patientGender})
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="prose prose-sm dark:prose-invert max-w-full">
+              <h4 className='font-semibold'>Reason:</h4>
               <p>{request.reason}</p>
+              {request.notes && (
+                  <>
+                    <h4 className='font-semibold mt-4'>Additional Notes:</h4>
+                    <p>{request.notes}</p>
+                  </>
+              )}
             </div>
             <Separator />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
@@ -282,6 +313,24 @@ export default function RequestDetailsPage() {
                     {new Date(
                       request.neededBy.seconds * 1000
                     ).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
+               <div className="flex items-start gap-3">
+                <Clock className="h-5 w-5 mt-0.5 text-muted-foreground" />
+                <div>
+                  <p className="font-semibold">Preferred Time</p>
+                  <p className="text-muted-foreground">
+                    {request.preferredTime || 'Not specified'}
+                  </p>
+                </div>
+              </div>
+               <div className="flex items-start gap-3">
+                <Briefcase className="h-5 w-5 mt-0.5 text-muted-foreground" />
+                <div>
+                  <p className="font-semibold">Donation Type</p>
+                  <p className="text-muted-foreground">
+                    {request.donationType}
                   </p>
                 </div>
               </div>
