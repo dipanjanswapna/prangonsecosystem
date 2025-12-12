@@ -75,7 +75,7 @@ function ProfilePageContent() {
   
   const [isSaving, setIsSaving] = useState(false);
   
-  const isOwnProfile = !uidFromQuery || uidFromQuery === user?.uid;
+  const isOwnProfile = useMemo(() => !uidFromQuery || uidFromQuery === user?.uid, [uidFromQuery, user]);
 
   const handleAddressChange = (field: keyof UserAddress, value: string) => {
     setAddress(prev => {
