@@ -91,9 +91,11 @@ export const signIn = async (email:string, password:string, rememberMe:boolean):
   const user = userCredential.user;
 
   // Update the last login timestamp
-  await updateDoc(
+  // Use setDoc with merge to avoid "No document to update" error if doc doesn't exist yet
+  await setDoc(
     doc(firestore, 'users', user.uid),
-    { lastLogin: serverTimestamp() }
+    { lastLogin: serverTimestamp() },
+    { merge: true }
   );
   
   await createSession(user, rememberMe);
