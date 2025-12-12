@@ -13,7 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useUser } from '@/firebase/auth/use-user';
-import { Copy, Gift, Loader2, Droplets, User as UserIcon, MapPin, Calendar as CalendarIcon, HeartPulse } from 'lucide-react';
+import { Copy, Gift, Loader2, Droplets, User as UserIcon, MapPin, Calendar as CalendarIcon, HeartPulse, AlertCircle, CheckCircle } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState, Suspense, useMemo } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -21,13 +21,14 @@ import { useDoc } from '@/firebase/firestore/use-doc';
 import { useToast } from '@/hooks/use-toast';
 import { updateUserProfile } from '@/lib/auth';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, differenceInDays, differenceInYears, addDays } from 'date-fns';
 import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import geoData from '@/lib/bd-geo-data.json';
 import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
 
 interface UserAddress {
   streetAddress?: string;
@@ -90,6 +91,53 @@ function ProfilePageContent() {
   const [isSaving, setIsSaving] = useState(false);
   
   const isOwnProfile = useMemo(() => !uidFromQuery || uidFromQuery === user?.uid, [uidFromQuery, user]);
+
+  const eligibilityDetails = useMemo(() => {
+    const reasons: string[] = [];
+    let isCurrentlyEligible = true;
+    let nextEligibleDate: Date | null = null;
+    
+    if (dateOfBirth) {
+        const age = differenceInYears(new Date(), dateOfBirth);
+        if (age < 18) {
+            reasons.push('You must be at least 18 years old.');
+            isCurrentlyEligible = false;
+        }
+        if (age > 60) {
+            reasons.push('You must be 60 years old or younger.');
+            isCurrentlyEligible = false;
+        }
+    } else {
+        reasons.push('Your date of birth is required to verify age.');
+        isCurrentlyEligible = false;
+    }
+
+    if (Number(weight) < 50) {
+        reasons.push('A minimum weight of 50kg is required.');
+        isCurrentlyEligible = false;
+    }
+
+    if (userProfile?.lastDonationDate) {
+        const lastDonation = new Date(userProfile.lastDonationDate.seconds * 1000);
+        const daysSinceLastDonation = differenceInDays(new Date(), lastDonation);
+        
+        // Assuming 90 days for all genders for simplicity
+        const requiredGap = 90;
+
+        if (daysSinceLastDonation < requiredGap) {
+            const daysRemaining = requiredGap - daysSinceLastDonation;
+            nextEligibleDate = addDays(lastDonation, requiredGap);
+            reasons.push(`A minimum of ${requiredGap} days is required between donations. Please wait ${daysRemaining} more day(s).`);
+            isCurrentlyEligible = false;
+        }
+    }
+
+    return {
+        isEligible: isCurrentlyEligible,
+        reasons,
+        nextEligibleDate
+    };
+  }, [dateOfBirth, weight, userProfile?.lastDonationDate]);
 
   const handleAddressChange = (field: keyof UserAddress, value: string) => {
     setAddress(prev => {
@@ -216,6 +264,46 @@ function ProfilePageContent() {
           {isOwnProfile ? "Manage your account settings and profile information." : "Viewing public profile information."}
         </p>
       </div>
+      
+      {isOwnProfile && (
+           <Card>
+                <CardHeader>
+                    <CardTitle className="font-headline flex items-center gap-2">
+                        My Eligibility Status
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                     {eligibilityDetails.isEligible ? (
+                        <Badge className='text-base sm:text-lg gap-2 px-4 py-2 bg-green-100 text-green-800 hover:bg-green-100/90 dark:bg-green-900/30 dark:text-green-200'>
+                            <CheckCircle className='h-5 w-5' />
+                            Currently Eligible to Donate
+                        </Badge>
+                     ) : (
+                        <Badge variant="destructive" className='text-base sm:text-lg gap-2 px-4 py-2'>
+                           <AlertCircle className='h-5 w-5' />
+                            Not Eligible to Donate
+                        </Badge>
+                     )}
+                     {eligibilityDetails.nextEligibleDate && (
+                         <div className='text-sm text-muted-foreground'>
+                            Next eligible on: <span className='font-semibold text-foreground'>{format(eligibilityDetails.nextEligibleDate, 'PPP')}</span>
+                         </div>
+                     )}
+                   </div>
+                   {!eligibilityDetails.isEligible && eligibilityDetails.reasons.length > 0 && (
+                        <div className="p-4 border-l-4 border-destructive bg-destructive/10 rounded-r-lg">
+                            <h4 className="font-semibold mb-2">Reasons for Ineligibility:</h4>
+                            <ul className="list-disc pl-5 space-y-1 text-sm">
+                                {eligibilityDetails.reasons.map((reason, index) => (
+                                    <li key={index}>{reason}</li>
+                                ))}
+                            </ul>
+                        </div>
+                   )}
+                </CardContent>
+            </Card>
+      )}
 
       <Card>
         <CardHeader>
@@ -268,7 +356,7 @@ function ProfilePageContent() {
                         mode="single"
                         selected={dateOfBirth}
                         onSelect={setDateOfBirth}
-                        disabled={!isOwnProfile}
+                        disabled={!isOwnProfile || ((date) => date > new Date() || date < new Date("1900-01-01"))}
                         initialFocus
                         />
                     </PopoverContent>
