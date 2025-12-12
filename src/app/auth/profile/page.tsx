@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -354,14 +353,14 @@ function ProfilePageContent() {
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0">
                        <DayPicker
+                        captionLayout="dropdown-nav"
+                        fromYear={new Date().getFullYear() - 80}
+                        toYear={new Date().getFullYear()}
                         mode="single"
                         selected={dateOfBirth}
                         onSelect={setDateOfBirth}
                         disabled={!isOwnProfile}
                         initialFocus
-                        captionLayout="dropdown-nav"
-                        fromYear={new Date().getFullYear() - 80}
-                        toYear={new Date().getFullYear() - 18}
                       />
                     </PopoverContent>
                 </Popover>
