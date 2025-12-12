@@ -185,7 +185,7 @@ export default function RequestDetailsPage() {
         title: 'Request Fulfilled!',
         description: 'Thank you for updating. The donor has been awarded points.',
       });
-      router.push('/blood-donation');
+      // No need to redirect, the page will update automatically due to real-time listener
     } catch (error: any) {
       toast({
         variant: 'destructive',

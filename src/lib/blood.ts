@@ -70,6 +70,7 @@ export const markRequestAsFulfilled = async (
 ) => {
   const requestRef = doc(firestore, 'bloodRequests', requestId);
   const donorRef = doc(firestore, 'users', donorId);
+  const bloodDonationRef = doc(collection(firestore, 'bloodDonations'));
 
   try {
     await runTransaction(firestore, async (transaction) => {
@@ -77,24 +78,36 @@ export const markRequestAsFulfilled = async (
       if (!requestDoc.exists()) {
         throw 'Request does not exist!';
       }
+      
+      const requesterId = requestDoc.data().requesterId;
 
       const donorDoc = await transaction.get(donorRef);
       if (!donorDoc.exists()) {
         throw 'Donor user does not exist!';
       }
 
-      // Update the request status
+      // 1. Update the request status
       transaction.update(requestRef, {
         status: 'fulfilled',
         donorId: donorId,
         donorName: donorName,
       });
 
-      // Award points to the donor
+      // 2. Award points to the donor and update their donation stats
       transaction.update(donorRef, {
         points: increment(10),
         totalDonations: increment(1),
         lastDonationDate: serverTimestamp(),
+      });
+      
+      // 3. Create a permanent record of the blood donation
+      transaction.set(bloodDonationRef, {
+          donorId: donorId,
+          recipientId: requesterId,
+          bloodRequestId: requestId,
+          donationDate: serverTimestamp(),
+          notes: 'Fulfilled through platform.',
+          pointsAwarded: 10
       });
     });
   } catch (error) {
