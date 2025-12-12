@@ -65,15 +65,15 @@ export default function BloodDonationPage() {
     'bloodRequests',
     undefined,
     undefined,
-    { field: 'createdAt', direction: 'desc' },
+    undefined, // Remove ordering from query
     undefined,
     [['status', '==', 'pending']]
   );
 
   const requests = useMemo(() => {
     if (!data) return [];
-    // The data is already sorted by Firestore
-    return data;
+    // Sort data on the client-side
+    return [...data].sort((a, b) => b.createdAt.seconds - a.createdAt.seconds);
   }, [data]);
 
   return (
