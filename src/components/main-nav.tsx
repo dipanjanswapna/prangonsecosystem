@@ -7,6 +7,7 @@ import {
   HeartHandshake,
   BrainCircuit,
   Droplets,
+  Gift,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -32,13 +33,13 @@ const navItems = [
     children: [
       { href: '/blood-donation', label: 'Blood Donation', icon: Droplets },
       { href: '/leaderboard', label: 'Leaderboard', icon: Trophy },
+      { href: '/donor-wall', label: 'Donor Wall', icon: Gift },
       { href: '/ai-tools', label: 'AI Tools', icon: BrainCircuit },
       { href: '/projects', label: 'Projects' },
       { href: '/portfolio', label: 'Portfolio' },
       { href: '/services', label: 'Services' },
       { href: '/blog', label: 'Blog' },
       { href: '/library', label: 'eBook Library' },
-      { href: '/donor-wall', label: 'Donor Wall' },
       { href: '/contact', label: 'Contact Us' },
       { href: '/whats-new', label: "What's New" },
     ],
