@@ -7,7 +7,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { BrainCircuit, Loader2, Star, User, PhoneCall, UserRound } from 'lucide-react';
@@ -20,6 +19,7 @@ import Link from 'next/link';
 
 interface UserProfile {
   id: string;
+  uid: string;
   name: string;
   photoURL?: string;
   bloodGroup: string;
@@ -75,15 +75,16 @@ export function SmartMatch({
     undefined,
     undefined,
     undefined,
-    [
+    compatibleGroups.length > 0 ? [
         ['isEligible', '==', true],
         ['bloodGroup', 'in', compatibleGroups]
-    ]
+    ] : undefined
   );
   
   const [district] = location.split(',').map(s => s.trim()).reverse();
 
   const sortedUsers = useMemo(() => {
+    if (!users) return [];
     return [...users].sort((a, b) => {
         const aIsSameDistrict = a.address?.district === district;
         const bIsSameDistrict = b.address?.district === district;
@@ -139,7 +140,7 @@ export function SmartMatch({
                         </div>
                         <div className="flex gap-2">
                             <Button variant="outline" size="icon" asChild>
-                                <Link href={`/auth/profile?uid=${user.id}`} target="_blank">
+                                <Link href={`/auth/profile?uid=${user.uid}`} target="_blank">
                                     <UserRound className="h-4 w-4" />
                                     <span className="sr-only">View Profile</span>
                                 </Link>

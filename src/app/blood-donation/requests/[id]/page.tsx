@@ -193,14 +193,14 @@ export default function RequestDetailsPage() {
   const [combinedResponders, setCombinedResponders] = useState<CombinedResponder[]>([]);
 
   useEffect(() => {
-    if (responses.length > 0) {
+    if (responses.length > 0 && responderProfiles.length > 0) {
       const combined = responses.map(response => {
-        const profile = responderProfiles.find(p => p.id === response.userId);
+        const profile = responderProfiles.find(p => p.uid === response.userId);
         return { ...response, profile };
       });
       setCombinedResponders(combined);
     } else {
-        setCombinedResponders([]);
+        setCombinedResponders(responses.map(r => ({...r, profile: undefined})));
     }
   }, [responses, responderProfiles]);
 
@@ -229,6 +229,7 @@ export default function RequestDetailsPage() {
   const handleRespondToRequest = async () => {
       if (!user) {
           toast({ variant: 'destructive', title: 'Login Required', description: 'You must be logged in to respond.' });
+          router.push('/auth/login');
           return;
       }
        if (!request) return;
@@ -344,7 +345,7 @@ export default function RequestDetailsPage() {
                                 {request.contactPhone}
                                 </a>
                             ) : (
-                                <Button variant="outline" size="sm" onClick={() => { if (user) { setShowContact(true) } else { toast({ variant: 'destructive', title: 'Login Required', description: 'Please log in to view contact information.'})}}}>
+                                <Button variant="outline" size="sm" onClick={() => { if (user) { setShowContact(true) } else { toast({ variant: 'destructive', title: 'Login Required', description: 'Please log in to view contact information.'}); router.push('/auth/login'); }}}>
                                 Show Contact Info
                                 </Button>
                             )}
