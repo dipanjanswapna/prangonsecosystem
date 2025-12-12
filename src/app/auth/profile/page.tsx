@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -24,7 +25,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { format, parseISO, differenceInDays, differenceInYears, addDays } from 'date-fns';
 import { Textarea } from '@/components/ui/textarea';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
+import { DayPicker } from 'react-day-picker';
 import { cn } from '@/lib/utils';
 import geoData from '@/lib/bd-geo-data.json';
 import { Switch } from '@/components/ui/switch';
@@ -352,13 +353,16 @@ function ProfilePageContent() {
                         </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-auto p-0">
-                        <Calendar
+                       <DayPicker
                         mode="single"
                         selected={dateOfBirth}
                         onSelect={setDateOfBirth}
-                        disabled={!isOwnProfile || ((date) => date > new Date() || date < new Date("1900-01-01"))}
+                        disabled={!isOwnProfile}
                         initialFocus
-                        />
+                        captionLayout="dropdown-nav"
+                        fromYear={new Date().getFullYear() - 80}
+                        toYear={new Date().getFullYear() - 18}
+                      />
                     </PopoverContent>
                 </Popover>
             </div>
