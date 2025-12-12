@@ -69,10 +69,10 @@ export const updateBloodRequest = async (
 
         // Firestore does not accept `undefined`. Convert to `null`.
         if (updateData.prescriptionUrl === undefined) {
-            updateData.prescriptionUrl = '';
+            updateData.prescriptionUrl = null;
         }
         if (updateData.notes === undefined) {
-            updateData.notes = '';
+            updateData.notes = null;
         }
 
         await updateDoc(requestDocRef, {
