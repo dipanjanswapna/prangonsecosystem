@@ -12,7 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useCollection } from '@/firebase/firestore/use-collection';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
-import { ArrowRight, Droplets, PlusCircle, Hospital, User } from 'lucide-react';
+import { ArrowRight, Droplets, PlusCircle, Hospital, User, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo } from 'react';
 import { Badge } from '@/components/ui/badge';
@@ -28,6 +28,7 @@ interface BloodRequest {
   hospitalName: string;
   location: string;
   status: 'pending' | 'fulfilled' | 'closed';
+  verified: boolean;
   neededBy: { seconds: number; nanoseconds: number };
   createdAt: { seconds: number; nanoseconds: number };
   urgencyLevel?: 'Normal' | 'Urgent' | 'Critical';
@@ -73,11 +74,8 @@ const RequestCardSkeleton = () => (
 export default function BloodDonationPage() {
   const { data, loading } = useCollection<BloodRequest>(
     'bloodRequests',
-    undefined,
-    undefined,
-    undefined, // Remove ordering from query
-    undefined,
-    [['status', '==', 'pending']]
+    'status',
+    'pending'
   );
 
   const requests = useMemo(() => {
@@ -113,7 +111,12 @@ export default function BloodDonationPage() {
         ) : requests.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {requests.map(req => (
-                <Card key={req.id} className="flex flex-col">
+                <Card key={req.id} className="flex flex-col relative overflow-hidden">
+                    {req.verified && (
+                        <Badge className='absolute top-3 right-3 z-10 gap-1.5 pl-2 pr-3 text-base bg-green-100 text-green-800 border-green-200 dark:bg-green-900/50 dark:text-green-300 dark:border-green-700'>
+                            <ShieldCheck className='h-4 w-4' /> Verified
+                        </Badge>
+                    )}
                     <CardHeader>
                         <div className="flex justify-between items-start">
                              <div className={cn("flex items-center justify-center h-16 w-16 rounded-full font-bold text-2xl border-4", bloodGroupStyles[req.bloodGroup] || '')}>
@@ -164,3 +167,5 @@ export default function BloodDonationPage() {
     </div>
   );
 }
+
+    

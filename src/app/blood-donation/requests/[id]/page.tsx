@@ -35,6 +35,7 @@ import {
   Mail,
   Users,
   BrainCircuit,
+  ShieldCheck,
 } from 'lucide-react';
 import { notFound, useParams, useRouter } from 'next/navigation';
 import { useEffect, useState, useMemo } from 'react';
@@ -54,6 +55,7 @@ import { markRequestAsFulfilled, respondToRequest } from '@/lib/blood';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { SmartMatch } from './smart-match';
+import { ROLES } from '@/lib/roles';
 
 
 interface BloodRequest {
@@ -68,6 +70,7 @@ interface BloodRequest {
   hospitalName: string;
   location: string;
   status: 'pending' | 'fulfilled' | 'closed';
+  verified: boolean;
   neededBy: { seconds: number; nanoseconds: number };
   createdAt: { seconds: number; nanoseconds: number };
   contactPerson: string;
@@ -78,6 +81,7 @@ interface BloodRequest {
   urgencyLevel?: 'Normal' | 'Urgent' | 'Critical';
   preferredTime?: string;
   notes?: string;
+  prescriptionUrl?: string;
 }
 
 interface UserProfile {
@@ -86,6 +90,7 @@ interface UserProfile {
   name: string;
   phone?: string;
   photoURL?: string;
+  role?: string;
 }
 
 interface DonationResponse {
@@ -175,6 +180,8 @@ export default function RequestDetailsPage() {
   const { data: request, loading: requestLoading } = useDoc<BloodRequest>(
     requestId ? `bloodRequests/${requestId}` : null
   );
+  const { data: userProfile, loading: userProfileLoading } = useDoc<UserProfile>(user ? `users/${user.uid}` : null);
+
   const { data: responses, loading: responsesLoading } = useCollection<DonationResponse>(
     requestId ? `bloodRequests/${requestId}/responses` : null
   );
@@ -242,7 +249,7 @@ export default function RequestDetailsPage() {
 
   }
 
-  if (requestLoading || userLoading || profilesLoading) {
+  if (requestLoading || userLoading || profilesLoading || userProfileLoading) {
     return <RequestDetailsSkeleton />;
   }
 
@@ -251,6 +258,7 @@ export default function RequestDetailsPage() {
   }
 
   const isRequester = user?.uid === request.requesterId;
+  const isAdmin = userProfile?.role === ROLES.ADMIN;
   const isPending = request.status === 'pending';
   const hasUserResponded = responses.some(res => res.userId === user?.uid);
 
@@ -275,6 +283,11 @@ export default function RequestDetailsPage() {
                 {request.urgencyLevel && (
                     <Badge className={cn('capitalize text-base', urgencyStyles[request.urgencyLevel])}>
                         {request.urgencyLevel}
+                    </Badge>
+                )}
+                {request.verified && (
+                    <Badge className='text-base gap-1.5 pl-2 pr-3 bg-green-100 text-green-800 border-green-200 dark:bg-green-900/50 dark:text-green-300 dark:border-green-700'>
+                        <ShieldCheck className='h-4 w-4' /> Verified Request
                     </Badge>
                 )}
                 {isRequester && isPending && (
@@ -305,6 +318,13 @@ export default function RequestDetailsPage() {
                         </>
                     )}
                 </div>
+                {request.prescriptionUrl && (isAdmin || isRequester) && (
+                    <Button variant="secondary" asChild>
+                        <a href={request.prescriptionUrl} target="_blank" rel="noopener noreferrer">
+                            <FileText className="mr-2 h-4 w-4" /> View Prescription
+                        </a>
+                    </Button>
+                )}
             </div>
 
             <Separator />
@@ -534,3 +554,5 @@ function DonorSelectionDialog({
     </div>
   );
 }
+
+    

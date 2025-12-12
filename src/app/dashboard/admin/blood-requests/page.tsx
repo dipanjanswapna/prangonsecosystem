@@ -26,11 +26,12 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Droplets, CheckCircle, XCircle, Eye } from 'lucide-react';
+import { MoreHorizontal, Droplets, CheckCircle, XCircle, Eye, ShieldCheck } from 'lucide-react';
 import type { Timestamp } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
-import { updateBloodRequestStatus } from '@/lib/blood';
+import { updateBloodRequestStatus, toggleBloodRequestVerification } from '@/lib/blood';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 interface BloodRequest {
   id: string;
@@ -38,6 +39,7 @@ interface BloodRequest {
   bloodGroup: string;
   hospitalName: string;
   status: 'pending' | 'fulfilled' | 'closed';
+  verified: boolean;
   createdAt: Timestamp;
 }
 
@@ -68,6 +70,22 @@ export default function AdminBloodRequestsPage() {
       });
     }
   };
+  
+  const handleVerification = async (id: string) => {
+    try {
+        const newStatus = await toggleBloodRequestVerification(id);
+        toast({
+            title: `Request ${newStatus ? 'Verified' : 'Unverified'}`,
+            description: `The request has been successfully updated.`
+        });
+    } catch (error: any) {
+        toast({
+            variant: 'destructive',
+            title: 'Verification Failed',
+            description: error.message || 'Could not update verification status.'
+        })
+    }
+  }
 
   const getStatusVariant = (status: string) => {
     switch (status) {
@@ -99,8 +117,7 @@ export default function AdminBloodRequestsPage() {
             <TableRow>
               <TableHead>Patient</TableHead>
               <TableHead>Blood Group</TableHead>
-              <TableHead className="hidden sm:table-cell">Hospital</TableHead>
-              <TableHead className="hidden md:table-cell">Date</TableHead>
+              <TableHead className="hidden md:table-cell">Verified</TableHead>
               <TableHead className="hidden sm:table-cell">Status</TableHead>
               <TableHead>
                 <span className="sr-only">Actions</span>
@@ -117,11 +134,8 @@ export default function AdminBloodRequestsPage() {
                     <TableCell>
                       <Skeleton className="h-6 w-12" />
                     </TableCell>
-                    <TableCell className="hidden sm:table-cell">
-                      <Skeleton className="h-5 w-40" />
-                    </TableCell>
                     <TableCell className="hidden md:table-cell">
-                      <Skeleton className="h-5 w-24" />
+                      <Skeleton className="h-6 w-20" />
                     </TableCell>
                     <TableCell className="hidden sm:table-cell">
                       <Skeleton className="h-6 w-20" />
@@ -139,15 +153,10 @@ export default function AdminBloodRequestsPage() {
                     <TableCell>
                         <Badge variant="outline">{request.bloodGroup}</Badge>
                     </TableCell>
-                    <TableCell className="hidden sm:table-cell">
-                      {request.hospitalName}
-                    </TableCell>
                     <TableCell className="hidden md:table-cell">
-                      {request.createdAt
-                        ? new Date(
-                            request.createdAt.seconds * 1000
-                          ).toLocaleDateString()
-                        : 'N/A'}
+                      <Badge variant={request.verified ? "secondary" : "outline"} className={cn(request.verified && "text-green-700 dark:text-green-300")}>
+                        {request.verified ? 'Yes' : 'No'}
+                      </Badge>
                     </TableCell>
                      <TableCell className="hidden sm:table-cell">
                       <Badge
@@ -178,6 +187,14 @@ export default function AdminBloodRequestsPage() {
                               </Link>
                             </DropdownMenuItem>
                           <DropdownMenuSeparator />
+                           <DropdownMenuItem
+                            onClick={() =>
+                              handleVerification(request.id)
+                            }
+                          >
+                            <ShieldCheck className="mr-2 h-4 w-4" />
+                            {request.verified ? 'Unverify' : 'Verify Request'}
+                          </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() =>
                               handleUpdateStatus(request.id, 'fulfilled')
@@ -212,3 +229,5 @@ export default function AdminBloodRequestsPage() {
     </Card>
   );
 }
+
+    

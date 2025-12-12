@@ -10,6 +10,7 @@ import {
   runTransaction,
   increment,
   setDoc,
+  getDoc,
 } from 'firebase/firestore';
 import { initializeFirebase } from '@/firebase';
 import type { User } from 'firebase/auth';
@@ -48,6 +49,7 @@ export const createBloodRequest = async (
       ...data,
       requesterId: userId,
       status: 'pending',
+      verified: false,
       createdAt: serverTimestamp(),
     });
   } catch (error) {
@@ -164,3 +166,21 @@ export const updateBloodRequestStatus = async (
     throw new Error('Could not update request status.');
   }
 };
+
+export const toggleBloodRequestVerification = async (requestId: string) => {
+    const requestRef = doc(firestore, 'bloodRequests', requestId);
+    try {
+        const requestDoc = await getDoc(requestRef);
+        if(!requestDoc.exists()){
+            throw new Error("Request not found");
+        }
+        const currentStatus = requestDoc.data().verified || false;
+        await updateDoc(requestRef, { verified: !currentStatus });
+        return !currentStatus;
+    } catch(error) {
+        console.error('Error toggling blood request verification: ', error);
+        throw new Error('Could not update verification status.');
+    }
+}
+
+    

@@ -194,6 +194,7 @@
         "prescriptionUrl": { "type": "string", "format": "uri", "description": "URL to an uploaded prescription or medical document." },
         "notes": { "type": "string", "description": "Additional notes for potential donors." },
         "status": { "type": "string", "enum": ["pending", "fulfilled", "closed"], "default": "pending" },
+        "verified": { "type": "boolean", "description": "Indicates if the request has been verified by an admin.", "default": false },
         "donorId": { "type": "string", "description": "UID of the user who fulfilled the request." },
         "donorName": { "type": "string", "description": "Name of the user who fulfilled the request." },
         "createdAt": { "type": "string", "format": "date-time" }
@@ -277,3 +278,5 @@
     }
   }
 }
+
+    
