@@ -81,6 +81,9 @@ export const signUp = async (email:string, password:string, fullName:string, rol
     badges: [],
     skills: [],
     phone: '',
+    whatsapp: '',
+    telegram: '',
+    messenger: '',
   });
 
   return userCredential;
@@ -131,6 +134,9 @@ const handleSocialSignIn = async (user: User, refCode?: string | null) => {
       badges: [],
       skills: [],
       phone: user.phoneNumber || '',
+      whatsapp: '',
+      telegram: '',
+      messenger: '',
     });
   } else {
     // If user already exists, just update their last login
@@ -213,7 +219,7 @@ export const updateUserProfile = async (uid: string, data: any) => {
     const isPrivilegedRole = ![ROLES.USER, ROLES.ADMIN].includes(role);
 
     // Only set profile status to pending_review if it's not a simple user data update
-    const simpleUpdateKeys = ['name', 'phone', 'bloodGroup', 'address', 'dateOfBirth', 'gender', 'profession', 'weight', 'height', 'isEligible', 'medicalConditions'];
+    const simpleUpdateKeys = ['name', 'phone', 'bloodGroup', 'address', 'dateOfBirth', 'gender', 'profession', 'weight', 'height', 'isEligible', 'medicalConditions', 'whatsapp', 'telegram', 'messenger'];
     const isComplexUpdate = Object.keys(data).some(key => !simpleUpdateKeys.includes(key));
 
     if (isPrivilegedRole && isComplexUpdate) {

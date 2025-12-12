@@ -13,7 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useUser } from '@/firebase/auth/use-user';
-import { Copy, Gift, Loader2, Droplets, User as UserIcon, MapPin, Calendar as CalendarIcon, HeartPulse, AlertCircle, CheckCircle, Award } from 'lucide-react';
+import { Copy, Gift, Loader2, Droplets, User as UserIcon, MapPin, Calendar as CalendarIcon, HeartPulse, AlertCircle, CheckCircle, Award, MessageSquare } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState, Suspense, useMemo } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -64,6 +64,9 @@ interface UserProfile {
   isEligible?: boolean;
   medicalConditions?: string;
   badges?: string[];
+  whatsapp?: string;
+  telegram?: string;
+  messenger?: string;
 }
 
 function ProfilePageContent() {
@@ -90,6 +93,9 @@ function ProfilePageContent() {
   const [height, setHeight] = useState<UserHeight>({});
   const [isEligible, setIsEligible] = useState(true);
   const [medicalConditions, setMedicalConditions] = useState('');
+  const [whatsapp, setWhatsapp] = useState('');
+  const [telegram, setTelegram] = useState('');
+  const [messenger, setMessenger] = useState('');
   
   const [isSaving, setIsSaving] = useState(false);
   
@@ -189,6 +195,9 @@ function ProfilePageContent() {
         setHeight(userProfile.height || {});
         setIsEligible(userProfile.isEligible === false ? false : true);
         setMedicalConditions(userProfile.medicalConditions || '');
+        setWhatsapp(userProfile.whatsapp || '');
+        setTelegram(userProfile.telegram || '');
+        setMessenger(userProfile.messenger || '');
     }
   }, [user, loading, router, userProfile, uidFromQuery]);
 
@@ -218,6 +227,9 @@ function ProfilePageContent() {
             height,
             isEligible,
             medicalConditions,
+            whatsapp,
+            telegram,
+            messenger,
         };
         
         await updateUserProfile(user.uid, dataToUpdate);
@@ -412,6 +424,34 @@ function ProfilePageContent() {
               <Input id="profession" value={profession} onChange={(e) => setProfession(e.target.value)} readOnly={!isOwnProfile} />
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+       <Card>
+        <CardHeader>
+          <CardTitle className="font-headline flex items-center gap-2">
+              <MessageSquare className='h-6 w-6' />
+              Social & Contact Links
+          </CardTitle>
+          <CardDescription>
+             Add your contact details to connect with others.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <div className="space-y-2">
+                    <Label htmlFor="whatsapp">WhatsApp Number</Label>
+                    <Input id="whatsapp" value={whatsapp || ''} onChange={(e) => setWhatsapp(e.target.value)} readOnly={!isOwnProfile}/>
+                </div>
+                 <div className="space-y-2">
+                    <Label htmlFor="telegram">Telegram Username</Label>
+                    <Input id="telegram" value={telegram || ''} onChange={(e) => setTelegram(e.target.value)} readOnly={!isOwnProfile}/>
+                </div>
+            </div>
+             <div className="space-y-2">
+                <Label htmlFor="messenger">Facebook/Messenger Link</Label>
+                <Input id="messenger" value={messenger || ''} onChange={(e) => setMessenger(e.target.value)} readOnly={!isOwnProfile} />
+            </div>
         </CardContent>
       </Card>
       
