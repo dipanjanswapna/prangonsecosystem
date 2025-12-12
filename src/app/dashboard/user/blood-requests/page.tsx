@@ -12,7 +12,6 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
-import { cn } from '@/lib/utils';
 import { ArrowRight, Droplets, FileSearch } from 'lucide-react';
 import { useMemo } from 'react';
 
@@ -52,17 +51,16 @@ const getStatusVariant = (status: string) => {
 
 export default function UserBloodRequestsPage() {
   const { user } = useUser();
-  const { data: allRequests, loading } = useCollection<BloodRequest>(
+  const { data: requests, loading } = useCollection<BloodRequest>(
     'bloodRequests',
-    undefined,
-    undefined,
-    { field: 'createdAt', direction: 'desc' }
+    'requesterId',
+    user?.uid
   );
 
-  const requests = useMemo(() => {
-    if (!user || !allRequests) return [];
-    return allRequests.filter(req => req.requesterId === user.uid);
-  }, [allRequests, user]);
+  const sortedRequests = useMemo(() => {
+      if (!requests) return [];
+      return [...requests].sort((a,b) => b.createdAt.seconds - a.createdAt.seconds);
+  }, [requests])
 
 
   return (
@@ -87,7 +85,7 @@ export default function UserBloodRequestsPage() {
          </div>
       )}
 
-      {!loading && requests.length === 0 && (
+      {!loading && sortedRequests.length === 0 && (
         <Card>
             <CardContent className="pt-6 text-center">
                 <FileSearch className="mx-auto h-12 w-12 text-muted-foreground" />
@@ -99,9 +97,9 @@ export default function UserBloodRequestsPage() {
         </Card>
       )}
 
-      {!loading && requests.length > 0 && (
+      {!loading && sortedRequests.length > 0 && (
         <div className="space-y-4">
-          {requests.map((request) => (
+          {sortedRequests.map((request) => (
             <Card key={request.id}>
                 <div className="p-4 flex flex-col sm:flex-row justify-between sm:items-center gap-4">
                     <div>

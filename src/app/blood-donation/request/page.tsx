@@ -42,7 +42,7 @@ import { format } from 'date-fns';
 
 const formSchema = z.object({
   patientName: z.string().min(3, 'Patient name must be at least 3 characters.'),
-  bloodGroup: z.enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']),
+  bloodGroup: z.enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'], { required_error: "Please select a blood group." }),
   quantity: z.coerce.number().min(1, 'Quantity must be at least 1 bag.'),
   hospitalName: z.string().min(5, 'Hospital name is required.'),
   location: z.string().min(3, 'Location is required.'),
@@ -78,6 +78,7 @@ export default function RequestBloodPage() {
             title: 'Authentication Required',
             description: 'You must be logged in to create a blood request.'
         });
+        router.push('/auth/login');
         return;
     }
     setIsLoading(true);
@@ -220,7 +221,7 @@ export default function RequestBloodPage() {
                           <Button
                             variant={"outline"}
                             className={cn(
-                              "pl-3 text-left font-normal",
+                              "pl-3 text-left font-normal h-10",
                               !field.value && "text-muted-foreground"
                             )}
                           >
@@ -239,7 +240,7 @@ export default function RequestBloodPage() {
                           selected={field.value}
                           onSelect={field.onChange}
                           disabled={(date) =>
-                            date < new Date() || date > new Date(new Date().setDate(new Date().getDate() + 30))
+                            date < new Date(new Date().setHours(0,0,0,0)) || date > new Date(new Date().setDate(new Date().getDate() + 30))
                           }
                           initialFocus
                         />

@@ -83,7 +83,15 @@ export const markRequestAsFulfilled = async (
 
       const donorDoc = await transaction.get(donorRef);
       if (!donorDoc.exists()) {
-        throw 'Donor user does not exist!';
+        // If donor doc doesn't exist, we can't award points, but we can still fulfill the request.
+         console.warn(`Donor profile ${donorId} not found. Cannot award points.`);
+      } else {
+        // Award points to the donor and update their donation stats
+        transaction.update(donorRef, {
+          points: increment(10),
+          totalDonations: increment(1),
+          lastDonationDate: serverTimestamp(),
+        });
       }
 
       // 1. Update the request status
@@ -92,15 +100,8 @@ export const markRequestAsFulfilled = async (
         donorId: donorId,
         donorName: donorName,
       });
-
-      // 2. Award points to the donor and update their donation stats
-      transaction.update(donorRef, {
-        points: increment(10),
-        totalDonations: increment(1),
-        lastDonationDate: serverTimestamp(),
-      });
       
-      // 3. Create a permanent record of the blood donation
+      // 2. Create a permanent record of the blood donation
       transaction.set(bloodDonationRef, {
           donorId: donorId,
           recipientId: requesterId,

@@ -15,7 +15,7 @@ export const navItems = {
     { href: '/dashboard/all-users', icon: Users, label: 'Users' },
     { href: '/dashboard/admin/volunteers', icon: UserCheck, label: 'Volunteers' },
     { href: '/dashboard/admin/campaigns', icon: HandHeart, label: 'Campaigns' },
-    { href: '/dashboard/admin/blood-requests', icon: Droplets, label: 'Blood Requests' },
+    { href: '/dashboard/admin/blood-requests', icon: Droplets, label: 'Blood' },
     { href: '/dashboard/admin/donations', icon: Package, label: 'Donations' },
     { href: '/dashboard/admin/reports', icon: FileDown, label: 'Reports' },
   ],
@@ -42,7 +42,7 @@ export const navItems = {
   [ROLES.USER]: [
     { href: '/dashboard/user', icon: Home, label: 'Dashboard' },
     { href: '/dashboard/user/donations', icon: Package, label: 'Donations' },
-    { href: '/dashboard/user/blood-requests', icon: Droplets, label: 'Blood Requests' },
+    { href: '/dashboard/user/blood-requests', icon: Droplets, label: 'Blood Req.' },
     { href: '/auth/profile', icon: User, label: 'Profile' },
   ],
 };

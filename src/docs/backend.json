@@ -10,7 +10,7 @@
         "email": { "type": "string", "format": "email", "description": "The user's email address." },
         "phone": { "type": "string", "description": "The user's contact phone number." },
         "photoURL": { "type": "string", "format": "uri", "description": "URL of the user's profile picture." },
-        "dateOfBirth": { "type": "string", "format": "date", "description": "User's date of birth." },
+        "dateOfBirth": { "type": "string", "format": "date-time", "description": "User's date of birth in ISO format." },
         "gender": { "type": "string", "enum": ["Male", "Female", "Other"], "description": "User's gender." },
         "profession": { "type": "string", "description": "User's profession or occupation." },
         "address": {
@@ -55,20 +55,12 @@
         "skills": { "type": "array", "description": "List of skills for volunteers or collaborators.", "items": { "type": "string" } },
         "portfolioLink": { "type": "string", "format": "uri", "description": "Link to the collaborator's portfolio." },
         "referralCode": { "type": "string", "description": "Unique code for referring new users." },
-        "referralCount": { "type": "number", "description": "Number of users referred.", "default": 0 },
         "referredBy": { "type": "string", "description": "The UID of the user who referred this user." },
-        "giftHistory": { "type": "array", "description": "Record of gifts claimed by the user.", "items": { "type": "object", "properties": { "date": {"type": "string", "format": "date-time"}, "gift": {"type": "string"} } } },
         "lastGiftClaimedAt": { "type": "string", "format": "date-time", "description": "Timestamp of when the user last claimed a gift by resetting their points." },
         "pointsExpireAt": { "type": "string", "format": "date-time", "description": "Timestamp indicating when the user's points will expire (e.g., 1 year after earning)." },
         "bloodGroup": { "type": "string", "description": "User's blood group.", "enum": ["Not Set", "A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"] },
         "lastDonationDate": { "type": "string", "format": "date-time", "description": "The date of the user's last blood donation." },
-        "totalDonations": { "type": "number", "description": "Total number of times the user has donated blood.", "default": 0 },
-        "impactTimeline": { "type": "array", "description": "Timeline of user's impact.", "items": { "type": "string" } },
-        "feedbackReceived": { "type": "array", "description": "Feedback received from others.", "items": { "type": "string" } },
-        "profileVisibility": { "type": "string", "enum": ["public", "private"], "default": "public" },
-        "notificationPreferences": { "type": "object", "properties": { "sms": {"type": "boolean"}, "email": {"type": "boolean"} } },
-        "languagePreference": { "type": "string", "enum": ["en", "bn"], "default": "en" },
-        "consentLogs": { "type": "array", "description": "Logs of user consent.", "items": { "type": "string" } }
+        "totalDonations": { "type": "number", "description": "Total number of times the user has donated blood.", "default": 0 }
       },
       "required": ["uid", "name", "email", "role", "status", "profile_status", "createdAt", "referralCode"]
     },

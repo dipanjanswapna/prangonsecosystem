@@ -26,10 +26,11 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Droplets, CheckCircle, XCircle } from 'lucide-react';
+import { MoreHorizontal, Droplets, CheckCircle, XCircle, Eye } from 'lucide-react';
 import type { Timestamp } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { updateBloodRequestStatus } from '@/lib/blood';
+import Link from 'next/link';
 
 interface BloodRequest {
   id: string;
@@ -170,6 +171,13 @@ export default function AdminBloodRequestsPage() {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                           <DropdownMenuItem asChild>
+                              <Link href={`/blood-donation/requests/${request.id}`} target="_blank">
+                                <Eye className="mr-2 h-4 w-4" />
+                                View Details
+                              </Link>
+                            </DropdownMenuItem>
+                          <DropdownMenuSeparator />
                           <DropdownMenuItem
                             onClick={() =>
                               handleUpdateStatus(request.id, 'fulfilled')

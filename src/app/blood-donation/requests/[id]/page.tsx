@@ -28,7 +28,7 @@ import {
   UserRound,
 } from 'lucide-react';
 import { notFound, useParams, useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -148,7 +148,8 @@ export default function RequestDetailsPage() {
     requestId ? `bloodRequests/${requestId}/responses` : null
   );
   
-  const responderIds = responses.map(r => r.userId);
+  const responderIds = useMemo(() => responses.map(r => r.userId), [responses]);
+
   const { data: responderProfiles, loading: profilesLoading } = useCollection<UserProfile>(
       'users',
       undefined,
@@ -161,14 +162,16 @@ export default function RequestDetailsPage() {
   const [combinedResponders, setCombinedResponders] = useState<CombinedResponder[]>([]);
 
   useEffect(() => {
-    if (responses.length > 0 && responderProfiles.length > 0) {
+    // We combine responses with their profiles.
+    // If profiles are still loading, we can show responses with whatever data we have.
+    if (responses.length > 0) {
       const combined = responses.map(response => {
         const profile = responderProfiles.find(p => p.id === response.userId);
         return { ...response, profile };
       });
       setCombinedResponders(combined);
     } else {
-        setCombinedResponders(responses);
+        setCombinedResponders([]);
     }
   }, [responses, responderProfiles]);
 
@@ -451,7 +454,7 @@ function DonorSelectionDialog({
                     </Button>
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" disabled={!res.profile?.phone}>
                             <Phone className="mr-1.5 h-4 w-4" /> Contact
                         </Button>
                       </DropdownMenuTrigger>
@@ -464,11 +467,6 @@ function DonorSelectionDialog({
                          <DropdownMenuItem asChild>
                              <a href={`https://wa.me/${res.profile?.phone}`} target="_blank" rel="noopener noreferrer">
                                <MessageSquare className="mr-2 h-4 w-4" /> WhatsApp
-                            </a>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                             <a href={`https://t.me/${res.profile?.phone}`} target="_blank" rel="noopener noreferrer">
-                                <MessageSquare className="mr-2 h-4 w-4" /> Telegram
                             </a>
                         </DropdownMenuItem>
                       </DropdownMenuContent>
