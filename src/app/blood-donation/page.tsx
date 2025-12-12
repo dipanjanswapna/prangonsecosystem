@@ -15,10 +15,13 @@ import { formatDistanceToNow } from 'date-fns';
 import { ArrowRight, Droplets, PlusCircle, Hospital, User } from 'lucide-react';
 import Link from 'next/link';
 import { useMemo } from 'react';
+import { Badge } from '@/components/ui/badge';
 
 interface BloodRequest {
   id: string;
   patientName: string;
+  patientAge?: number;
+  patientGender?: 'Male' | 'Female' | 'Other';
   bloodGroup: string;
   reason: string;
   quantity: number;
@@ -27,6 +30,7 @@ interface BloodRequest {
   status: 'pending' | 'fulfilled' | 'closed';
   neededBy: { seconds: number; nanoseconds: number };
   createdAt: { seconds: number; nanoseconds: number };
+  urgencyLevel?: 'Normal' | 'Urgent' | 'Critical';
 }
 
 const bloodGroupStyles: { [key: string]: string } = {
@@ -38,6 +42,12 @@ const bloodGroupStyles: { [key: string]: string } = {
     'AB-': 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/50 dark:text-purple-300 dark:border-purple-700',
     'O+': 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/50 dark:text-green-300 dark:border-green-700',
     'O-': 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/50 dark:text-green-300 dark:border-green-700',
+};
+
+const urgencyStyles: { [key: string]: string } = {
+    Normal: 'bg-blue-100 text-blue-800',
+    Urgent: 'bg-amber-100 text-amber-800',
+    Critical: 'bg-red-100 text-red-800',
 };
 
 
@@ -109,12 +119,20 @@ export default function BloodDonationPage() {
                              <div className={cn("flex items-center justify-center h-16 w-16 rounded-full font-bold text-2xl border-4", bloodGroupStyles[req.bloodGroup] || '')}>
                                 {req.bloodGroup}
                             </div>
-                           <p className="text-sm text-muted-foreground">{formatDistanceToNow(new Date(req.createdAt.seconds * 1000), { addSuffix: true })}</p>
+                           <div className='flex flex-col items-end gap-2'>
+                             <p className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(req.createdAt.seconds * 1000), { addSuffix: true })}</p>
+                             {req.urgencyLevel && <Badge className={cn('capitalize', urgencyStyles[req.urgencyLevel])}>{req.urgencyLevel}</Badge>}
+                           </div>
                         </div>
                         <CardTitle className="pt-2">Need {req.quantity} bag(s) of {req.bloodGroup} blood</CardTitle>
-                        <CardDescription>For: {req.patientName}</CardDescription>
+                        <CardDescription>
+                            For patient: {req.patientName}
+                            {req.patientAge && `, ${req.patientAge}`}
+                            {req.patientGender && `, ${req.patientGender}`}
+                        </CardDescription>
                     </CardHeader>
                     <CardContent className="flex-grow space-y-3 text-sm">
+                        <p className="text-muted-foreground line-clamp-2">Reason: {req.reason}</p>
                         <div className="flex items-start gap-3 text-muted-foreground">
                             <Hospital className="h-4 w-4 mt-0.5 shrink-0" />
                             <span>{req.hospitalName}, {req.location}</span>
