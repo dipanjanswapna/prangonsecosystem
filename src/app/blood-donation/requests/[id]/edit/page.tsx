@@ -111,7 +111,25 @@ export default function EditRequestPage() {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {},
+    defaultValues: {
+      patientName: '',
+      patientAge: 0,
+      patientGender: undefined,
+      bloodGroup: undefined,
+      donationType: 'Whole Blood',
+      quantity: 1,
+      hospitalName: '',
+      location: '',
+      neededBy: new Date(),
+      urgencyLevel: 'Normal',
+      preferredTime: 'Anytime',
+      contactPerson: '',
+      contactPhone: '',
+      alternateContact: '',
+      reason: '',
+      prescriptionUrl: '',
+      notes: '',
+    },
   });
 
   useEffect(() => {
