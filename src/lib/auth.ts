@@ -200,6 +200,13 @@ export const updateUserProfile = async (uid: string, data: any) => {
         updateData.address = cleanAddress;
     }
 
+    // Filter out any undefined values before sending to Firestore
+    for (const key in updateData) {
+        if (updateData[key] === undefined) {
+            delete updateData[key];
+        }
+    }
+
 
     const userProfile = await getDoc(userDocRef);
     const role = userProfile.data()?.role;
@@ -242,5 +249,3 @@ export const resetUserPoints = async (uid: string) => {
         lastGiftClaimedAt: serverTimestamp(),
     });
 };
-
-    
