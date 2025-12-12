@@ -21,11 +21,8 @@ import { useDoc } from '@/firebase/firestore/use-doc';
 import { useToast } from '@/hooks/use-toast';
 import { updateUserProfile } from '@/lib/auth';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { format, parseISO, differenceInDays, differenceInYears, addDays } from 'date-fns';
+import { format, parseISO, differenceInDays, differenceInYears, addDays, getDaysInMonth } from 'date-fns';
 import { Textarea } from '@/components/ui/textarea';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { DayPicker } from 'react-day-picker';
-import { cn } from '@/lib/utils';
 import geoData from '@/lib/bd-geo-data.json';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
@@ -79,7 +76,14 @@ function ProfilePageContent() {
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [bloodGroup, setBloodGroup] = useState('');
+  
+  // State for the main Date object
   const [dateOfBirth, setDateOfBirth] = useState<Date | undefined>();
+  // States for individual dropdowns
+  const [day, setDay] = useState<string>('');
+  const [month, setMonth] = useState<string>('');
+  const [year, setYear] = useState<string>('');
+  
   const [gender, setGender] = useState('');
   const [profession, setProfession] = useState('');
   const [address, setAddress] = useState<UserAddress>({});
@@ -121,7 +125,6 @@ function ProfilePageContent() {
         const lastDonation = new Date(userProfile.lastDonationDate.seconds * 1000);
         const daysSinceLastDonation = differenceInDays(new Date(), lastDonation);
         
-        // Assuming 90 days for all genders for simplicity
         const requiredGap = 90;
 
         if (daysSinceLastDonation < requiredGap) {
@@ -138,11 +141,34 @@ function ProfilePageContent() {
         nextEligibleDate
     };
   }, [dateOfBirth, weight, userProfile?.lastDonationDate]);
+  
+  // Date dropdown options
+  const years = useMemo(() => Array.from({ length: 100 }, (_, i) => new Date().getFullYear() - i), []);
+  const months = useMemo(() => Array.from({ length: 12 }, (_, i) => i + 1), []);
+  const daysInMonth = useMemo(() => {
+    if (year && month) {
+      return getDaysInMonth(new Date(Number(year), Number(month) - 1));
+    }
+    return 31;
+  }, [month, year]);
+
+  // Sync individual date parts back to the main Date object
+  useEffect(() => {
+    if (year && month && day) {
+        const newDate = new Date(Number(year), Number(month) - 1, Number(day));
+        // Check if it's a valid date before setting
+        if (!isNaN(newDate.getTime())) {
+            setDateOfBirth(newDate);
+        }
+    } else {
+        setDateOfBirth(undefined);
+    }
+  }, [day, month, year]);
+
 
   const handleAddressChange = (field: keyof UserAddress, value: string) => {
     setAddress(prev => {
         const newAddress = { ...prev, [field]: value };
-        // Reset dependent fields when a higher-level field changes
         if (field === 'division') {
             newAddress.district = '';
             newAddress.upazila = '';
@@ -173,7 +199,20 @@ function ProfilePageContent() {
         setName(userProfile.name || '');
         setPhone(userProfile.phone || '');
         setBloodGroup(userProfile.bloodGroup || 'Not Set');
-        setDateOfBirth(userProfile.dateOfBirth ? parseISO(userProfile.dateOfBirth) : undefined);
+
+        if (userProfile.dateOfBirth) {
+            const dob = parseISO(userProfile.dateOfBirth);
+            setDateOfBirth(dob);
+            setDay(String(dob.getDate()));
+            setMonth(String(dob.getMonth() + 1));
+            setYear(String(dob.getFullYear()));
+        } else {
+            setDateOfBirth(undefined);
+            setDay('');
+            setMonth('');
+            setYear('');
+        }
+
         setGender(userProfile.gender || '');
         setProfession(userProfile.profession || '');
         setAddress(userProfile.address || {});
@@ -340,30 +379,26 @@ function ProfilePageContent() {
             </div>
              <div className="space-y-2">
                 <Label htmlFor="dob">Date of Birth</Label>
-                <Popover>
-                    <PopoverTrigger asChild>
-                        <Button
-                        variant={"outline"}
-                        className={cn("w-full justify-start text-left font-normal", !dateOfBirth && "text-muted-foreground")}
-                        disabled={!isOwnProfile}
-                        >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {dateOfBirth ? format(dateOfBirth, "PPP") : <span>Pick a date</span>}
-                        </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                       <DayPicker
-                        captionLayout="dropdown-nav"
-                        fromYear={new Date().getFullYear() - 80}
-                        toYear={new Date().getFullYear()}
-                        mode="single"
-                        selected={dateOfBirth}
-                        onSelect={setDateOfBirth}
-                        disabled={!isOwnProfile}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                </Popover>
+                 <div className="grid grid-cols-3 gap-2">
+                    <Select value={year} onValueChange={setYear} disabled={!isOwnProfile}>
+                        <SelectTrigger><SelectValue placeholder="Year" /></SelectTrigger>
+                        <SelectContent>
+                            {years.map(y => <SelectItem key={y} value={String(y)}>{y}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+                     <Select value={month} onValueChange={setMonth} disabled={!isOwnProfile}>
+                        <SelectTrigger><SelectValue placeholder="Month" /></SelectTrigger>
+                        <SelectContent>
+                            {months.map(m => <SelectItem key={m} value={String(m)}>{format(new Date(0, m-1), 'MMMM')}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+                     <Select value={day} onValueChange={setDay} disabled={!isOwnProfile || !month || !year}>
+                        <SelectTrigger><SelectValue placeholder="Day" /></SelectTrigger>
+                        <SelectContent>
+                            {Array.from({ length: daysInMonth }, (_, i) => i + 1).map(d => <SelectItem key={d} value={String(d)}>{d}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+                </div>
             </div>
              <div className="space-y-2">
                 <Label htmlFor="gender">Gender</Label>
