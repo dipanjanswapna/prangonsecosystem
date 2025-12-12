@@ -127,19 +127,6 @@ export function MainNav({ isMobile = false }: { isMobile?: boolean }) {
       )}
     >
       {navItems.map(renderNavItem)}
-       {isClient && user && (
-        <Link
-          href={dashboardUrl}
-          className={cn(
-            'group relative flex items-center gap-2 px-3 py-2 text-sm font-medium transition-colors hover:text-primary',
-            pathname.startsWith('/dashboard') ? 'text-primary' : 'text-foreground/80',
-            isMobile ? 'w-full text-base' : ''
-          )}
-        >
-          <LayoutDashboard className="h-4 w-4" />
-          Dashboard
-        </Link>
-      )}
     </nav>
   );
 }
