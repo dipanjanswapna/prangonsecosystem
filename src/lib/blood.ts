@@ -62,8 +62,19 @@ export const updateBloodRequest = async (
 ) => {
     try {
         const requestDocRef = doc(firestore, 'bloodRequests', requestId);
+        
+        const updateData: Partial<BloodRequestData> = { ...data };
+
+        // Firestore does not accept `undefined`. Convert to `null`.
+        if (updateData.prescriptionUrl === undefined) {
+            updateData.prescriptionUrl = '';
+        }
+        if (updateData.notes === undefined) {
+            updateData.notes = '';
+        }
+
         await updateDoc(requestDocRef, {
-            ...data,
+            ...updateData,
             updatedAt: serverTimestamp(),
         });
     } catch(error) {
