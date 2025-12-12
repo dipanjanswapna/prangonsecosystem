@@ -30,6 +30,10 @@ import {
   Briefcase,
   FileText,
   Edit,
+  MapPin,
+  ClipboardList,
+  Mail,
+  Users,
 } from 'lucide-react';
 import { notFound, useParams, useRouter } from 'next/navigation';
 import { useEffect, useState, useMemo } from 'react';
@@ -154,6 +158,18 @@ const RequestDetailsSkeleton = () => (
   </div>
 );
 
+function InfoItem({ icon: Icon, label, value }: { icon: React.ElementType, label: string, value: React.ReactNode }) {
+    return (
+        <div className="flex items-start gap-4">
+            <Icon className="h-5 w-5 mt-1 text-muted-foreground shrink-0" />
+            <div>
+                <p className="font-semibold text-muted-foreground">{label}</p>
+                <p className="text-foreground">{value}</p>
+            </div>
+        </div>
+    )
+}
+
 export default function RequestDetailsPage() {
   const params = useParams();
   const { id } = params;
@@ -180,8 +196,6 @@ export default function RequestDetailsPage() {
   const [combinedResponders, setCombinedResponders] = useState<CombinedResponder[]>([]);
 
   useEffect(() => {
-    // We combine responses with their profiles.
-    // If profiles are still loading, we can show responses with whatever data we have.
     if (responses.length > 0) {
       const combined = responses.map(response => {
         const profile = responderProfiles.find(p => p.id === response.userId);
@@ -206,7 +220,6 @@ export default function RequestDetailsPage() {
         title: 'Request Fulfilled!',
         description: 'Thank you for updating. The donor has been awarded points.',
       });
-      // No need to redirect, the page will update automatically due to real-time listener
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -244,8 +257,8 @@ export default function RequestDetailsPage() {
   const hasUserResponded = responses.some(res => res.userId === user?.uid);
 
   return (
-    <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-      <div className="md:col-span-2">
+    <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="lg:col-span-2">
         <Card>
           <CardHeader>
              <div className="flex items-start justify-between">
@@ -258,11 +271,11 @@ export default function RequestDetailsPage() {
                 {request.bloodGroup}
               </div>
               <div className="flex flex-col items-end gap-2">
-                 <Badge variant={request.status === 'fulfilled' ? 'secondary' : request.status === 'pending' ? 'default' : 'destructive'} className='capitalize'>
+                 <Badge variant={request.status === 'fulfilled' ? 'secondary' : request.status === 'pending' ? 'default' : 'destructive'} className='capitalize text-base'>
                     {request.status}
                  </Badge>
                 {request.urgencyLevel && (
-                    <Badge className={cn('capitalize', urgencyStyles[request.urgencyLevel])}>
+                    <Badge className={cn('capitalize text-base', urgencyStyles[request.urgencyLevel])}>
                         {request.urgencyLevel}
                     </Badge>
                 )}
@@ -279,108 +292,74 @@ export default function RequestDetailsPage() {
               Urgent need for {request.quantity} bag(s) of{' '}
               {request.donationType || 'blood'}
             </CardTitle>
-            <CardDescription>
-              For patient: {request.patientName} ({request.patientAge}, {request.patientGender})
-            </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="prose prose-sm dark:prose-invert max-w-full">
-              <h4 className='font-semibold'>Reason:</h4>
-              <p>{request.reason}</p>
-              {request.notes && (
-                  <>
-                    <h4 className='font-semibold mt-4'>Additional Notes:</h4>
-                    <p>{request.notes}</p>
-                  </>
-              )}
+          <CardContent className="space-y-8">
+            
+            <div className='space-y-4'>
+                 <h3 className="font-semibold text-lg flex items-center gap-2"><ClipboardList className="h-5 w-5" /> Reason & Notes</h3>
+                 <div className="prose prose-sm dark:prose-invert max-w-full bg-muted/50 p-4 rounded-lg">
+                    <p className='font-semibold'>Reason for request:</p>
+                    <p>{request.reason}</p>
+                    {request.notes && (
+                        <>
+                            <p className='font-semibold mt-4'>Additional Notes:</p>
+                            <p>{request.notes}</p>
+                        </>
+                    )}
+                </div>
             </div>
+
             <Separator />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-              <div className="flex items-start gap-3">
-                <Hospital className="h-5 w-5 mt-0.5 text-muted-foreground" />
-                <div>
-                  <p className="font-semibold">Hospital</p>
-                  <p className="text-muted-foreground">
-                    {request.hospitalName}, {request.location}
-                  </p>
+            
+            <div className="space-y-6">
+                <h3 className="font-semibold text-lg flex items-center gap-2"><User className="h-5 w-5" /> Patient Details</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 text-sm">
+                    <InfoItem icon={UserRound} label="Patient Name" value={request.patientName} />
+                    <InfoItem icon={Calendar} label="Age" value={request.patientAge ? `${request.patientAge} years` : 'N/A'} />
+                    <InfoItem icon={Users} label="Gender" value={request.patientGender || 'N/A'} />
                 </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <Calendar className="h-5 w-5 mt-0.5 text-muted-foreground" />
-                <div>
-                  <p className="font-semibold">Date Needed By</p>
-                  <p className="text-muted-foreground">
-                    {new Date(
-                      request.neededBy.seconds * 1000
-                    ).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
-               <div className="flex items-start gap-3">
-                <Clock className="h-5 w-5 mt-0.5 text-muted-foreground" />
-                <div>
-                  <p className="font-semibold">Preferred Time</p>
-                  <p className="text-muted-foreground">
-                    {request.preferredTime || 'Not specified'}
-                  </p>
-                </div>
-              </div>
-               <div className="flex items-start gap-3">
-                <Briefcase className="h-5 w-5 mt-0.5 text-muted-foreground" />
-                <div>
-                  <p className="font-semibold">Donation Type</p>
-                  <p className="text-muted-foreground">
-                    {request.donationType}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <User className="h-5 w-5 mt-0.5 text-muted-foreground" />
-                <div>
-                  <p className="font-semibold">Contact Person</p>
-                  <p className="text-muted-foreground">
-                    {request.contactPerson}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <Phone className="h-5 w-5 mt-0.5 text-muted-foreground" />
-                <div>
-                  <p className="font-semibold">Contact Phone</p>
-                  {showContact ? (
-                    <a
-                      href={`tel:${request.contactPhone}`}
-                      className="text-primary font-bold text-lg hover:underline"
-                    >
-                      {request.contactPhone}
-                    </a>
-                  ) : (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        if (user) {
-                          setShowContact(true);
-                        } else {
-                          toast({
-                            variant: 'destructive',
-                            title: 'Login Required',
-                            description:
-                              'Please log in to view contact information.',
-                          });
-                        }
-                      }}
-                    >
-                      Show Contact Info
-                    </Button>
-                  )}
-                </div>
-              </div>
             </div>
+            
+            <Separator />
+            
+            <div className="space-y-6">
+                <h3 className="font-semibold text-lg flex items-center gap-2"><Briefcase className="h-5 w-5" /> Request Details</h3>
+                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 text-sm">
+                    <InfoItem icon={Briefcase} label="Donation Type" value={request.donationType} />
+                    <InfoItem icon={Calendar} label="Date Needed By" value={new Date(request.neededBy.seconds * 1000).toLocaleDateString()} />
+                    <InfoItem icon={Clock} label="Preferred Time" value={request.preferredTime || 'Not specified'} />
+                 </div>
+            </div>
+            
+             <Separator />
+
+            <div className="space-y-6">
+                 <h3 className="font-semibold text-lg flex items-center gap-2"><MapPin className="h-5 w-5" /> Location & Contact</h3>
+                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 text-sm">
+                    <InfoItem icon={Hospital} label="Hospital" value={`${request.hospitalName}, ${request.location}`} />
+                    <InfoItem icon={User} label="Contact Person" value={request.contactPerson} />
+                    <div className="flex items-start gap-4">
+                        <Phone className="h-5 w-5 mt-1 text-muted-foreground shrink-0" />
+                        <div>
+                            <p className="font-semibold text-muted-foreground">Contact Phone</p>
+                            {showContact ? (
+                                <a href={`tel:${request.contactPhone}`} className="text-primary font-bold text-lg hover:underline">
+                                {request.contactPhone}
+                                </a>
+                            ) : (
+                                <Button variant="outline" size="sm" onClick={() => { if (user) { setShowContact(true) } else { toast({ variant: 'destructive', title: 'Login Required', description: 'Please log in to view contact information.'})}}}>
+                                Show Contact Info
+                                </Button>
+                            )}
+                        </div>
+                    </div>
+                 </div>
+            </div>
+
           </CardContent>
           <CardFooter>
             {!isRequester && isPending && (
-              <Button size="lg" className="w-full" onClick={handleRespondToRequest} disabled={hasUserResponded}>
+              <Button size="lg" className="w-full text-lg" onClick={handleRespondToRequest} disabled={hasUserResponded}>
                 <HeartHandshake className="mr-2 h-5 w-5" />
                 {hasUserResponded ? 'Response Sent' : 'I Will Donate'}
               </Button>
@@ -390,18 +369,18 @@ export default function RequestDetailsPage() {
                 <DialogTrigger asChild>
                   <Button
                     size="lg"
-                    className="w-full"
+                    className="w-full text-lg"
                     variant="secondary"
                     disabled={responses.length === 0}
                   >
                     <BadgeCheck className="mr-2 h-5 w-5" /> Mark as Fulfilled
                   </Button>
                 </DialogTrigger>
-                <DialogContent className='max-w-2xl'>
+                <DialogContent className='max-w-md'>
                   <DialogHeader>
                     <DialogTitle>Who was the donor?</DialogTitle>
                     <DialogDescription>
-                      Select the hero who donated blood to award them points for their contribution. You can view their profile or contact them before confirming.
+                      Select the hero who donated blood to award them points for their contribution.
                     </DialogDescription>
                   </DialogHeader>
                   <DonorSelectionDialog
@@ -413,31 +392,56 @@ export default function RequestDetailsPage() {
               </Dialog>
             )}
             {!isPending && request.donorName && (
-              <div className="w-full text-center text-green-600 dark:text-green-400">
+              <div className="w-full text-center p-4 bg-green-100 dark:bg-green-900/30 rounded-lg text-green-700 dark:text-green-300">
                 This request was fulfilled by the hero:{' '}
-                <strong>{request.donorName}</strong>.
+                <strong className="text-green-800 dark:text-green-200">{request.donorName}</strong>.
               </div>
             )}
           </CardFooter>
         </Card>
       </div>
-      <div className="md:col-span-1 space-y-4">
+      <div className="lg:col-span-1 space-y-6">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-lg">
+              <Users className="h-5 w-5" />
+              Responders ({responses.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+             {responsesLoading || profilesLoading ? <Skeleton className="h-24 w-full" /> : 
+                responses.length > 0 ? (
+                    <div className="space-y-3">
+                         {combinedResponders.map(res => (
+                            <div key={res.id} className="flex items-center gap-3">
+                                <Avatar className="h-10 w-10">
+                                    <AvatarImage src={res.userPhotoURL} />
+                                    <AvatarFallback>{res.userName?.charAt(0) || 'U'}</AvatarFallback>
+                                </Avatar>
+                                <div>
+                                    <p className="font-semibold">{res.userName}</p>
+                                    <Link href={`/auth/profile?uid=${res.userId}`} className="text-xs text-primary hover:underline" target="_blank">View Profile</Link>
+                                </div>
+                            </div>
+                         ))}
+                    </div>
+                ) : (
+                    <p className="text-sm text-muted-foreground">No one has responded to this request yet.</p>
+                )
+             }
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-lg">
               <Info className="h-5 w-5" />
               Important Information
             </CardTitle>
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground space-y-2">
-            <p>
-              Please verify all details with the contact person before
-              proceeding.
-            </p>
+            <p>Please verify all details with the contact person before proceeding.</p>
             <p>Ensure you meet all health requirements for blood donation.</p>
-            <p>
-              Do not pay any money for blood donation. It is a voluntary act.
-            </p>
+            <p>Do not pay any money for blood donation. It is a voluntary act.</p>
           </CardContent>
         </Card>
       </div>
@@ -496,46 +500,38 @@ function DonorSelectionDialog({
                     <p className="text-sm text-muted-foreground">ID: {res.userId.substring(0, 8)}...</p>
                 </div>
                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" asChild>
+                     <Button variant="outline" size="icon" asChild>
                         <Link href={`/auth/profile?uid=${res.userId}`} target="_blank">
-                             <UserRound className="mr-1.5 h-4 w-4" /> Profile
+                             <UserRound className="h-4 w-4" />
+                             <span className="sr-only">View Profile</span>
                         </Link>
                     </Button>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm" disabled={!res.profile?.phone}>
-                            <Phone className="mr-1.5 h-4 w-4" /> Contact
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent>
-                        <DropdownMenuItem asChild>
-                            <a href={`tel:${res.profile?.phone}`}>
-                                <PhoneCall className="mr-2 h-4 w-4" /> Call
-                            </a>
-                        </DropdownMenuItem>
-                         <DropdownMenuItem asChild>
-                             <a href={`https://wa.me/${res.profile?.phone}`} target="_blank" rel="noopener noreferrer">
-                               <MessageSquare className="mr-2 h-4 w-4" /> WhatsApp
-                            </a>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    <Button variant="outline" size="icon" disabled={!res.profile?.phone} asChild>
+                        <a href={`tel:${res.profile?.phone}`}>
+                            <PhoneCall className="h-4 w-4" />
+                            <span className="sr-only">Call Donor</span>
+                        </a>
+                    </Button>
                  </div>
               </div>
             </div>
           );
         })}
       </div>
-      <Button
-        className="w-full"
-        disabled={!selectedDonorId}
-        onClick={() => {
-          const selectedDonor = responses.find(r => r.id === selectedDonorId);
-          if (selectedDonor) onSelectDonor(selectedDonor);
-        }}
-      >
-        Confirm Donor & Fulfill Request
-      </Button>
+      <DialogFooter>
+        <Button
+            className="w-full"
+            disabled={!selectedDonorId}
+            onClick={() => {
+            const selectedDonor = responses.find(r => r.id === selectedDonorId);
+            if (selectedDonor) onSelectDonor(selectedDonor);
+            }}
+        >
+            Confirm Donor & Fulfill Request
+        </Button>
+      </DialogFooter>
     </div>
   );
 }
+
+    
