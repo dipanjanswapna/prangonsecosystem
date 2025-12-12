@@ -11,6 +11,7 @@ import { useCollection } from '@/firebase/firestore/use-collection';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Gift, HandHeart } from 'lucide-react';
 import type { Timestamp } from 'firebase/firestore';
+import { useMemo } from 'react';
 
 interface Donation {
   id: string;
@@ -19,6 +20,7 @@ interface Donation {
   amount: number;
   createdAt: Timestamp;
   isAnonymous: boolean;
+  status: 'pending' | 'success' | 'failed' | 'refunded';
 }
 
 function DonationCardSkeleton() {
@@ -44,13 +46,12 @@ export default function DonorWallPage() {
     undefined,
     undefined,
     { field: 'createdAt', direction: 'desc' },
-    50, // Fetch more to filter on client
-    [
-        ['status', '==', 'success']
-    ]
+    50 // Fetch recent donations
   );
   
-  const publicDonations = donations.filter(d => !d.isAnonymous).slice(0, 20);
+  const publicDonations = useMemo(() => {
+    return donations.filter(d => d.status === 'success' && !d.isAnonymous).slice(0, 20);
+  }, [donations]);
   
   return (
     <div className="max-w-6xl mx-auto space-y-8">
