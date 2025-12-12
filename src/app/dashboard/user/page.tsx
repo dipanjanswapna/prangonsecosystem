@@ -12,7 +12,7 @@ import { Progress } from '@/components/ui/progress';
 import { useUser } from '@/firebase/auth/use-user';
 import { useDoc } from '@/firebase/firestore/use-doc';
 import { useToast } from '@/hooks/use-toast';
-import { Book, BrainCircuit, Calculator, Copy, Gift, Package, Star, Trophy, Users, CalendarDays, Droplets, HeartHandshake } from 'lucide-react';
+import { Book, BrainCircuit, Calculator, Copy, Gift, Package, Star, Trophy, Users, CalendarDays, Droplets, HeartHandshake, ListChecks } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -147,6 +147,24 @@ export default function UserDashboard() {
                 </CardContent>
             </Card>
         )}
+        
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                    <ListChecks className="h-5 w-5" />
+                    My Blood Donation Activity
+                </CardTitle>
+                <CardDescription>Track the status of your blood requests and your responses to others' requests.</CardDescription>
+            </CardHeader>
+            <CardContent className="grid md:grid-cols-2 gap-4">
+                <Button asChild size="lg" variant="outline">
+                    <Link href="/dashboard/user/blood-requests">My Requests</Link>
+                </Button>
+                <Button asChild size="lg" variant="outline">
+                    <Link href="/dashboard/user/responses">My Responses (Upcoming Donations)</Link>
+                </Button>
+            </CardContent>
+        </Card>
 
         <div className="grid md:grid-cols-2 gap-6">
             <Card>

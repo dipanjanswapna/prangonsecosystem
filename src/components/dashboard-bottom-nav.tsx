@@ -1,6 +1,6 @@
 'use client';
 
-import { Home, Package, ShieldCheck, Briefcase, PenTool, User, Users, Settings, HandHeart, FileDown, UserCheck, Droplets } from 'lucide-react';
+import { Home, Package, ShieldCheck, Briefcase, PenTool, User, Users, Settings, HandHeart, FileDown, UserCheck, Droplets, HeartHandshake } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useUser } from '@/firebase/auth/use-user';
@@ -42,7 +42,8 @@ export const navItems = {
   [ROLES.USER]: [
     { href: '/dashboard/user', icon: Home, label: 'Dashboard' },
     { href: '/dashboard/user/donations', icon: Package, label: 'Donations' },
-    { href: '/dashboard/user/blood-requests', icon: Droplets, label: 'Blood Req.' },
+    { href: '/dashboard/user/blood-requests', icon: Droplets, label: 'My Requests' },
+    { href: '/dashboard/user/responses', icon: HeartHandshake, label: 'My Responses' },
     { href: '/auth/profile', icon: User, label: 'Profile' },
   ],
 };

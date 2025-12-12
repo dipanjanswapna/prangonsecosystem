@@ -20,6 +20,8 @@ import {
 import { Button } from './ui/button';
 import { useUser } from '@/firebase/auth/use-user';
 import { useEffect, useState } from 'react';
+import { useDoc } from '@/firebase/firestore/use-doc';
+import type { Role } from '@/lib/roles';
 
 const navItems = [
   { href: '/', label: 'Home' },
@@ -46,6 +48,7 @@ const navItems = [
 export function MainNav({ isMobile = false }: { isMobile?: boolean }) {
   const pathname = usePathname();
   const { user, loading } = useUser();
+  const { data: userProfile } = useDoc<{ role: Role }>(user ? `users/${user.uid}` : null);
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -113,6 +116,8 @@ export function MainNav({ isMobile = false }: { isMobile?: boolean }) {
     );
   };
 
+  const dashboardUrl = userProfile?.role ? `/dashboard/${userProfile.role}` : '/dashboard/user';
+
   return (
     <nav
       className={cn(
@@ -121,9 +126,9 @@ export function MainNav({ isMobile = false }: { isMobile?: boolean }) {
       )}
     >
       {navItems.map(renderNavItem)}
-       {isClient && user && isMobile && (
+       {isClient && user && (
         <Link
-          href="/dashboard"
+          href={dashboardUrl}
           className={cn(
             'group relative flex items-center gap-2 px-3 py-2 text-sm font-medium transition-colors hover:text-primary',
             pathname.startsWith('/dashboard') ? 'text-primary' : 'text-foreground/80',
