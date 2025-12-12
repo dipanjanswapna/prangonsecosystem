@@ -10,6 +10,20 @@
         "email": { "type": "string", "format": "email", "description": "The user's email address." },
         "phone": { "type": "string", "description": "The user's contact phone number." },
         "photoURL": { "type": "string", "format": "uri", "description": "URL of the user's profile picture." },
+        "dateOfBirth": { "type": "string", "format": "date", "description": "User's date of birth." },
+        "gender": { "type": "string", "enum": ["Male", "Female", "Other"], "description": "User's gender." },
+        "profession": { "type": "string", "description": "User's profession or occupation." },
+        "address": {
+          "type": "object",
+          "description": "User's detailed address.",
+          "properties": {
+            "streetAddress": { "type": "string", "description": "Street address, village, etc." },
+            "thana": { "type": "string", "description": "Thana or Police Station." },
+            "upazila": { "type": "string", "description": "Upazila or Sub-district." },
+            "district": { "type": "string", "description": "District." },
+            "division": { "type": "string", "description": "Division." }
+          }
+        },
         "role": { "type": "string", "description": "The user's role in the system.", "enum": ["admin", "moderator", "manager", "collaborator", "user", "volunteer"] },
         "status": { "type": "string", "description": "The approval status of the user's account.", "enum": ["pending", "approved", "rejected"] },
         "profile_status": { "type": "string", "description": "The completion status of the user's profile.", "enum": ["incomplete", "pending_review", "complete"] },

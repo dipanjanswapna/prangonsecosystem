@@ -189,12 +189,27 @@ export const updateUserProfile = async (uid: string, data: any) => {
         profileUpdatedAt: serverTimestamp(),
     };
     
+    // Sanitize address data, removing empty fields
+    if (data.address) {
+        const cleanAddress: Record<string, any> = {};
+        for (const key in data.address) {
+            if (data.address[key]) {
+                cleanAddress[key] = data.address[key];
+            }
+        }
+        updateData.address = cleanAddress;
+    }
+
+
     const userProfile = await getDoc(userDocRef);
     const role = userProfile.data()?.role;
     const isPrivilegedRole = ![ROLES.USER, ROLES.ADMIN].includes(role);
 
-    // Only set profile status to pending_review if it's not a simple name/phone/bloodgroup update
-    if (isPrivilegedRole && Object.keys(data).some(key => !['name', 'phone', 'bloodGroup'].includes(key))) {
+    // Only set profile status to pending_review if it's not a simple user data update
+    const simpleUpdateKeys = ['name', 'phone', 'bloodGroup', 'address', 'dateOfBirth', 'gender', 'profession'];
+    const isComplexUpdate = Object.keys(data).some(key => !simpleUpdateKeys.includes(key));
+
+    if (isPrivilegedRole && isComplexUpdate) {
         updateData.profile_status = 'pending_review';
     }
 
@@ -227,3 +242,5 @@ export const resetUserPoints = async (uid: string) => {
         lastGiftClaimedAt: serverTimestamp(),
     });
 };
+
+    
