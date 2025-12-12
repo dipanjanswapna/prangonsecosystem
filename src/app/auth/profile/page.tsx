@@ -24,9 +24,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { format } from 'date-fns';
 
 interface UserProfile {
+  uid?: string;
   referralCode?: string;
   name: string;
+  email?: string;
   phone?: string;
+  photoURL?: string;
   bloodGroup?: string;
   totalDonations?: number;
   lastDonationDate?: { seconds: number, nanoseconds: number };
@@ -36,9 +39,9 @@ function ProfilePageContent() {
   const { user, loading } = useUser();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const uidFromQuery = searchParams.get('uid');
   const { toast } = useToast();
   
+  const uidFromQuery = searchParams.get('uid');
   const profileId = uidFromQuery || user?.uid;
 
   const { data: userProfile, loading: profileLoading } = useDoc<UserProfile>(
@@ -51,7 +54,6 @@ function ProfilePageContent() {
   const [isSaving, setIsSaving] = useState(false);
   
   const isOwnProfile = !uidFromQuery || uidFromQuery === user?.uid;
-
 
   useEffect(() => {
     if (!loading && !user && !uidFromQuery) {
@@ -81,6 +83,8 @@ function ProfilePageContent() {
         const dataToUpdate: { name: string; phone?: string, bloodGroup?: string } = { name, phone };
         if (bloodGroup !== 'Not Set') {
             dataToUpdate.bloodGroup = bloodGroup;
+        } else {
+             dataToUpdate.bloodGroup = 'Not Set';
         }
         await updateUserProfile(user.uid, dataToUpdate);
         toast({
@@ -113,20 +117,25 @@ function ProfilePageContent() {
           <CardContent className="space-y-6">
             <div className="flex items-center gap-4">
               <Skeleton className="h-20 w-20 rounded-full" />
-              <Skeleton className="h-10 w-28" />
+              <div className='flex-grow space-y-2'>
+                <Skeleton className="h-5 w-20" />
+                <Skeleton className="h-10 w-full" />
+              </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Skeleton className="h-4 w-20" />
+                <Skeleton className="h-5 w-20" />
                 <Skeleton className="h-10 w-full" />
               </div>
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-20" />
+               <div className="space-y-2">
+                <Skeleton className="h-5 w-20" />
                 <Skeleton className="h-10 w-full" />
               </div>
             </div>
-            <Skeleton className="h-10 w-32" />
           </CardContent>
+           <CardFooter>
+                <Skeleton className="h-10 w-32" />
+          </CardFooter>
         </Card>
       </div>
     );
@@ -154,13 +163,10 @@ function ProfilePageContent() {
         <CardContent className="space-y-6">
           <div className="flex items-center gap-4">
             <Avatar className="h-20 w-20">
-              {userProfile?.photoURL ? (
-                <AvatarImage src={userProfile.photoURL} alt={userProfile.name || 'User'} />
-              ): (
-                <AvatarFallback>
-                  {(name || userProfile?.name)?.charAt(0).toUpperCase() || 'U'}
-                </AvatarFallback>
-              )}
+              <AvatarImage src={userProfile?.photoURL} alt={userProfile?.name || 'User'} />
+              <AvatarFallback>
+                {(userProfile?.name)?.charAt(0).toUpperCase() || 'U'}
+              </AvatarFallback>
             </Avatar>
             {isOwnProfile && <Button variant="outline" disabled>Change Photo</Button>}
           </div>
@@ -171,18 +177,20 @@ function ProfilePageContent() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={user?.email || ''} readOnly disabled />
+              <Input id="email" type="email" value={userProfile?.email || ''} readOnly disabled />
             </div>
              <div className="space-y-2">
               <Label htmlFor="phone">Phone Number</Label>
               <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} readOnly={!isOwnProfile} />
             </div>
           </div>
-          {isOwnProfile && <Button onClick={handleSaveChanges} disabled={isSaving}>
+        </CardContent>
+         {isOwnProfile && <CardFooter>
+          <Button onClick={handleSaveChanges} disabled={isSaving}>
             {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Save Changes
-          </Button>}
-        </CardContent>
+          </Button>
+          </CardFooter>}
       </Card>
 
       <Card>
@@ -225,11 +233,13 @@ function ProfilePageContent() {
                 <Label>Last Donation Date</Label>
                 <Input readOnly disabled value={userProfile?.lastDonationDate ? format(new Date(userProfile.lastDonationDate.seconds * 1000), 'PPP') : 'N/A'} />
             </div>
-            {isOwnProfile && <Button onClick={handleSaveChanges} disabled={isSaving}>
+        </CardContent>
+         {isOwnProfile && <CardFooter>
+            <Button onClick={handleSaveChanges} disabled={isSaving}>
                 {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Save Blood Group
-            </Button>}
-        </CardContent>
+            </Button>
+        </CardFooter>}
       </Card>
       
        {isOwnProfile && userProfile?.referralCode && (
@@ -273,3 +283,5 @@ export default function ProfilePage() {
         </Suspense>
     )
 }
+
+    
