@@ -14,9 +14,11 @@ import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { ArrowRight, Droplets, FileSearch } from 'lucide-react';
+import { useMemo } from 'react';
 
 interface BloodRequest {
   id: string;
+  requesterId: string;
   patientName: string;
   status: 'pending' | 'fulfilled' | 'closed';
   createdAt: { seconds: number; nanoseconds: number };
@@ -50,14 +52,18 @@ const getStatusVariant = (status: string) => {
 
 export default function UserBloodRequestsPage() {
   const { user } = useUser();
-  const { data: requests, loading } = useCollection<BloodRequest>(
+  const { data: allRequests, loading } = useCollection<BloodRequest>(
     'bloodRequests',
     undefined,
     undefined,
-    { field: 'createdAt', direction: 'desc' },
-    undefined,
-    user?.uid ? [['requesterId', '==', user.uid]] : undefined
+    { field: 'createdAt', direction: 'desc' }
   );
+
+  const requests = useMemo(() => {
+    if (!user || !allRequests) return [];
+    return allRequests.filter(req => req.requesterId === user.uid);
+  }, [allRequests, user]);
+
 
   return (
     <div className="space-y-6">
