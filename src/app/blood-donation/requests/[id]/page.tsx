@@ -34,6 +34,7 @@ import {
   ClipboardList,
   Mail,
   Users,
+  BrainCircuit,
 } from 'lucide-react';
 import { notFound, useParams, useRouter } from 'next/navigation';
 import { useEffect, useState, useMemo } from 'react';
@@ -44,19 +45,15 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter
 } from '@/components/ui/dialog';
 import { useCollection } from '@/firebase/firestore/use-collection';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { markRequestAsFulfilled, respondToRequest } from '@/lib/blood';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
+import { SmartMatch } from './smart-match';
 
 
 interface BloodRequest {
@@ -365,31 +362,34 @@ export default function RequestDetailsPage() {
               </Button>
             )}
             {isRequester && isPending && (
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button
-                    size="lg"
-                    className="w-full text-lg"
-                    variant="secondary"
-                    disabled={responses.length === 0}
-                  >
-                    <BadgeCheck className="mr-2 h-5 w-5" /> Mark as Fulfilled
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className='max-w-md'>
-                  <DialogHeader>
-                    <DialogTitle>Who was the donor?</DialogTitle>
-                    <DialogDescription>
-                      Select the hero who donated blood to award them points for their contribution.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <DonorSelectionDialog
-                    responses={combinedResponders}
-                    loading={responsesLoading || profilesLoading}
-                    onSelectDonor={handleMarkAsFulfilled}
-                  />
-                </DialogContent>
-              </Dialog>
+              <div className="w-full flex flex-col sm:flex-row gap-2">
+                 <Dialog>
+                    <DialogTrigger asChild>
+                    <Button
+                        size="lg"
+                        className="w-full text-lg"
+                        variant="secondary"
+                        disabled={responses.length === 0}
+                    >
+                        <BadgeCheck className="mr-2 h-5 w-5" /> Mark as Fulfilled
+                    </Button>
+                    </DialogTrigger>
+                    <DialogContent className='max-w-md'>
+                    <DialogHeader>
+                        <DialogTitle>Who was the donor?</DialogTitle>
+                        <DialogDescription>
+                        Select the hero who donated blood to award them points for their contribution.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DonorSelectionDialog
+                        responses={combinedResponders}
+                        loading={responsesLoading || profilesLoading}
+                        onSelectDonor={handleMarkAsFulfilled}
+                    />
+                    </DialogContent>
+                </Dialog>
+                <SmartMatch bloodGroup={request.bloodGroup} location={request.location} />
+              </div>
             )}
             {!isPending && request.donorName && (
               <div className="w-full text-center p-4 bg-green-100 dark:bg-green-900/30 rounded-lg text-green-700 dark:text-green-300">
@@ -533,5 +533,3 @@ function DonorSelectionDialog({
     </div>
   );
 }
-
-    
