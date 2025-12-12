@@ -36,6 +36,7 @@ import {
   Users,
   BrainCircuit,
   ShieldCheck,
+  Send,
 } from 'lucide-react';
 import { notFound, useParams, useRouter } from 'next/navigation';
 import { useEffect, useState, useMemo } from 'react';
@@ -261,6 +262,11 @@ export default function RequestDetailsPage() {
   const isAdmin = userProfile?.role === ROLES.ADMIN;
   const isPending = request.status === 'pending';
   const hasUserResponded = responses.some(res => res.userId === user?.uid);
+  
+  const whatsappMessage = encodeURIComponent(`Hello, I'm responding to your blood request for ${request.patientName}.`);
+  const whatsappLink = `https://wa.me/${request.contactPhone}?text=${whatsappMessage}`;
+  const telegramLink = `https://t.me/${request.contactPhone.replace('+', '')}`;
+  const messengerLink = `https://m.me/your_page_or_user_id`; // Replace with actual logic if available
 
   return (
     <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -356,7 +362,8 @@ export default function RequestDetailsPage() {
                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 text-sm">
                     <InfoItem icon={Hospital} label="Hospital" value={`${request.hospitalName}, ${request.location}`} />
                     <InfoItem icon={User} label="Contact Person" value={request.contactPerson} />
-                    <div className="flex items-start gap-4">
+                 </div>
+                 <div className="flex items-start gap-4">
                         <Phone className="h-5 w-5 mt-1 text-muted-foreground shrink-0" />
                         <div>
                             <p className="font-semibold text-muted-foreground">Contact Phone</p>
@@ -371,6 +378,23 @@ export default function RequestDetailsPage() {
                             )}
                         </div>
                     </div>
+                 <div className="mt-4 space-y-3">
+                     <h4 className="font-semibold text-muted-foreground flex items-center gap-2 text-sm"><MessageSquare className="h-4 w-4" /> Contact Options</h4>
+                     <div className="flex flex-wrap gap-2">
+                         <Button variant="outline" asChild>
+                            <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+                                <Send className="mr-2 h-4 w-4" /> WhatsApp
+                            </a>
+                         </Button>
+                          <Button variant="outline" asChild>
+                            <a href={telegramLink} target="_blank" rel="noopener noreferrer">
+                                <Send className="mr-2 h-4 w-4" /> Telegram
+                            </a>
+                         </Button>
+                         <Button variant="outline" disabled>
+                             <Send className="mr-2 h-4 w-4" /> Messenger
+                         </Button>
+                     </div>
                  </div>
             </div>
 
