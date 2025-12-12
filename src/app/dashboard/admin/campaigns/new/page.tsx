@@ -85,6 +85,7 @@ export default function NewCampaignPage() {
         description: `${values.title} is now live and accepting donations.`,
       });
       router.push('/dashboard/admin/campaigns');
+      router.refresh();
     } catch (error) {
       console.error('Error creating campaign:', error);
       toast({

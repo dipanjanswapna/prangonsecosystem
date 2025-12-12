@@ -26,7 +26,7 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import { MoreHorizontal, Edit, Trash2, PlusCircle } from 'lucide-react';
+import { MoreHorizontal, Edit, Trash2, PlusCircle, Eye } from 'lucide-react';
 import type { Timestamp } from 'firebase/firestore';
 import { Progress } from '@/components/ui/progress';
 import Link from 'next/link';
@@ -46,6 +46,7 @@ import { deleteCampaign } from '@/lib/campaigns';
 
 interface Campaign {
   id: string;
+  slug: string;
   title: string;
   goal: number;
   raised: number;
@@ -197,6 +198,12 @@ export default function AdminCampaignsPage() {
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem asChild>
+                               <Link href={`/donations/${campaign.slug}`} target="_blank">
+                                <Eye className="mr-2 h-4 w-4" />
+                                View Live
+                              </Link>
+                            </DropdownMenuItem>
                             <DropdownMenuItem asChild>
                               <Link href={`/dashboard/admin/campaigns/${campaign.id}/edit`}>
                                 <Edit className="mr-2 h-4 w-4" />

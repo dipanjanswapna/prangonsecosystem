@@ -117,6 +117,7 @@ export default function EditCampaignPage() {
         description: `Changes to "${values.title}" have been saved.`,
       });
       router.push('/dashboard/admin/campaigns');
+      router.refresh();
     } catch (error) {
       console.error('Error updating campaign:', error);
       toast({
@@ -316,5 +317,3 @@ export default function EditCampaignPage() {
     </Card>
   );
 }
-
-    
