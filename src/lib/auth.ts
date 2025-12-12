@@ -80,6 +80,7 @@ export const signUp = async (email:string, password:string, fullName:string, rol
     points: 0,
     badges: [],
     skills: [],
+    phone: '',
   });
 
   return userCredential;
@@ -127,6 +128,7 @@ const handleSocialSignIn = async (user: User, refCode?: string | null) => {
       points: 0,
       badges: [],
       skills: [],
+      phone: user.phoneNumber || '',
     });
   } else {
     // If user already exists, just update their last login
@@ -189,8 +191,8 @@ export const updateUserProfile = async (uid: string, data: any) => {
     const role = userProfile.data()?.role;
     const isPrivilegedRole = ![ROLES.USER, ROLES.ADMIN].includes(role);
 
-    // Only set profile status to pending_review if it's not a simple name update
-    if (isPrivilegedRole && Object.keys(data).some(key => key !== 'name')) {
+    // Only set profile status to pending_review if it's not a simple name/phone/bloodgroup update
+    if (isPrivilegedRole && Object.keys(data).some(key => !['name', 'phone', 'bloodGroup'].includes(key))) {
         updateData.profile_status = 'pending_review';
     }
 

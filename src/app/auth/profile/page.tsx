@@ -14,8 +14,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useUser } from '@/firebase/auth/use-user';
 import { Copy, Gift, Loader2, Droplets } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState, Suspense } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useDoc } from '@/firebase/firestore/use-doc';
 import { useToast } from '@/hooks/use-toast';
@@ -26,34 +26,43 @@ import { format } from 'date-fns';
 interface UserProfile {
   referralCode?: string;
   name: string;
+  phone?: string;
   bloodGroup?: string;
   totalDonations?: number;
   lastDonationDate?: { seconds: number, nanoseconds: number };
 }
 
-
-export default function ProfilePage() {
+function ProfilePageContent() {
   const { user, loading } = useUser();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const uidFromQuery = searchParams.get('uid');
   const { toast } = useToast();
+  
+  const profileId = uidFromQuery || user?.uid;
 
   const { data: userProfile, loading: profileLoading } = useDoc<UserProfile>(
-    user ? `users/${user.uid}` : null
+    profileId ? `users/${profileId}` : null
   );
   
   const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
   const [bloodGroup, setBloodGroup] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  
+  const isOwnProfile = !uidFromQuery || uidFromQuery === user?.uid;
+
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!loading && !user && !uidFromQuery) {
       router.push('/auth/login');
     }
     if (userProfile) {
-        setName(userProfile.name || user?.displayName || '');
+        setName(userProfile.name || '');
+        setPhone(userProfile.phone || '');
         setBloodGroup(userProfile.bloodGroup || 'Not Set');
     }
-  }, [user, loading, router, userProfile]);
+  }, [user, loading, router, userProfile, uidFromQuery]);
 
   const referralLink = `${process.env.NEXT_PUBLIC_BASE_URL}/auth/register?ref=${userProfile?.referralCode}`;
 
@@ -66,10 +75,10 @@ export default function ProfilePage() {
   };
 
   const handleSaveChanges = async () => {
-    if (!user) return;
+    if (!user || !isOwnProfile) return;
     setIsSaving(true);
     try {
-        const dataToUpdate: { name: string; bloodGroup?: string } = { name };
+        const dataToUpdate: { name: string; phone?: string, bloodGroup?: string } = { name, phone };
         if (bloodGroup !== 'Not Set') {
             dataToUpdate.bloodGroup = bloodGroup;
         }
@@ -89,7 +98,7 @@ export default function ProfilePage() {
     }
   }
 
-  if (loading || profileLoading || !user) {
+  if (loading || profileLoading || !profileId) {
     return (
       <div className="max-w-2xl mx-auto space-y-8">
         <div className="text-center">
@@ -128,10 +137,10 @@ export default function ProfilePage() {
     <div className="max-w-2xl mx-auto space-y-8">
       <div className="text-center">
         <h1 className="font-headline text-4xl font-bold tracking-tight">
-          My Profile
+          {isOwnProfile ? "My Profile" : `${userProfile?.name}'s Profile`}
         </h1>
         <p className="mt-2 text-lg text-muted-foreground">
-          Manage your account settings and profile information.
+          {isOwnProfile ? "Manage your account settings and profile information." : "Viewing public profile information."}
         </p>
       </div>
 
@@ -139,36 +148,40 @@ export default function ProfilePage() {
         <CardHeader>
           <CardTitle className="font-headline">Profile Information</CardTitle>
           <CardDescription>
-            Update your personal details here.
+             {isOwnProfile ? "Update your personal details here." : "Basic user information."}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex items-center gap-4">
             <Avatar className="h-20 w-20">
-              {user.photoURL ? (
-                <AvatarImage src={user.photoURL} alt={user.displayName || 'User'} />
+              {userProfile?.photoURL ? (
+                <AvatarImage src={userProfile.photoURL} alt={userProfile.name || 'User'} />
               ): (
                 <AvatarFallback>
-                  {(name || user.email)?.charAt(0).toUpperCase() || 'U'}
+                  {(name || userProfile?.name)?.charAt(0).toUpperCase() || 'U'}
                 </AvatarFallback>
               )}
             </Avatar>
-            <Button variant="outline" disabled>Change Photo</Button>
+            {isOwnProfile && <Button variant="outline" disabled>Change Photo</Button>}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
-              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
+              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} readOnly={!isOwnProfile}/>
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={user.email || ''} readOnly disabled />
+              <Input id="email" type="email" value={user?.email || ''} readOnly disabled />
+            </div>
+             <div className="space-y-2">
+              <Label htmlFor="phone">Phone Number</Label>
+              <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} readOnly={!isOwnProfile} />
             </div>
           </div>
-          <Button onClick={handleSaveChanges} disabled={isSaving}>
+          {isOwnProfile && <Button onClick={handleSaveChanges} disabled={isSaving}>
             {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Save Changes
-          </Button>
+          </Button>}
         </CardContent>
       </Card>
 
@@ -179,14 +192,14 @@ export default function ProfilePage() {
                 Blood Donation Information
             </CardTitle>
             <CardDescription>
-              Manage your blood donation details. This helps us find matches faster.
+              {isOwnProfile ? "Manage your blood donation details. This helps us find matches faster." : "Blood donation statistics."}
             </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                     <Label htmlFor="blood-group">Blood Group</Label>
-                    <Select value={bloodGroup} onValueChange={setBloodGroup}>
+                    <Select value={bloodGroup} onValueChange={setBloodGroup} disabled={!isOwnProfile}>
                         <SelectTrigger id="blood-group">
                             <SelectValue placeholder="Select your blood group" />
                         </SelectTrigger>
@@ -212,14 +225,14 @@ export default function ProfilePage() {
                 <Label>Last Donation Date</Label>
                 <Input readOnly disabled value={userProfile?.lastDonationDate ? format(new Date(userProfile.lastDonationDate.seconds * 1000), 'PPP') : 'N/A'} />
             </div>
-            <Button onClick={handleSaveChanges} disabled={isSaving}>
+            {isOwnProfile && <Button onClick={handleSaveChanges} disabled={isSaving}>
                 {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Save Blood Group
-            </Button>
+            </Button>}
         </CardContent>
       </Card>
       
-       {userProfile?.referralCode && (
+       {isOwnProfile && userProfile?.referralCode && (
         <Card>
           <CardHeader>
             <CardTitle className="font-headline flex items-center gap-2">
@@ -250,4 +263,13 @@ export default function ProfilePage() {
 
     </div>
   );
+}
+
+
+export default function ProfilePage() {
+    return (
+        <Suspense fallback={<div>Loading profile...</div>}>
+            <ProfilePageContent />
+        </Suspense>
+    )
 }

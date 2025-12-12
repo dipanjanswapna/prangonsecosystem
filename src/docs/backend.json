@@ -8,6 +8,7 @@
         "uid": { "type": "string", "description": "The user's unique ID from Firebase Auth." },
         "name": { "type": "string", "description": "The user's full name." },
         "email": { "type": "string", "format": "email", "description": "The user's email address." },
+        "phone": { "type": "string", "description": "The user's contact phone number." },
         "photoURL": { "type": "string", "format": "uri", "description": "URL of the user's profile picture." },
         "role": { "type": "string", "description": "The user's role in the system.", "enum": ["admin", "moderator", "manager", "collaborator", "user", "volunteer"] },
         "status": { "type": "string", "description": "The approval status of the user's account.", "enum": ["pending", "approved", "rejected"] },

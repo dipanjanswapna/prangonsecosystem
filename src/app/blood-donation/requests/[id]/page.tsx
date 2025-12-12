@@ -23,9 +23,12 @@ import {
   Loader2,
   Phone,
   User,
+  MessageSquare,
+  PhoneCall,
+  UserRound,
 } from 'lucide-react';
 import { notFound, useParams, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -38,6 +41,13 @@ import { useCollection } from '@/firebase/firestore/use-collection';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { markRequestAsFulfilled, respondToRequest } from '@/lib/blood';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import Link from 'next/link';
 
 interface BloodRequest {
   id: string;
@@ -61,6 +71,7 @@ interface UserProfile {
   id: string;
   uid: string;
   name: string;
+  phone?: string;
   photoURL?: string;
 }
 
@@ -70,6 +81,9 @@ interface DonationResponse {
     userName: string;
     userPhotoURL?: string;
 }
+
+type CombinedResponder = DonationResponse & { profile?: UserProfile };
+
 
 const bloodGroupStyles: { [key: string]: string } = {
   'A+': 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/50 dark:text-red-300 dark:border-red-700',
@@ -133,6 +147,31 @@ export default function RequestDetailsPage() {
   const { data: responses, loading: responsesLoading } = useCollection<DonationResponse>(
     requestId ? `bloodRequests/${requestId}/responses` : null
   );
+  
+  const responderIds = responses.map(r => r.userId);
+  const { data: responderProfiles, loading: profilesLoading } = useCollection<UserProfile>(
+      'users',
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      responderIds.length > 0 ? [['uid', 'in', responderIds]] : undefined
+  );
+  
+  const [combinedResponders, setCombinedResponders] = useState<CombinedResponder[]>([]);
+
+  useEffect(() => {
+    if (responses.length > 0 && responderProfiles.length > 0) {
+      const combined = responses.map(response => {
+        const profile = responderProfiles.find(p => p.id === response.userId);
+        return { ...response, profile };
+      });
+      setCombinedResponders(combined);
+    } else {
+        setCombinedResponders(responses);
+    }
+  }, [responses, responderProfiles]);
+
 
   const [showContact, setShowContact] = useState(false);
   const { toast } = useToast();
@@ -171,7 +210,7 @@ export default function RequestDetailsPage() {
 
   }
 
-  if (requestLoading || userLoading) {
+  if (requestLoading || userLoading || profilesLoading) {
     return <RequestDetailsSkeleton />;
   }
 
@@ -306,17 +345,16 @@ export default function RequestDetailsPage() {
                     <BadgeCheck className="mr-2 h-5 w-5" /> Mark as Fulfilled
                   </Button>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className='max-w-2xl'>
                   <DialogHeader>
                     <DialogTitle>Who was the donor?</DialogTitle>
                     <DialogDescription>
-                      Select the hero who donated blood to award them points for
-                      their contribution.
+                      Select the hero who donated blood to award them points for their contribution. You can view their profile or contact them before confirming.
                     </DialogDescription>
                   </DialogHeader>
                   <DonorSelectionDialog
-                    responses={responses}
-                    loading={responsesLoading}
+                    responses={combinedResponders}
+                    loading={responsesLoading || profilesLoading}
                     onSelectDonor={handleMarkAsFulfilled}
                   />
                 </DialogContent>
@@ -360,46 +398,96 @@ function DonorSelectionDialog({
   loading,
   onSelectDonor,
 }: {
-  responses: DonationResponse[];
+  responses: CombinedResponder[];
   loading: boolean;
   onSelectDonor: (donor: DonationResponse) => void;
 }) {
-  const [selectedDonor, setSelectedDonor] = useState<DonationResponse | null>(
-    null
-  );
+  const [selectedDonorId, setSelectedDonorId] = useState<string | null>(null);
+
+  if (loading) {
+    return <Loader2 className="mx-auto my-8 h-8 w-8 animate-spin" />;
+  }
+
+  if (responses.length === 0) {
+    return (
+      <p className="text-center text-muted-foreground py-8">
+        No donors have responded yet.
+      </p>
+    );
+  }
 
   return (
     <div>
-      <div className="max-h-64 overflow-y-auto space-y-2 my-4 pr-2">
-        {loading && <Loader2 className="mx-auto animate-spin" />}
-        {responses.map((res) => (
-          <div
-            key={res.id}
-            onClick={() => setSelectedDonor(res)}
-            className={cn(
-              'flex items-center gap-3 p-2 rounded-lg cursor-pointer border-2',
-              selectedDonor?.id === res.id
-                ? 'border-primary bg-primary/10'
-                : 'border-transparent hover:bg-muted'
-            )}
-          >
-            <Avatar>
-              <AvatarImage src={res.userPhotoURL} />
-              <AvatarFallback>{res.userName?.charAt(0) || 'U'}</AvatarFallback>
-            </Avatar>
-            <span className="font-medium">{res.userName}</span>
-          </div>
-        ))}
-         {!loading && responses.length === 0 && (
-            <p className="text-center text-muted-foreground">No donors have responded yet.</p>
-        )}
+      <div className="max-h-96 overflow-y-auto space-y-2 my-4 pr-2">
+        {responses.map((res) => {
+          const isSelected = selectedDonorId === res.id;
+          return (
+            <div
+              key={res.id}
+              onClick={() => setSelectedDonorId(res.id)}
+              className={cn(
+                'p-3 rounded-lg border-2 cursor-pointer',
+                isSelected
+                  ? 'border-primary bg-primary/10'
+                  : 'border-border hover:bg-muted'
+              )}
+            >
+              <div className="flex items-center gap-4">
+                <Avatar className="h-12 w-12">
+                  <AvatarImage src={res.userPhotoURL} />
+                  <AvatarFallback>
+                    {res.userName?.charAt(0) || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-grow">
+                    <p className="font-semibold">{res.userName}</p>
+                    <p className="text-sm text-muted-foreground">ID: {res.userId.substring(0, 8)}...</p>
+                </div>
+                 <div className="flex gap-2">
+                    <Button variant="outline" size="sm" asChild>
+                        <Link href={`/auth/profile?uid=${res.userId}`} target="_blank">
+                             <UserRound className="mr-1.5 h-4 w-4" /> Profile
+                        </Link>
+                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm">
+                            <Phone className="mr-1.5 h-4 w-4" /> Contact
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent>
+                        <DropdownMenuItem asChild>
+                            <a href={`tel:${res.profile?.phone}`}>
+                                <PhoneCall className="mr-2 h-4 w-4" /> Call
+                            </a>
+                        </DropdownMenuItem>
+                         <DropdownMenuItem asChild>
+                             <a href={`https://wa.me/${res.profile?.phone}`} target="_blank" rel="noopener noreferrer">
+                               <MessageSquare className="mr-2 h-4 w-4" /> WhatsApp
+                            </a>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                             <a href={`https://t.me/${res.profile?.phone}`} target="_blank" rel="noopener noreferrer">
+                                <MessageSquare className="mr-2 h-4 w-4" /> Telegram
+                            </a>
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                 </div>
+              </div>
+            </div>
+          );
+        })}
       </div>
       <Button
         className="w-full"
-        disabled={!selectedDonor}
-        onClick={() => selectedDonor && onSelectDonor(selectedDonor)}
+        disabled={!selectedDonorId}
+        onClick={() => {
+          const selectedDonor = responses.find(r => r.id === selectedDonorId);
+          if (selectedDonor) onSelectDonor(selectedDonor);
+        }}
       >
-        Confirm Donor & Fulfill
+        Confirm Donor & Fulfill Request
       </Button>
     </div>
   );
