@@ -115,7 +115,7 @@ export default function SubscriptionManagePage() {
   };
 
 
-  const loading = userLoading || subscriptionLoading;
+  const loading = userLoading || subscriptionLoading || subscription === undefined;
 
   if (loading) {
     return (
