@@ -75,7 +75,7 @@ export default function NewPricePage() {
         title: 'Price Created!',
         description: `The price has been successfully created.`,
       });
-      router.push('/dashboard/admin/subscriptions/prices');
+      router.push('/dashboard/admin/subscriptions');
       router.refresh();
     } catch (error: any) {
       console.error('Error creating price:', error);
@@ -228,3 +228,5 @@ export default function NewPricePage() {
     </Card>
   );
 }
+
+    

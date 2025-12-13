@@ -83,7 +83,7 @@ export default function NewPlanPage() {
       });
       router.push('/dashboard/admin/subscriptions');
       router.refresh();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating plan:', error);
       toast({
         variant: 'destructive',
@@ -242,3 +242,5 @@ export default function NewPlanPage() {
     </Card>
   );
 }
+
+    

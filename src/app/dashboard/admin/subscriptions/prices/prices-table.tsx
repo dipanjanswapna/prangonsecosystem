@@ -64,7 +64,7 @@ export function PricesTable() {
   const loading = pricesLoading || plansLoading;
 
   const pricesWithPlanNames = useMemo(() => {
-    if (loading) return [];
+    if (loading || !prices || !plans) return [];
     return prices.map(price => {
         const plan = plans.find(p => p.id === price.planId);
         return {
@@ -223,3 +223,5 @@ export function PricesTable() {
     </>
   );
 }
+
+    

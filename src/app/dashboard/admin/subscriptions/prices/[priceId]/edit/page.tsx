@@ -11,6 +11,7 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -97,7 +98,7 @@ export default function EditPricePage() {
         title: 'Price Updated!',
         description: `Changes to the price have been saved.`,
       });
-      router.push('/dashboard/admin/subscriptions/prices');
+      router.push('/dashboard/admin/subscriptions');
       router.refresh();
     } catch (error: any) {
       console.error('Error updating price:', error);
@@ -275,3 +276,5 @@ export default function EditPricePage() {
     </Card>
   );
 }
+
+    
