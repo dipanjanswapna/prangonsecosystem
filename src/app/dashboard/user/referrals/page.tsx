@@ -30,19 +30,29 @@ interface ReferredUser {
   createdAt: { seconds: number; nanoseconds: number };
 }
 
+interface UserProfile {
+  referralCode?: string;
+}
+
 export default function UserReferralsPage() {
   const { user } = useUser();
-  const { data: userProfile } = useCollection<any>('users', 'uid', user?.uid);
+  const { data: userProfile, loading: profileLoading } = useCollection<UserProfile>(
+    'users',
+    'uid',
+    user?.uid
+  );
 
   const referralCode = useMemo(() => {
     return userProfile.length > 0 ? userProfile[0].referralCode : null;
   }, [userProfile]);
 
-  const { data: referredUsers, loading } = useCollection<ReferredUser>(
+  const { data: referredUsers, loading: referralsLoading } = useCollection<ReferredUser>(
     'users',
     'referredBy',
-    referralCode
+    referralCode // This will only run the query if referralCode is not null
   );
+
+  const loading = profileLoading || (referralCode ? referralsLoading : false);
   
   const sortedReferredUsers = useMemo(() => {
     if (!referredUsers) return [];
@@ -59,7 +69,7 @@ export default function UserReferralsPage() {
           </CardTitle>
           <CardDescription>
             Here is a list of all the users who have joined using your referral
-            code. You earn 50 points for each successful referral!
+            code. You earn 5 points for each successful referral!
           </CardDescription>
         </CardHeader>
       </Card>
