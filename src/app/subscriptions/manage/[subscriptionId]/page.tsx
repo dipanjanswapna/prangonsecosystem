@@ -117,7 +117,7 @@ export default function SubscriptionManagePage() {
 
   const loading = userLoading || subscriptionLoading;
 
-  if (loading || subscription === undefined) {
+  if (loading) {
     return (
         <div className="max-w-3xl mx-auto">
             <SubscriptionManagementSkeleton />
