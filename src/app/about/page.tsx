@@ -1,43 +1,140 @@
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import {
+  BookOpen,
+  BrainCircuit,
+  Lightbulb,
+  Briefcase,
+  Users,
+  Check,
+} from 'lucide-react';
 
 export default function AboutPage() {
-    const userAvatar = PlaceHolderImages.find((img) => img.id === 'user-avatar');
-    
+  const pillars = [
+    {
+      icon: BookOpen,
+      title: 'Education & Learning',
+      points: [
+        'Online learning platforms (e.g., Dreamer’s Learniogram – DreL)',
+        'HSC, SSC, admission & concept-based academic content',
+        'Student-friendly explanations and mentorship',
+        'Free + affordable quality education',
+      ],
+    },
+    {
+      icon: BrainCircuit,
+      title: 'Technology & Digital Products',
+      points: [
+        'Educational web apps & LMS platforms',
+        'Student dashboards, admin panels, teacher portals',
+        'AI-assisted learning tools',
+        'Web development using Firebase, Vercel, GitHub',
+      ],
+    },
+    {
+      icon: Lightbulb,
+      title: 'Creative & Media Platform',
+      points: [
+        'Educational YouTube & Facebook content',
+        'Motivational storytelling for students',
+        'Graphic design & UI/UX work',
+        'Personal branding and digital presence',
+      ],
+    },
+    {
+      icon: Briefcase,
+      title: 'Freelancing & Skill Development',
+      points: [
+        'Training students in graphic design, web development, and digital tools',
+        'Helping youth enter freelancing marketplaces',
+        'Building real-world portfolios',
+      ],
+    },
+    {
+      icon: Users,
+      title: 'Social Impact & Community',
+      points: [
+        'Collaboration with organizations like ONGON Bangladesh',
+        'Donation systems & humanitarian projects',
+        'Youth leadership and volunteer engagement',
+        'Ethical, non-political service initiatives',
+      ],
+    },
+  ];
+
   return (
     <div className="max-w-4xl mx-auto space-y-12">
-      <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
-        <div className="flex-shrink-0">
-          <Avatar className="h-40 w-40 md:h-48 md:w-48 border-4 border-primary/20 shadow-lg">
-            {userAvatar && <AvatarImage src={userAvatar.imageUrl} alt="Dipanjan S. PRANGON" />}
-            <AvatarFallback className="text-4xl">DD</AvatarFallback>
-          </Avatar>
-        </div>
-        <div className="text-center md:text-left">
-          <h1 className="font-headline text-4xl md:text-5xl font-extrabold tracking-tight">
-            Dipanjan S. PRANGON
-          </h1>
-          <p className="mt-2 text-xl text-muted-foreground font-medium">
-            Full-Stack Developer, UI/UX Enthusiast, and Content Creator.
+      <div className="text-center">
+        <p className="font-headline text-primary">Prangon’s Ecosystem</p>
+        <h1 className="font-headline text-4xl md:text-5xl font-extrabold tracking-tight">
+          About Us
+        </h1>
+        <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
+          A youth-led, innovation-driven ecosystem founded by Dipanjan Swapna
+          Prangon. It is designed to connect education, technology, creativity,
+          and social impact under one integrated platform.
+        </p>
+      </div>
+
+      <Card className="bg-muted/50">
+        <CardHeader>
+          <CardTitle className="font-headline text-center">
+            Our Core Vision
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-center text-lg">
+            To build future-ready learners and creators by providing quality
+            education, practical digital skills, creative platforms, and a
+            strong sense of ethical and social responsibility.
           </p>
+        </CardContent>
+      </Card>
+
+      <div>
+        <h2 className="text-3xl font-bold text-center mb-8 font-headline">
+          Key Pillars of the Ecosystem
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {pillars.map((pillar) => (
+            <Card key={pillar.title} className="flex flex-col">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-3">
+                  <pillar.icon className="h-8 w-8 text-primary" />
+                  <span>{pillar.title}</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="flex-grow">
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  {pillar.points.map((point, index) => (
+                    <li key={index} className="flex items-start gap-2">
+                      <Check className="h-4 w-4 mt-1 shrink-0 text-green-500" />
+                      <span>{point}</span>
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+          ))}
         </div>
       </div>
-      <div className="prose prose-lg dark:prose-invert max-w-full mx-auto text-foreground/80">
-        <p>
-          Hello! I'm Dipanjan, a passionate developer and designer with a knack for building beautiful, functional, and user-centric digital experiences. My journey into the world of tech began with a fascination for how things work, which quickly blossomed into a career dedicated to creating innovative solutions on the web.
-        </p>
-        <p>
-          With a strong foundation in both front-end and back-end technologies, I specialize in bringing ideas to life from concept to deployment. I thrive on challenges and am constantly exploring new technologies to push the boundaries of what's possible.
-        </p>
-        <h2 className="font-headline">My Philosophy</h2>
-        <p>
-          I believe that the best products are born from a deep understanding of user needs, coupled with clean, efficient code and elegant design. My goal is to not just build applications, but to craft experiences that are intuitive, accessible, and enjoyable for everyone.
-        </p>
-        <h2 className="font-headline">Beyond the Code</h2>
-        <p>
-          When I'm not at my keyboard, you can find me exploring the latest design trends, contributing to open-source projects, or sharing my knowledge through my blog. I'm also a firm believer in giving back to the community and am actively involved in mentoring aspiring developers.
-        </p>
-      </div>
+      
+       <Card>
+        <CardHeader>
+          <CardTitle className="font-headline text-center">
+            In One Line
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-center text-lg font-semibold italic">
+           Prangon’s Ecosystem is a unified platform where learning, technology, creativity, and social responsibility grow together to shape future leaders.
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 }
