@@ -52,15 +52,17 @@ const rewardReferrer = async (refCode: string, newUserId: string) => {
         const batch = writeBatch(firestore);
 
         // --- Calculate total referrals for the referrer ---
-        const referralsQuery = query(usersRef, where('referredBy', '==', referrerDoc.id));
-        const referralsSnapshot = await getDocs(referralsQuery);
-        // Add 1 for the current new user, as this transaction hasn't been committed yet.
-        const newTotalReferrals = referralsSnapshot.size + 1;
+        // This is a simplified calculation. For high-traffic apps, this should be a transaction.
+        const newTotalReferrals = (referrerData.totalReferrals || 0) + 1;
+
 
         // --- Milestone Rewards ---
         const newBadges = referrerData.badges || [];
         if (newTotalReferrals >= 10 && !newBadges.includes('Community Builder')) {
             newBadges.push('Community Builder');
+        }
+         if (newTotalReferrals >= 1 && !newBadges.includes('Recruiter')) {
+            newBadges.push('Recruiter');
         }
 
         batch.update(referrerRef, {
@@ -120,7 +122,7 @@ export const signUp = async (email:string, password:string, fullName:string, rol
     lastLogin: serverTimestamp(),
     photoURL: user.photoURL,
     referralCode: nanoid(),
-    referredBy: refCode || null,
+    referredBy: null, // Will be updated by rewardReferrer if applicable
     level: 'Bronze',
     points: 2, // Welcome bonus
     totalReferrals: 0,
@@ -178,7 +180,7 @@ const handleSocialSignIn = async (user: User, refCode?: string | null) => {
       createdAt: serverTimestamp(),
       lastLogin: serverTimestamp(),
       referralCode: nanoid(),
-      referredBy: refCode || null,
+      referredBy: null, // Will be updated by rewardReferrer if applicable
       level: 'Bronze',
       points: 2, // Welcome bonus
       totalReferrals: 0,
