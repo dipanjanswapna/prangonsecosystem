@@ -151,27 +151,6 @@ export default function HomePage() {
           <p className="text-lg md:text-xl text-muted-foreground font-medium">
             A youth-led, innovation-driven ecosystem founded by Dipanjan Swapna Prangon. It is designed to connect education, technology, creativity, and social impact under one integrated platform.
           </p>
-          
-          <div className="prose prose-lg dark:prose-invert max-w-full text-left text-foreground/80">
-            <h3 className="font-headline">🌱 What is Prangon’s Ecosystem?</h3>
-            <p>
-              Prangon’s Ecosystem is not a single project—it’s a network of initiatives that work together to empower students, creators, and young entrepreneurs, especially in Bangladesh.
-            </p>
-
-            <h3 className="font-headline">🎯 Core Vision</h3>
-            <p>To build future-ready learners and creators by providing:</p>
-            <ul>
-              <li>Quality education</li>
-              <li>Practical digital skills</li>
-              <li>Creative platforms</li>
-              <li>Ethical and social responsibility</li>
-            </ul>
-
-            <h3 className="font-headline">🧠 In One Line</h3>
-            <p>
-              Prangon’s Ecosystem is a unified platform where learning, technology, creativity, and social responsibility grow together to shape future leaders.
-            </p>
-          </div>
 
           <div className="pt-4 flex flex-col sm:flex-row gap-4">
             <Button asChild size="lg">
@@ -230,7 +209,10 @@ export default function HomePage() {
             <div className="p-6 border rounded-lg">
                 <h4 className="font-headline text-lg font-semibold flex items-center gap-2 mb-2"><Briefcase/> Freelancing & Skill Development</h4>
                  <ul className="list-disc pl-5 text-muted-foreground text-sm space-y-1">
-                    <li>Training in Graphic design & Web development</li>
+                    <li>Training students in:</li>
+                    <li>Graphic design</li>
+                    <li>Web development</li>
+                    <li>Digital tools</li>
                     <li>Helping youth enter freelancing marketplaces</li>
                     <li>Building real-world portfolios</li>
                 </ul>
