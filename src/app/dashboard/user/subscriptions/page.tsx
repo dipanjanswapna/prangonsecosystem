@@ -3,7 +3,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
@@ -35,7 +34,7 @@ const SubscriptionSkeleton = () => (
       <Skeleton className="h-5 w-1/4" />
     </CardContent>
     <CardFooter>
-      <Skeleton className="h-10 w-28" />
+      <Skeleton className="h-10 w-full" />
     </CardFooter>
   </Card>
 );
@@ -111,7 +110,7 @@ export default function UserSubscriptionsPage() {
               <CardHeader>
                 <CardTitle>{sub.planName || sub.planId}</CardTitle>
                 <CardDescription>
-                  Status: {' '}
+                  Status:{' '}
                    <Badge
                     variant={getStatusVariant(sub.status)}
                     className="capitalize"

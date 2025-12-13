@@ -21,7 +21,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal, Edit, Trash2, PlusCircle } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -48,11 +48,32 @@ interface Price {
   createdAt: Timestamp;
 }
 
+interface Plan {
+    id: string;
+    name: string;
+}
+
 export function PricesTable() {
-  const { data: prices, loading } = useCollection<Price>('prices');
+  const { data: prices, loading: pricesLoading } = useCollection<Price>('prices');
+  const { data: plans, loading: plansLoading } = useCollection<Plan>('plans');
+  
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [priceToDelete, setPriceToDelete] = useState<Price | null>(null);
   const { toast } = useToast();
+
+  const loading = pricesLoading || plansLoading;
+
+  const pricesWithPlanNames = useMemo(() => {
+    if (loading) return [];
+    return prices.map(price => {
+        const plan = plans.find(p => p.id === price.planId);
+        return {
+            ...price,
+            planName: plan?.name || price.planId,
+        }
+    });
+  }, [prices, plans, loading]);
+
 
   const openDeleteDialog = (price: Price) => {
     setPriceToDelete(price);
@@ -122,9 +143,9 @@ export function PricesTable() {
                   </TableCell>
                 </TableRow>
               ))
-            : prices.map((price) => (
+            : pricesWithPlanNames.map((price) => (
                 <TableRow key={price.id}>
-                  <TableCell className="font-medium">{price.planName || price.planId}</TableCell>
+                  <TableCell className="font-medium">{price.planName}</TableCell>
                    <TableCell className="font-semibold">{price.amount.toLocaleString()} {price.currency}</TableCell>
                   <TableCell className="hidden md:table-cell">
                     <Badge variant="outline" className="capitalize">
