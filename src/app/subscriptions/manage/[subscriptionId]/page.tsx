@@ -88,7 +88,7 @@ export default function SubscriptionManagePage() {
   const router = useRouter();
 
   const { data: subscription, loading: subscriptionLoading } =
-    useDoc<Subscription>(user ? `users/${user.uid}/subscriptions/${subscriptionId}` : null);
+    useDoc<Subscription>(user && subscriptionId ? `users/${user.uid}/subscriptions/${subscriptionId}` : null);
   
   const [isCanceling, setIsCanceling] = useState(false);
   const [cancellationReason, setCancellationReason] = useState('');
