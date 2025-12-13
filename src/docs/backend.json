@@ -111,7 +111,7 @@
         "isAnonymous": { "type": "boolean", "default": false },
         "donorName": { "type": "string", "description": "Name of the donor (if not anonymous)." },
         "donorEmail": { "type": "string", "format": "email", "description": "Email of the donor (if not anonymous)." },
-        "frequency": { "type": "string", "description": "The frequency of the donation.", "default": "one-time" },
+        "frequency": { "type": "string", "default": "one-time" },
         "isCorporateMatch": { "type": "boolean", "default": false, "description": "Indicates if the donation is part of a corporate matching program." },
         "corporateName": { "type": "string", "description": "Name of the matching corporation, if applicable." }
       },
