@@ -8,6 +8,7 @@ import {
   BrainCircuit,
   Droplets,
   Gift,
+  Ticket,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -28,6 +29,7 @@ const navItems = [
   { href: '/', label: 'Home' },
   { href: '/about', label: 'About Us' },
   { href: '/donations', label: 'Donations' },
+  { href: '/subscriptions', label: 'Subscriptions', icon: Ticket },
   {
     label: 'More',
     children: [
@@ -130,3 +132,5 @@ export function MainNav({ isMobile = false }: { isMobile?: boolean }) {
     </nav>
   );
 }
+
+    
