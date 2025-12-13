@@ -117,11 +117,15 @@ export default function SubscriptionManagePage() {
 
   const loading = userLoading || subscriptionLoading;
 
-  if (loading) {
-    return <SubscriptionManagementSkeleton />;
+  if (loading || subscription === undefined) {
+    return (
+        <div className="max-w-3xl mx-auto">
+            <SubscriptionManagementSkeleton />
+        </div>
+    );
   }
 
-  if (!subscription) {
+  if (subscription === null) {
     notFound();
   }
 
