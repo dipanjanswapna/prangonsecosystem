@@ -87,86 +87,147 @@ export default function UserDashboard() {
 
 
   return (
-    <div className="grid gap-6">
-        
-        {userProfile && (
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+            {userProfile && (
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Trophy className="h-5 w-5 text-amber-500" />
+                            My Status & Rewards
+                        </CardTitle>
+                        <CardDescription>Your current level, points, and progress toward the next reward. (1 Point = 100 BDT Donated, 1 Blood Donation = 10 Points)</CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <div className="space-y-4">
+                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                <div className="flex items-center gap-4">
+                                    <Badge className="text-lg py-1 px-4 border-2" variant={currentLevel === 'Platinum' ? 'destructive' : currentLevel === 'Gold' ? 'default' : 'secondary'}>
+                                        {currentLevel}
+                                    </Badge>
+                                    <div className="flex items-center gap-1.5">
+                                        <Star className="h-5 w-5 text-amber-400 fill-amber-400" />
+                                        <span className="font-bold text-xl">{currentPoints.toLocaleString()}</span>
+                                        <span className="text-muted-foreground">Points</span>
+                                    </div>
+                                </div>
+                            </div>
+                            {nextLevelName ? (
+                                <div>
+                                    <div className="mb-2 text-sm text-muted-foreground">
+                                        Next Level: <span className="font-semibold text-foreground">{nextLevelName}</span> ({nextLevelPoints.toLocaleString()} points)
+                                    </div>
+                                    <Progress value={progressPercentage} className="h-3" />
+                                    <p className="text-xs text-muted-foreground mt-1 text-right">
+                                        {pointsForNextLevel.toLocaleString()} more points to reach {nextLevelName}
+                                    </p>
+                                </div>
+                            ) : (
+                                <p className="text-sm font-medium text-green-600">Congratulations! You have reached the highest level!</p>
+                            )}
+                        </div>
+                        <Separator />
+                        <div className="space-y-2">
+                            <h4 className="font-semibold text-muted-foreground flex items-center gap-2">
+                                <Gift className="h-4 w-4" />
+                                Reward History
+                            </h4>
+                            {userProfile.lastGiftClaimedAt ? (
+                                <div className="flex items-center gap-3 text-sm p-3 bg-muted/50 rounded-lg">
+                                    <CalendarDays className="h-5 w-5 text-primary" />
+                                    <div>
+                                        <p>Last gift claimed on:</p>
+                                        <p className="font-semibold">{new Date(userProfile.lastGiftClaimedAt.seconds * 1000).toLocaleString()}</p>
+                                    </div>
+                                </div>
+                            ) : (
+                                <p className="text-sm text-muted-foreground italic">No gifts claimed yet. Keep earning points!</p>
+                            )}
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
+
+            <div className="grid md:grid-cols-2 gap-6">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Droplets className="h-5 w-5" />
+                            My Blood Group
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        {userProfile?.bloodGroup && userProfile.bloodGroup !== 'Not Set' ? (
+                            <div>
+                                <p className="text-sm text-muted-foreground">Your registered blood group is:</p>
+                                <p className="text-3xl font-bold">{userProfile.bloodGroup}</p>
+                            </div>
+                        ) : (
+                            <p className="text-sm text-muted-foreground">Your blood group is not set. Please update your profile to become a potential donor.</p>
+                        )}
+                        <Button asChild variant="outline">
+                            <Link href="/auth/profile">Update Profile</Link>
+                        </Button>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Total Blood Donations</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-4xl font-bold">{userProfile?.totalDonations || 0}</p>
+                        <p className="text-sm text-muted-foreground">lives impacted by you</p>
+                    </CardContent>
+                </Card>
+            </div>
+            
+            <div>
+                <h2 className="text-xl font-semibold mb-4">Learning Tools</h2>
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {learningTools.map((tool) => (
+                    <Card key={tool.title}>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                        <CardTitle className="text-base font-medium">
+                            {tool.title}
+                        </CardTitle>
+                        <tool.icon className="h-5 w-5 text-muted-foreground" />
+                        </CardHeader>
+                        <CardContent>
+                        <p className="text-sm text-muted-foreground">
+                            {tool.description}
+                        </p>
+                        </CardContent>
+                        <CardContent>
+                        <Button asChild>
+                            <Link href={tool.href}>Open Tool</Link>
+                        </Button>
+                        </CardContent>
+                    </Card>
+                    ))}
+                </div>
+            </div>
+        </div>
+
+        <div className="lg:col-span-1 space-y-6">
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                        <Trophy className="h-5 w-5 text-amber-500" />
-                        My Status & Rewards
+                        <ListChecks className="h-5 w-5" />
+                        My Blood Donation Activity
                     </CardTitle>
-                    <CardDescription>Your current level, points, and progress toward the next reward. (1 Point = 100 BDT Donated, 1 Blood Donation = 10 Points)</CardDescription>
+                    <CardDescription>Track the status of your blood requests and your responses to others' requests.</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                    <div className="space-y-4">
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                            <div className="flex items-center gap-4">
-                                <Badge className="text-lg py-1 px-4 border-2" variant={currentLevel === 'Platinum' ? 'destructive' : currentLevel === 'Gold' ? 'default' : 'secondary'}>
-                                    {currentLevel}
-                                </Badge>
-                                <div className="flex items-center gap-1.5">
-                                    <Star className="h-5 w-5 text-amber-400 fill-amber-400" />
-                                    <span className="font-bold text-xl">{currentPoints.toLocaleString()}</span>
-                                    <span className="text-muted-foreground">Points</span>
-                                </div>
-                            </div>
-                        </div>
-                        {nextLevelName ? (
-                            <div>
-                                <div className="mb-2 text-sm text-muted-foreground">
-                                    Next Level: <span className="font-semibold text-foreground">{nextLevelName}</span> ({nextLevelPoints.toLocaleString()} points)
-                                </div>
-                                <Progress value={progressPercentage} className="h-3" />
-                                <p className="text-xs text-muted-foreground mt-1 text-right">
-                                    {pointsForNextLevel.toLocaleString()} more points to reach {nextLevelName}
-                                </p>
-                            </div>
-                        ) : (
-                            <p className="text-sm font-medium text-green-600">Congratulations! You have reached the highest level!</p>
-                        )}
-                    </div>
-                    <Separator />
-                     <div className="space-y-2">
-                        <h4 className="font-semibold text-muted-foreground flex items-center gap-2">
-                            <Gift className="h-4 w-4" />
-                            Reward History
-                        </h4>
-                        {userProfile.lastGiftClaimedAt ? (
-                            <div className="flex items-center gap-3 text-sm p-3 bg-muted/50 rounded-lg">
-                                <CalendarDays className="h-5 w-5 text-primary" />
-                                <div>
-                                    <p>Last gift claimed on:</p>
-                                    <p className="font-semibold">{new Date(userProfile.lastGiftClaimedAt.seconds * 1000).toLocaleString()}</p>
-                                </div>
-                            </div>
-                        ) : (
-                            <p className="text-sm text-muted-foreground italic">No gifts claimed yet. Keep earning points!</p>
-                        )}
-                    </div>
+                <CardContent className="grid grid-cols-1 gap-4">
+                    <Button asChild size="lg" variant="outline">
+                        <Link href="/dashboard/user/blood-requests">My Requests</Link>
+                    </Button>
+                    <Button asChild size="lg" variant="outline">
+                        <Link href="/dashboard/user/responses">My Responses (Upcoming Donations)</Link>
+                    </Button>
                 </CardContent>
             </Card>
-        )}
-        
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <ListChecks className="h-5 w-5" />
-                    My Blood Donation Activity
-                </CardTitle>
-                <CardDescription>Track the status of your blood requests and your responses to others' requests.</CardDescription>
-            </CardHeader>
-            <CardContent className="grid md:grid-cols-2 gap-4">
-                <Button asChild size="lg" variant="outline">
-                    <Link href="/dashboard/user/blood-requests">My Requests</Link>
-                </Button>
-                <Button asChild size="lg" variant="outline">
-                    <Link href="/dashboard/user/responses">My Responses (Upcoming Donations)</Link>
-                </Button>
-            </CardContent>
-        </Card>
 
-        <div className="grid md:grid-cols-3 gap-6">
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -181,125 +242,39 @@ export default function UserDashboard() {
                     </Button>
                 </CardContent>
             </Card>
-             <Card>
+
+            {userProfile?.referralCode && (
+            <Card>
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <HeartHandshake className="h-5 w-5" />
-                        My Blood Requests
-                    </CardTitle>
-                    <CardDescription>View your blood request history and manage your active requests.</CardDescription>
+                <CardTitle className="flex items-center gap-2">
+                    <Gift className="h-5 w-5" />
+                    My Referrals
+                </CardTitle>
+                <CardDescription>
+                    Invite friends to join and earn rewards! Share your unique referral link.
+                </CardDescription>
                 </CardHeader>
-                <CardContent>
-                    <Button asChild>
-                        <Link href="/dashboard/user/blood-requests">View Blood Requests</Link>
+                <CardContent className="space-y-4">
+                <div>
+                    <p className="text-sm font-medium text-muted-foreground">Your Referral Code</p>
+                    <p className="font-mono text-lg font-semibold bg-muted px-3 py-1 rounded-md inline-block">{userProfile.referralCode}</p>
+                </div>
+                <div>
+                    <p className="text-sm font-medium text-muted-foreground">Shareable Link</p>
+                    <div className="flex gap-2">
+                    <Input readOnly value={referralLink} className="bg-muted/50" />
+                    <Button variant="outline" size="icon" onClick={copyToClipboard} aria-label="Copy referral link">
+                        <Copy className="h-4 w-4" />
                     </Button>
-                </CardContent>
-            </Card>
-             <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Users className="h-5 w-5" />
-                        My Referrals
-                    </CardTitle>
-                    <CardDescription>Track who you've invited and see your referral rewards.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Button asChild>
+                    </div>
+                </div>
+                 <Button asChild variant="secondary" className="w-full">
                         <Link href="/dashboard/user/referrals">View My Referrals</Link>
                     </Button>
                 </CardContent>
             </Card>
+            )}
         </div>
-        
-        <div className="grid md:grid-cols-2 gap-6">
-             <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <Droplets className="h-5 w-5" />
-                        My Blood Group
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    {userProfile?.bloodGroup && userProfile.bloodGroup !== 'Not Set' ? (
-                        <div>
-                             <p className="text-sm text-muted-foreground">Your registered blood group is:</p>
-                             <p className="text-3xl font-bold">{userProfile.bloodGroup}</p>
-                        </div>
-                    ) : (
-                         <p className="text-sm text-muted-foreground">Your blood group is not set. Please update your profile to become a potential donor.</p>
-                    )}
-                     <Button asChild variant="outline">
-                        <Link href="/auth/profile">Update Profile</Link>
-                    </Button>
-                </CardContent>
-            </Card>
-
-            <Card>
-                <CardHeader>
-                    <CardTitle>Total Blood Donations</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-4xl font-bold">{userProfile?.totalDonations || 0}</p>
-                    <p className="text-sm text-muted-foreground">lives impacted by you</p>
-                </CardContent>
-            </Card>
-        </div>
-
-
-        {userProfile?.referralCode && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Gift className="h-5 w-5" />
-                My Referrals
-              </CardTitle>
-              <CardDescription>
-                Invite friends to join and earn rewards! Share your unique referral link.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">Your Referral Code</p>
-                <p className="font-mono text-lg font-semibold bg-muted px-3 py-1 rounded-md inline-block">{userProfile.referralCode}</p>
-              </div>
-               <div>
-                <p className="text-sm font-medium text-muted-foreground">Shareable Link</p>
-                <div className="flex gap-2">
-                  <Input readOnly value={referralLink} className="bg-muted/50" />
-                  <Button variant="outline" size="icon" onClick={copyToClipboard} aria-label="Copy referral link">
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        <div>
-          <h2 className="text-xl font-semibold mb-4">Learning Tools</h2>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {learningTools.map((tool) => (
-              <Card key={tool.title}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-base font-medium">
-                    {tool.title}
-                  </CardTitle>
-                  <tool.icon className="h-5 w-5 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <p className="text-sm text-muted-foreground">
-                    {tool.description}
-                  </p>
-                </CardContent>
-                <CardContent>
-                  <Button asChild>
-                    <Link href={tool.href}>Open Tool</Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </div>
+    </div>
   );
 }
