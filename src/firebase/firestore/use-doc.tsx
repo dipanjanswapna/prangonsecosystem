@@ -10,8 +10,8 @@ export function useDoc<T>(path: string | null) {
 
   useEffect(() => {
     if (!path) {
-      setLoading(false);
       setData(null);
+      setLoading(false);
       return;
     }
     
