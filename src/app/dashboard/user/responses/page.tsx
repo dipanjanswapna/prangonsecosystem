@@ -57,7 +57,7 @@ const getStatusVariant = (status: string) => {
 
 export default function UserResponsesPage() {
   const { user } = useUser();
-  const { data: userProfile, loading: profileLoading } = useDoc<UserProfile>(user ? `users/${user.uid}` : null);
+  const { data: userProfile, loading: profileLoading } = useDoc<UserProfile>(user?.uid ? `users/${user.uid}` : null);
   
   const requestIds = useMemo(() => userProfile?.requestResponses || [], [userProfile]);
 
@@ -70,7 +70,7 @@ export default function UserResponsesPage() {
     requestIds.length > 0 ? [['__name__', 'in', requestIds]] : undefined
   );
   
-  const loading = profileLoading || (requestIds.length > 0 && requestsLoading);
+  const loading = profileLoading || (requestIds.length > 0 ? requestsLoading : false);
 
   const sortedRequests = useMemo(() => {
       if (!requests) return [];

@@ -57,10 +57,12 @@ const getStatusVariant = (status: string) => {
 };
 
 export default function UserSubscriptionsPage() {
-  const { user } = useUser();
-  const { data: subscriptions, loading } = useCollection<Subscription>(
+  const { user, loading: userLoading } = useUser();
+  const { data: subscriptions, loading: subsLoading } = useCollection<Subscription>(
     user?.uid ? `users/${user.uid}/subscriptions` : ''
   );
+  
+  const loading = userLoading || subsLoading;
 
   const sortedSubscriptions = useMemo(() => {
     if (!subscriptions) return [];
