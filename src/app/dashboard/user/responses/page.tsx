@@ -70,7 +70,7 @@ export default function UserResponsesPage() {
     requestIds.length > 0 ? [['__name__', 'in', requestIds]] : undefined
   );
   
-  const loading = profileLoading || requestsLoading;
+  const loading = profileLoading || (requestIds.length > 0 && requestsLoading);
 
   const sortedRequests = useMemo(() => {
       if (!requests) return [];

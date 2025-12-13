@@ -26,12 +26,12 @@ interface Subscription {
 }
 
 const SubscriptionSkeleton = () => (
-  <Card>
+  <Card className="flex flex-col">
     <CardHeader>
       <Skeleton className="h-6 w-3/4" />
       <Skeleton className="h-4 w-1/2" />
     </CardHeader>
-    <CardContent>
+    <CardContent className="flex-grow">
       <Skeleton className="h-5 w-1/4" />
     </CardContent>
     <CardFooter>
@@ -59,7 +59,7 @@ const getStatusVariant = (status: string) => {
 export default function UserSubscriptionsPage() {
   const { user } = useUser();
   const { data: subscriptions, loading } = useCollection<Subscription>(
-    user ? `users/${user.uid}/subscriptions` : ''
+    user?.uid ? `users/${user.uid}/subscriptions` : ''
   );
 
   const sortedSubscriptions = useMemo(() => {
