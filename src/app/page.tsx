@@ -173,6 +173,23 @@ export default function HomePage() {
         <HeroCarousel />
       </div>
       
+      <EmergencyBanner />
+
+      <section className="text-center">
+        <h2 className="font-headline text-3xl font-bold mb-4 text-center">
+          Featured Projects
+        </h2>
+        <p className="max-w-2xl mx-auto text-muted-foreground mb-8">
+          I've had the privilege of working on a diverse range of projects. Here are a few highlights. For a more comprehensive list, please visit my projects page.
+        </p>
+        <Button asChild size="lg">
+            <Link href="/projects">
+              View All Projects
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
+      </section>
+
       <section>
         <h2 className="font-headline text-3xl font-bold mb-8 text-center">
           🧩 Key Pillars of Prangon’s Ecosystem
@@ -226,23 +243,6 @@ export default function HomePage() {
                 </ul>
             </div>
         </div>
-      </section>
-
-      <EmergencyBanner />
-
-      <section className="text-center">
-        <h2 className="font-headline text-3xl font-bold mb-4 text-center">
-          Featured Projects
-        </h2>
-        <p className="max-w-2xl mx-auto text-muted-foreground mb-8">
-          I've had the privilege of working on a diverse range of projects. Here are a few highlights. For a more comprehensive list, please visit my projects page.
-        </p>
-        <Button asChild size="lg">
-            <Link href="/projects">
-              View All Projects
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-          </Button>
       </section>
       
       <CTASection />
