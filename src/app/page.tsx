@@ -3,7 +3,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { skills } from '@/lib/placeholder-data';
-import { AlertTriangle, ArrowRight, Github, Siren } from 'lucide-react';
+import { AlertTriangle, ArrowRight, Github, Siren, Book, BrainCircuit, Users, Briefcase, DollarSign, Lightbulb } from 'lucide-react';
 import Link from 'next/link';
 import { HeroCarousel } from '@/components/hero-carousel';
 import { useCollection } from '@/firebase/firestore/use-collection';
@@ -143,23 +143,40 @@ export default function HomePage() {
   return (
     <div className="space-y-16 md:space-y-24">
        <EmergencyBanner />
-      <div className="grid min-h-[calc(100vh-10rem)] grid-cols-1 items-center gap-8 md:gap-12 lg:grid-cols-2">
-        <section className="flex flex-col items-center text-center lg:items-start lg:text-left">
-          <h1 className="font-headline text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tighter">
-            Dipanjan S. PRANGON
+      <div className="grid grid-cols-1 items-start gap-8 md:gap-12 lg:grid-cols-2">
+        <section className="flex flex-col items-center text-center lg:items-start lg:text-left space-y-4">
+          <h1 className="font-headline text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tighter">
+            Prangon’s Ecosystem
           </h1>
-          <p className="mt-4 text-lg md:text-xl text-muted-foreground font-medium">
-            Full-Stack Developer, UI/UX Enthusiast, and Content Creator.
+          <p className="text-lg md:text-xl text-muted-foreground font-medium">
+            A youth-led, innovation-driven ecosystem founded by Dipanjan Swapna Prangon. It is designed to connect education, technology, creativity, and social impact under one integrated platform.
           </p>
-          <p className="mt-4 max-w-xl mx-auto lg:mx-0 text-foreground/80">
-            Welcome to my digital ecosystem. Here you'll find my work, my
-            thoughts, and my passion for building beautiful and functional web
-            experiences.
-          </p>
-          <div className="mt-6 flex flex-col sm:flex-row gap-4">
+          
+          <div className="prose prose-lg dark:prose-invert max-w-full text-left text-foreground/80">
+            <h3 className="font-headline">🌱 What is Prangon’s Ecosystem?</h3>
+            <p>
+              Prangon’s Ecosystem is not a single project—it’s a network of initiatives that work together to empower students, creators, and young entrepreneurs, especially in Bangladesh.
+            </p>
+
+            <h3 className="font-headline">🎯 Core Vision</h3>
+            <p>To build future-ready learners and creators by providing:</p>
+            <ul>
+              <li>Quality education</li>
+              <li>Practical digital skills</li>
+              <li>Creative platforms</li>
+              <li>Ethical and social responsibility</li>
+            </ul>
+
+            <h3 className="font-headline">🧠 In One Line</h3>
+            <p>
+              Prangon’s Ecosystem is a unified platform where learning, technology, creativity, and social responsibility grow together to shape future leaders.
+            </p>
+          </div>
+
+          <div className="pt-4 flex flex-col sm:flex-row gap-4">
             <Button asChild size="lg">
               <Link href="/services">
-                My Services
+                Explore Services
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
@@ -180,18 +197,53 @@ export default function HomePage() {
       
       <section>
         <h2 className="font-headline text-3xl font-bold mb-8 text-center">
-          My Skills
+          🧩 Key Pillars of Prangon’s Ecosystem
         </h2>
-        <div className="flex flex-wrap justify-center gap-2 md:gap-3">
-          {skills.map((skill) => (
-            <Badge
-              key={skill}
-              variant="outline"
-              className="text-sm md:text-base px-3 py-1 md:px-4 md:py-2 rounded-lg"
-            >
-              {skill}
-            </Badge>
-          ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="p-6 border rounded-lg">
+                <h4 className="font-headline text-lg font-semibold flex items-center gap-2 mb-2"><Book/> Education & Learning</h4>
+                <ul className="list-disc pl-5 text-muted-foreground text-sm space-y-1">
+                    <li>Online learning platforms (e.g., Dreamer’s Learniogram – DreL)</li>
+                    <li>HSC, SSC, admission & concept-based academic content</li>
+                    <li>Student-friendly explanations and mentorship</li>
+                    <li>Free + affordable quality education</li>
+                </ul>
+            </div>
+            <div className="p-6 border rounded-lg">
+                <h4 className="font-headline text-lg font-semibold flex items-center gap-2 mb-2"><BrainCircuit/> Technology & Digital Products</h4>
+                 <ul className="list-disc pl-5 text-muted-foreground text-sm space-y-1">
+                    <li>Educational web apps & LMS platforms</li>
+                    <li>Student dashboards, admin panels, teacher portals</li>
+                    <li>AI-assisted learning tools</li>
+                    <li>Web development using Firebase, Vercel, GitHub</li>
+                </ul>
+            </div>
+            <div className="p-6 border rounded-lg">
+                <h4 className="font-headline text-lg font-semibold flex items-center gap-2 mb-2"><Lightbulb/> Creative & Media Platform</h4>
+                 <ul className="list-disc pl-5 text-muted-foreground text-sm space-y-1">
+                    <li>Educational YouTube & Facebook content</li>
+                    <li>Motivational storytelling for students</li>
+                    <li>Graphic design & UI/UX work</li>
+                    <li>Personal branding and digital presence</li>
+                </ul>
+            </div>
+            <div className="p-6 border rounded-lg">
+                <h4 className="font-headline text-lg font-semibold flex items-center gap-2 mb-2"><Briefcase/> Freelancing & Skill Development</h4>
+                 <ul className="list-disc pl-5 text-muted-foreground text-sm space-y-1">
+                    <li>Training in Graphic design & Web development</li>
+                    <li>Helping youth enter freelancing marketplaces</li>
+                    <li>Building real-world portfolios</li>
+                </ul>
+            </div>
+             <div className="p-6 border rounded-lg">
+                <h4 className="font-headline text-lg font-semibold flex items-center gap-2 mb-2"><Users/> Social Impact & Community</h4>
+                 <ul className="list-disc pl-5 text-muted-foreground text-sm space-y-1">
+                    <li>Collaboration with organizations like ONGON Bangladesh</li>
+                    <li>Donation systems & humanitarian projects</li>
+                    <li>Youth leadership and volunteer engagement</li>
+                    <li>Ethical, non-political service initiatives</li>
+                </ul>
+            </div>
         </div>
       </section>
 
