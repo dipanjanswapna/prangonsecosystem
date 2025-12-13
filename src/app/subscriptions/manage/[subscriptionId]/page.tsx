@@ -69,8 +69,8 @@ function SubscriptionManagementSkeleton() {
         <Skeleton className="h-4 w-3/4 mt-1" />
       </CardHeader>
       <CardContent className="space-y-6">
+        <Skeleton className="h-24 w-full" />
         <Skeleton className="h-10 w-full" />
-        <Skeleton className="h-20 w-full" />
       </CardContent>
       <CardFooter className="gap-4">
         <Skeleton className="h-10 w-32" />
@@ -115,7 +115,7 @@ export default function SubscriptionManagePage() {
   };
 
 
-  const loading = userLoading || subscriptionLoading || subscription === undefined;
+  const loading = userLoading || subscriptionLoading;
 
   if (loading) {
     return (
@@ -125,7 +125,7 @@ export default function SubscriptionManagePage() {
     );
   }
 
-  if (subscription === null) {
+  if (!subscription) {
     notFound();
   }
 
