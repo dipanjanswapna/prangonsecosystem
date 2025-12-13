@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/tabs';
 import { useCollection } from '@/firebase/firestore/use-collection';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Crown, Star, Trophy, TrendingUp } from 'lucide-react';
+import { Crown, Star, Trophy, TrendingUp, Users } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import type { Role } from '@/lib/roles';
 import { Badge } from '@/components/ui/badge';
@@ -30,6 +30,7 @@ interface User {
   level?: 'Bronze' | 'Silver' | 'Gold' | 'Platinum';
   points?: number;
   photoURL?: string;
+  totalReferrals?: number;
 }
 
 interface Campaign {
@@ -129,6 +130,48 @@ function CampaignLeaderboard() {
     )
 }
 
+function ReferrerLeaderboard() {
+  const { data: users, loading } = useCollection<User>('users', undefined, undefined, { field: 'totalReferrals', direction: 'desc' }, 10);
+
+  return (
+    <CardContent className="space-y-4">
+        {loading ? (
+             Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="flex items-center gap-4 p-2">
+                    <Skeleton className="h-6 w-6" />
+                    <Skeleton className="h-10 w-10 rounded-full" />
+                    <div className="flex-grow space-y-2">
+                        <Skeleton className="h-4 w-1/3" />
+                    </div>
+                    <Skeleton className="h-6 w-1/5" />
+                </div>
+            ))
+        ) : (
+            users.map((user, index) => (
+                 <div key={user.id} className="flex items-center gap-4 p-2 rounded-lg hover:bg-muted/50 transition-colors">
+                    <div className="flex items-center gap-2 w-10">
+                        <Trophy className={cn("h-5 w-5", getRankColor(index))} />
+                        <span className="font-bold text-lg">{index + 1}</span>
+                    </div>
+                    <Avatar className="h-12 w-12 border-2 border-primary/20">
+                        <AvatarImage src={user.photoURL} alt={user.name} />
+                        <AvatarFallback>{user.name?.charAt(0) || 'U'}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-grow">
+                        <p className="font-semibold text-base">{user.name}</p>
+                    </div>
+                    <div className="flex items-center gap-2 font-bold text-lg">
+                        <Users className="h-5 w-5 text-muted-foreground" />
+                        <span>{user.totalReferrals?.toLocaleString() || 0}</span>
+                    </div>
+                </div>
+            ))
+        )}
+    </CardContent>
+  );
+}
+
+
 export default function LeaderboardPage() {
   return (
     <div className="max-w-4xl mx-auto space-y-8">
@@ -142,7 +185,7 @@ export default function LeaderboardPage() {
       </div>
 
       <Tabs defaultValue="donors" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="donors">
             <Crown className="mr-2 h-4 w-4" />
             Top Donors
@@ -150,6 +193,10 @@ export default function LeaderboardPage() {
           <TabsTrigger value="campaigns">
             <TrendingUp className="mr-2 h-4 w-4" />
             Top Campaigns
+          </TabsTrigger>
+           <TabsTrigger value="referrers">
+            <Users className="mr-2 h-4 w-4" />
+            Top Referrers
           </TabsTrigger>
         </TabsList>
         <TabsContent value="donors">
@@ -172,6 +219,17 @@ export default function LeaderboardPage() {
               </CardDescription>
             </CardHeader>
             <CampaignLeaderboard />
+          </Card>
+        </TabsContent>
+         <TabsContent value="referrers">
+          <Card>
+            <CardHeader>
+              <CardTitle>Top Referrers</CardTitle>
+              <CardDescription>
+                The community builders who are bringing the most new members to our platform.
+              </CardDescription>
+            </CardHeader>
+            <ReferrerLeaderboard />
           </Card>
         </TabsContent>
       </Tabs>

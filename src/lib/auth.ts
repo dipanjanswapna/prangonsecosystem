@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -36,7 +37,7 @@ const createSession = async (user: User, rememberMe: boolean): Promise<void> => 
     });
 };
 
-const rewardReferrer = async (refCode: string) => {
+const rewardReferrer = async (refCode: string, newUserId: string) => {
     if (!refCode) return;
 
     const usersRef = collection(firestore, 'users');
@@ -46,17 +47,39 @@ const rewardReferrer = async (refCode: string) => {
     if (!querySnapshot.empty) {
         const referrerDoc = querySnapshot.docs[0];
         const referrerRef = doc(firestore, 'users', referrerDoc.id);
+        const referrerData = referrerDoc.data();
         
         const batch = writeBatch(firestore);
+
+        // --- Calculate total referrals for the referrer ---
+        const referralsQuery = query(usersRef, where('referredBy', '==', referrerDoc.id));
+        const referralsSnapshot = await getDocs(referralsQuery);
+        // Add 1 for the current new user, as this transaction hasn't been committed yet.
+        const newTotalReferrals = referralsSnapshot.size + 1;
+
+        // --- Milestone Rewards ---
+        const newBadges = referrerData.badges || [];
+        if (newTotalReferrals >= 10 && !newBadges.includes('Community Builder')) {
+            newBadges.push('Community Builder');
+        }
+
         batch.update(referrerRef, {
-            points: increment(5), // Reward for successful referral
-            badges: arrayUnion('Recruiter') // Award a "Recruiter" badge
+            points: increment(5),
+            totalReferrals: increment(1),
+            badges: newBadges,
         });
+
+        // Also update the new user with the referrer's UID
+        const newUserRef = doc(firestore, 'users', newUserId);
+        batch.update(newUserRef, { referredBy: referrerDoc.id });
+        
         await batch.commit();
+
     } else {
         console.warn(`Referrer with code "${refCode}" not found.`);
     }
 };
+
 
 export const signUp = async (email:string, password:string, fullName:string, role: Role, refCode?: string | null): Promise<UserCredential> => {
   const userCredential = await createUserWithEmailAndPassword(
@@ -100,6 +123,7 @@ export const signUp = async (email:string, password:string, fullName:string, rol
     referredBy: refCode || null,
     level: 'Bronze',
     points: 2, // Welcome bonus
+    totalReferrals: 0,
     badges: ['Newbie'], // Welcome badge
     skills: [],
     phone: '',
@@ -109,7 +133,7 @@ export const signUp = async (email:string, password:string, fullName:string, rol
   });
 
   if (refCode) {
-    await rewardReferrer(refCode);
+    await rewardReferrer(refCode, user.uid);
   }
 
   return userCredential;
@@ -157,6 +181,7 @@ const handleSocialSignIn = async (user: User, refCode?: string | null) => {
       referredBy: refCode || null,
       level: 'Bronze',
       points: 2, // Welcome bonus
+      totalReferrals: 0,
       badges: ['Newbie'], // Welcome badge
       skills: [],
       phone: user.phoneNumber || '',
@@ -166,7 +191,7 @@ const handleSocialSignIn = async (user: User, refCode?: string | null) => {
     });
     
     if (refCode) {
-      await rewardReferrer(refCode);
+      await rewardReferrer(refCode, user.uid);
     }
 
   } else {
