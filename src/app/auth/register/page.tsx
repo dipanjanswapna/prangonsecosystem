@@ -36,6 +36,7 @@ const formSchema = z.object({
   email: z.string().email('Please enter a valid email address.'),
   password: z.string().min(6, 'Password must be at least 6 characters.'),
   role: z.nativeEnum(ROLES).default(ROLES.USER),
+  referralCode: z.string().optional(),
 });
 
 function GoogleIcon(props: React.SVGProps<SVGSVGElement>) {
@@ -72,7 +73,7 @@ function RegisterForm() {
   const { toast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const refCode = searchParams.get('ref');
+  const refCodeFromUrl = searchParams.get('ref');
 
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -91,13 +92,16 @@ function RegisterForm() {
       email: '',
       password: '',
       role: ROLES.USER,
+      referralCode: refCodeFromUrl || '',
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
+    // Prioritize manually entered code over URL code
+    const finalRefCode = values.referralCode || refCodeFromUrl;
     try {
-      await signUp(values.email, values.password, values.fullName, values.role, refCode);
+      await signUp(values.email, values.password, values.fullName, values.role, finalRefCode);
       toast({
         title: 'Account Created!',
         description:
@@ -127,8 +131,10 @@ function RegisterForm() {
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
+    // Use the referral code from the form if available, otherwise from URL
+    const finalRefCode = form.getValues('referralCode') || refCodeFromUrl;
     try {
-      await signInWithGoogle(refCode);
+      await signInWithGoogle(finalRefCode);
       toast({
         title: 'Account Created Successfully!',
         description: 'Welcome! Redirecting to your dashboard...',
@@ -270,6 +276,24 @@ function RegisterForm() {
                     <SelectItem value={ROLES.MODERATOR}>Moderator</SelectItem>
                   </SelectContent>
                 </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+           <FormField
+            control={form.control}
+            name="referralCode"
+            render={({ field }) => (
+              <FormItem className="grid gap-2">
+                <FormLabel htmlFor="referral-code">Referral Code (Optional)</FormLabel>
+                <FormControl>
+                  <Input
+                    id="referral-code"
+                    placeholder="Enter referral code"
+                    {...field}
+                    disabled={isLoading || isGoogleLoading}
+                  />
+                </FormControl>
                 <FormMessage />
               </FormItem>
             )}
