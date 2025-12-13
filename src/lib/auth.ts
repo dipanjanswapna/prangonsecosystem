@@ -14,7 +14,7 @@ import {
   type User,
 } from 'firebase/auth';
 import { initializeFirebase } from '@/firebase';
-import { doc, setDoc, getDoc, serverTimestamp, getFirestore, updateDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, serverTimestamp, getFirestore, updateDoc, collection, query, where, getDocs, writeBatch, arrayUnion, increment } from 'firebase/firestore';
 import { ROLES, type Role } from '@/lib/roles';
 import { customAlphabet } from 'nanoid';
 
@@ -34,6 +34,28 @@ const createSession = async (user: User, rememberMe: boolean): Promise<void> => 
         },
         body: JSON.stringify({ idToken, rememberMe }),
     });
+};
+
+const rewardReferrer = async (refCode: string) => {
+    if (!refCode) return;
+
+    const usersRef = collection(firestore, 'users');
+    const q = query(usersRef, where('referralCode', '==', refCode));
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+        const referrerDoc = querySnapshot.docs[0];
+        const referrerRef = doc(firestore, 'users', referrerDoc.id);
+        
+        const batch = writeBatch(firestore);
+        batch.update(referrerRef, {
+            points: increment(50), // Award 50 points for a successful referral
+            badges: arrayUnion('Recruiter') // Award a "Recruiter" badge
+        });
+        await batch.commit();
+    } else {
+        console.warn(`Referrer with code "${refCode}" not found.`);
+    }
 };
 
 export const signUp = async (email:string, password:string, fullName:string, role: Role, refCode?: string | null): Promise<UserCredential> => {
@@ -85,6 +107,10 @@ export const signUp = async (email:string, password:string, fullName:string, rol
     telegram: '',
     messenger: '',
   });
+
+  if (refCode) {
+    await rewardReferrer(refCode);
+  }
 
   return userCredential;
 };
@@ -138,6 +164,11 @@ const handleSocialSignIn = async (user: User, refCode?: string | null) => {
       telegram: '',
       messenger: '',
     });
+    
+    if (refCode) {
+      await rewardReferrer(refCode);
+    }
+
   } else {
     // If user already exists, just update their last login
     await updateDoc(userDocRef, { lastLogin: serverTimestamp() });
