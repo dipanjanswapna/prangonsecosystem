@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -24,16 +24,17 @@ interface Plan {
   tier: 'Basic' | 'Standard' | 'Premium' | 'Enterprise';
   active: boolean;
   features: string[];
-  // Assuming monthly and yearly prices would be stored in a separate 'prices' collection
-  // For now, we'll use placeholder prices.
 }
 
-const placeholderPrices: { [key: string]: { monthly: number; yearly: number } } = {
-    'Basic': { monthly: 9, yearly: 90 },
-    'Standard': { monthly: 19, yearly: 190 },
-    'Premium': { monthly: 49, yearly: 490 },
-    'Enterprise': { monthly: 99, yearly: 990 },
-};
+interface Price {
+    id: string;
+    planId: string;
+    amount: number;
+    currency: string;
+    interval: 'month' | 'year' | 'lifetime';
+    active: boolean;
+}
+
 
 function PlanSkeleton() {
     return (
@@ -59,7 +60,25 @@ function PlanSkeleton() {
 
 export default function SubscriptionsPage() {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
-  const { data: plans, loading } = useCollection<Plan>('plans', undefined, undefined, undefined, undefined, [['active', '==', true]]);
+  const { data: plans, loading: plansLoading } = useCollection<Plan>('plans', undefined, undefined, undefined, undefined, [['active', '==', true]]);
+  const { data: prices, loading: pricesLoading } = useCollection<Price>('prices', undefined, undefined, undefined, undefined, [['active', '==', true]]);
+
+  const loading = plansLoading || pricesLoading;
+
+  const plansWithPrices = useMemo(() => {
+    return plans.map(plan => {
+      const monthlyPrice = prices.find(p => p.planId === plan.id && p.interval === 'month');
+      const yearlyPrice = prices.find(p => p.planId === plan.id && p.interval === 'year');
+      return {
+        ...plan,
+        prices: {
+          monthly: monthlyPrice?.amount,
+          yearly: yearlyPrice?.amount,
+        }
+      };
+    });
+  }, [plans, prices]);
+
 
   return (
     <div className="max-w-5xl mx-auto space-y-12">
@@ -90,14 +109,15 @@ export default function SubscriptionsPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
         {loading ? (
              Array.from({ length: 3 }).map((_, i) => <PlanSkeleton key={i} />)
         ) : (
-            plans.map((plan) => {
+            plansWithPrices.map((plan) => {
                 const isPopular = plan.tier === 'Standard';
-                const prices = placeholderPrices[plan.tier] || { monthly: 0, yearly: 0 };
-                const displayPrice = billingCycle === 'monthly' ? prices.monthly : prices.yearly;
+                const displayPrice = billingCycle === 'monthly' 
+                    ? plan.prices.monthly 
+                    : plan.prices.yearly;
 
                 return (
                     <Card key={plan.id} className={cn("flex flex-col", isPopular && "border-primary border-2 shadow-primary/20 shadow-lg")}>
@@ -108,7 +128,7 @@ export default function SubscriptionsPage() {
                         </CardHeader>
                         <CardContent className="flex-grow space-y-6">
                             <div>
-                                <span className="text-4xl font-extrabold">৳{displayPrice}</span>
+                                <span className="text-4xl font-extrabold">৳{displayPrice !== undefined ? displayPrice : (billingCycle === 'monthly' ? 19 : 190)}</span>
                                 <span className="text-muted-foreground">/{billingCycle === 'monthly' ? 'month' : 'year'}</span>
                             </div>
                             <ul className="space-y-3 text-sm">
