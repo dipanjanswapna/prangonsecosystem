@@ -77,11 +77,11 @@ function ConfirmationPageContent() {
     )
   }
   
-  if (!subscription) {
+  if (subscription === null) {
     notFound();
   }
 
-  if (subscription.status !== 'pending') {
+  if (subscription && subscription.status !== 'pending') {
     return (
         <Card className="max-w-lg mx-auto">
             <CardHeader className="items-center text-center">
@@ -103,7 +103,7 @@ function ConfirmationPageContent() {
       <CardHeader className="items-center text-center">
         <CardTitle className="font-headline text-2xl">Confirm Your Subscription</CardTitle>
         <CardDescription>
-          You are about to activate the <span className="font-bold text-primary">{subscription.planName}</span> plan. Click below to complete the process.
+          You are about to activate the <span className="font-bold text-primary">{subscription?.planName}</span> plan. Click below to complete the process.
         </CardDescription>
       </CardHeader>
       <CardContent className="text-center">
