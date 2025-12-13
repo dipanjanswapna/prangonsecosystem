@@ -62,7 +62,8 @@ function CheckoutPageContent() {
   const { data: prices, loading: priceLoading } = useCollection<Price>('prices', undefined, undefined, undefined, undefined, priceId ? [['__name__', '==', priceId]] : undefined);
   const price = prices[0];
   
-  const { data: plans, loading: planLoading } = useCollection<Plan>('plans', undefined, undefined, undefined, undefined, price?.planId ? [['__name__', '==', price.planId]] : undefined);
+  const planId = price?.planId;
+  const { data: plans, loading: planLoading } = useCollection<Plan>('plans', undefined, undefined, undefined, undefined, planId ? [['__name__', '==', planId]] : undefined);
   const plan = plans[0];
 
 
@@ -152,14 +153,9 @@ function CheckoutPageContent() {
 
       const newSubscriptionId = await createSubscription(subscriptionData);
       
-      toast({ title: "Redirecting to payment...", description: "You will be redirected to complete your payment."});
+      toast({ title: "Redirecting to confirmation...", description: "Please confirm your payment on the next page."});
 
-      // TODO: Implement actual payment gateway redirection
-      // For now, we will simulate a successful payment and redirect to the dashboard
-      setTimeout(() => {
-        setIsLoading(false);
-        router.push('/dashboard');
-      }, 2000);
+      router.push(`/subscriptions/checkout/confirm?subscriptionId=${newSubscriptionId}`);
 
     } catch (error: any) {
       console.error("Subscription initiation failed:", error);

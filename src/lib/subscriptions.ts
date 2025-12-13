@@ -10,6 +10,7 @@ import {
   deleteDoc,
   getDoc,
   type Timestamp,
+  runTransaction,
 } from 'firebase/firestore';
 import { initializeFirebase } from '@/firebase';
 import { customAlphabet } from 'nanoid';
@@ -202,6 +203,53 @@ export const createSubscription = async (data: SubscriptionData): Promise<string
 }
 
 
+export const confirmSubscription = async (userId: string, subscriptionId: string, planId: string) => {
+    await runTransaction(firestore, async (transaction) => {
+        const subscriptionRef = doc(firestore, 'users', userId, 'subscriptions', subscriptionId);
+        const planRef = doc(firestore, 'plans', planId);
+
+        const [subscriptionDoc, planDoc] = await Promise.all([
+            transaction.get(subscriptionRef),
+            transaction.get(planRef),
+        ]);
+
+        if (!subscriptionDoc.exists() || !planDoc.exists()) {
+            throw new Error("Subscription or Plan not found.");
+        }
+        
+        if (subscriptionDoc.data().status !== 'pending') {
+            throw new Error("This subscription is not pending confirmation.");
+        }
+
+        const priceId = subscriptionDoc.data().priceId;
+        const priceRef = doc(firestore, 'prices', priceId);
+        const priceDoc = await transaction.get(priceRef);
+
+        if (!priceDoc.exists()) {
+            throw new Error("Price details not found for this subscription.");
+        }
+        
+        const interval = priceDoc.data().interval;
+        const now = new Date();
+        let endDate: Date;
+
+        if (interval === 'month') {
+            endDate = new Date(now.setMonth(now.getMonth() + 1));
+        } else if (interval === 'year') {
+            endDate = new Date(now.setFullYear(now.getFullYear() + 1));
+        } else { // lifetime or other cases
+            endDate = new Date(now.setFullYear(now.getFullYear() + 99));
+        }
+
+        transaction.update(subscriptionRef, {
+            status: 'active',
+            currentPeriodStart: serverTimestamp(),
+            currentPeriodEnd: endDate,
+        });
+    });
+};
+
+
 export const cancelSubscription = async (userId: string, subscriptionId: string, reason: string) => {
     const subscriptionRef = doc(firestore, 'users', userId, 'subscriptions', subscriptionId);
     
@@ -227,5 +275,3 @@ export const updateSubscriptionStatus = async (userId: string, subscriptionId: s
         throw new Error('Could not update subscription status.');
     }
 };
-
-    
