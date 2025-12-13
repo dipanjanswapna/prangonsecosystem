@@ -12,7 +12,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
 import { HandHeart, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { useState, useEffect, Suspense, useMemo } from 'react';
@@ -22,6 +21,7 @@ import { createSubscription } from '@/lib/subscriptions';
 import { useUser } from '@/firebase/auth/use-user';
 import { useCollection } from '@/firebase/firestore/use-collection';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Separator } from '@/components/ui/separator';
 
 interface Plan {
   id: string;
