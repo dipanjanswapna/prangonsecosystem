@@ -1,4 +1,3 @@
-
 {
   "entities": {
     "UserProfile": {
@@ -231,6 +230,99 @@
         "respondedAt": { "type": "string", "format": "date-time", "description": "Timestamp of the response." }
       },
       "required": ["userId", "userName", "respondedAt"]
+    },
+    "Plan": {
+      "title": "Subscription Plan",
+      "description": "Defines a subscription plan available for users.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "The name of the plan (e.g., Basic, Premium)." },
+        "slug": { "type": "string", "description": "URL-friendly identifier for the plan." },
+        "description": { "type": "string", "description": "A short description of the plan." },
+        "tier": { "type": "string", "enum": ["Basic", "Standard", "Premium", "Enterprise"], "description": "The tier of the plan." },
+        "active": { "type": "boolean", "description": "Whether the plan is currently active and available for subscription." },
+        "features": { "type": "array", "items": { "type": "string" }, "description": "A list of features included in the plan." },
+        "limits": {
+          "type": "object",
+          "properties": {
+            "projects": { "type": "number", "description": "Number of projects allowed." },
+            "seats": { "type": "number", "description": "Number of team members/seats." }
+          }
+        }
+      },
+      "required": ["name", "slug", "tier", "active"]
+    },
+    "Price": {
+      "title": "Price",
+      "description": "Represents the price for a subscription plan.",
+      "type": "object",
+      "properties": {
+        "planId": { "type": "string", "description": "The ID of the plan this price belongs to." },
+        "amount": { "type": "number", "description": "The price amount in the specified currency." },
+        "currency": { "type": "string", "description": "The currency of the price (e.g., BDT, USD)." },
+        "interval": { "type": "string", "enum": ["month", "year", "lifetime"], "description": "The billing interval." },
+        "active": { "type": "boolean", "description": "Whether this price is currently active." }
+      },
+      "required": ["planId", "amount", "currency", "interval", "active"]
+    },
+    "Subscription": {
+      "title": "Subscription",
+      "description": "Represents a user's subscription to a plan.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "The ID of the user who owns the subscription." },
+        "planId": { "type": "string", "description": "The ID of the subscribed plan." },
+        "priceId": { "type": "string", "description": "The ID of the price used for this subscription." },
+        "status": {
+          "type": "string",
+          "enum": ["Trialing", "Active", "PastDue", "Canceled", "Expired"],
+          "description": "The current status of the subscription."
+        },
+        "currentPeriodStart": { "type": "string", "format": "date-time", "description": "Start of the current billing period." },
+        "currentPeriodEnd": { "type": "string", "format": "date-time", "description": "End of the current billing period." },
+        "trialStart": { "type": "string", "format": "date-time", "description": "Start of the trial period." },
+        "trialEnd": { "type": "string", "format": "date-time", "description": "End of the trial period." },
+        "cancelAtPeriodEnd": { "type": "boolean", "description": "If true, the subscription will be canceled at the end of the current period." }
+      },
+      "required": ["userId", "planId", "priceId", "status", "currentPeriodStart", "currentPeriodEnd"]
+    },
+    "Entitlement": {
+      "title": "Entitlement",
+      "description": "Defines a specific feature or access right that a user has through their subscription.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "The ID of the user." },
+        "featureKey": { "type": "string", "description": "A unique key for the feature (e.g., 'ai_content_generation')." },
+        "hasAccess": { "type": "boolean", "description": "Whether the user has access to this feature." },
+        "usageLimit": { "type": "number", "description": "A numerical limit for the feature (e.g., 100 API calls)." }
+      },
+      "required": ["userId", "featureKey", "hasAccess"]
+    },
+    "AddOn": {
+      "title": "Add-On",
+      "description": "Represents an additional feature or service that can be added to a subscription.",
+      "type": "object",
+      "properties": {
+          "name": {"type": "string"},
+          "description": {"type": "string"},
+          "price": {"type": "number"},
+          "interval": {"type": "string", "enum": ["one-time", "monthly", "yearly"]}
+      },
+      "required": ["name", "price", "interval"]
+    },
+    "Coupon": {
+      "title": "Coupon",
+      "description": "Represents a discount coupon.",
+      "type": "object",
+      "properties": {
+          "code": {"type": "string"},
+          "discountType": {"type": "string", "enum": ["percentage", "fixed_amount"]},
+          "discountValue": {"type": "number"},
+          "duration": {"type": "string", "enum": ["once", "forever", "repeating"]},
+          "durationInMonths": {"type": "number", "description": "If duration is repeating, specifies the number of months."},
+          "active": {"type": "boolean"}
+      },
+      "required": ["code", "discountType", "discountValue", "duration", "active"]
     }
   },
   "auth": {
@@ -280,6 +372,26 @@
     "/bloodDonations/{donationId}": {
         "schema": { "$ref": "#/entities/BloodDonationRecord" },
         "description": "Stores the history of all blood donations made through the platform."
+    },
+    "/plans/{planId}": {
+        "schema": { "$ref": "#/entities/Plan" },
+        "description": "Stores all available subscription plans."
+    },
+    "/prices/{priceId}": {
+        "schema": { "$ref": "#/entities/Price" },
+        "description": "Stores prices for subscription plans."
+    },
+    "/users/{userId}/subscriptions/{subscriptionId}": {
+        "schema": { "$ref": "#/entities/Subscription" },
+        "description": "Stores user-specific subscription information."
+    },
+    "/subscriptions/{subscriptionId}": {
+        "schema": { "$ref": "#/entities/Subscription" },
+        "description": "Global collection for all subscriptions for admin querying."
+    },
+    "/coupons/{couponId}": {
+        "schema": { "$ref": "#/entities/Coupon" },
+        "description": "Stores all discount coupons."
     }
   }
 }
