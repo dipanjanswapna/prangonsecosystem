@@ -142,7 +142,6 @@ function EmergencyBanner() {
 export default function HomePage() {
   return (
     <div className="space-y-16 md:space-y-24">
-       <EmergencyBanner />
       <div className="grid grid-cols-1 items-start gap-8 md:gap-12 lg:grid-cols-2">
         <section className="flex flex-col items-center text-center lg:items-start lg:text-left space-y-4">
           <h1 className="font-headline text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tighter">
@@ -228,6 +227,8 @@ export default function HomePage() {
             </div>
         </div>
       </section>
+
+      <EmergencyBanner />
 
       <section className="text-center">
         <h2 className="font-headline text-3xl font-bold mb-4 text-center">
