@@ -8,6 +8,7 @@ import {
   doc,
   updateDoc,
   deleteDoc,
+  getDoc,
 } from 'firebase/firestore';
 import { initializeFirebase } from '@/firebase';
 import { customAlphabet } from 'nanoid';
@@ -24,6 +25,14 @@ interface PlanData {
   features: string;
   projectsLimit: number;
   seatsLimit: number;
+}
+
+interface PriceData {
+    planId: string;
+    amount: number;
+    currency: 'BDT' | 'USD';
+    interval: 'month' | 'year' | 'lifetime';
+    active: boolean;
 }
 
 export const createPlan = async (data: PlanData) => {
@@ -101,3 +110,57 @@ export const deletePlan = async (planId: string) => {
     throw new Error('Could not delete plan.');
   }
 };
+
+
+export const createPrice = async (data: PriceData) => {
+    try {
+        const priceCollection = collection(firestore, 'prices');
+        const planDocRef = doc(firestore, 'plans', data.planId);
+        const planDoc = await getDoc(planDocRef);
+
+        if(!planDoc.exists()) {
+            throw new Error('Selected plan does not exist.');
+        }
+
+        await addDoc(priceCollection, {
+            ...data,
+            planName: planDoc.data().name,
+            createdAt: serverTimestamp(),
+        });
+    } catch(error) {
+        console.error('Error creating price: ', error);
+        throw new Error('Could not create price.');
+    }
+}
+
+export const updatePrice = async (priceId: string, data: Partial<PriceData>) => {
+    try {
+        const priceDocRef = doc(firestore, 'prices', priceId);
+        
+        const updateData: Partial<any> = { ...data };
+
+        if (data.planId) {
+            const planDocRef = doc(firestore, 'plans', data.planId);
+            const planDoc = await getDoc(planDocRef);
+            if(!planDoc.exists()) {
+                throw new Error('Selected plan does not exist.');
+            }
+            updateData.planName = planDoc.data().name;
+        }
+
+        await updateDoc(priceDocRef, updateData);
+    } catch(error) {
+        console.error('Error updating price: ', error);
+        throw new Error('Could not update price.');
+    }
+}
+
+export const deletePrice = async (priceId: string) => {
+    try {
+        const priceDocRef = doc(firestore, 'prices', priceId);
+        await deleteDoc(priceDocRef);
+    } catch (error) {
+        console.error('Error deleting price: ', error);
+        throw new Error('Could not delete price.');
+    }
+}
