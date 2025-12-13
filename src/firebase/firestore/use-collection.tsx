@@ -20,7 +20,7 @@ type OrderByClause = {
 }
 
 export function useCollection<T>(
-  path: string,
+  path: string | null, // Allow path to be null
   field?: string, // Deprecated, use whereClauses instead
   value?: string, // Deprecated, use whereClauses instead
   orderByClause?: OrderByClause,
@@ -32,6 +32,13 @@ export function useCollection<T>(
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // If the path is not valid, do not execute the query.
+    if (!path) {
+      setLoading(false);
+      setData([]); // Ensure data is cleared
+      return;
+    }
+    
     let collectionRef: CollectionReference | Query = collection(firestore, path);
     
     const allWhereClauses = whereClauses ? [...whereClauses] : [];
