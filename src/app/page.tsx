@@ -189,7 +189,7 @@ export default function HomePage() {
             </Link>
           </Button>
       </section>
-
+      
       <section>
         <h2 className="font-headline text-3xl font-bold mb-8 text-center">
           🧩 Key Pillars of Prangon’s Ecosystem
@@ -244,7 +244,7 @@ export default function HomePage() {
             </div>
         </div>
       </section>
-      
+
       <CTASection />
     </div>
   );
