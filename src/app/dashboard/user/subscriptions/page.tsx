@@ -59,7 +59,7 @@ const getStatusVariant = (status: string) => {
 export default function UserSubscriptionsPage() {
   const { user, loading: userLoading } = useUser();
   const { data: subscriptions, loading: subsLoading } = useCollection<Subscription>(
-    user?.uid ? `users/${user.uid}/subscriptions` : ''
+    user?.uid ? `users/${user.uid}/subscriptions` : null
   );
   
   const loading = userLoading || subsLoading;
@@ -112,7 +112,7 @@ export default function UserSubscriptionsPage() {
             <Card key={sub.id} className="flex flex-col">
               <CardHeader>
                 <CardTitle>{sub.planName || sub.planId}</CardTitle>
-                <CardDescription>
+                <div className="text-sm text-muted-foreground">
                   Status:{' '}
                    <Badge
                     variant={getStatusVariant(sub.status)}
@@ -120,7 +120,7 @@ export default function UserSubscriptionsPage() {
                   >
                     {sub.status}
                   </Badge>
-                </CardDescription>
+                </div>
               </CardHeader>
               <CardContent className="flex-grow">
                 <p className="text-sm text-muted-foreground">
