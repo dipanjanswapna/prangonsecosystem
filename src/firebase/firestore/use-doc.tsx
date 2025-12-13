@@ -5,18 +5,18 @@ import { useFirestore } from '../provider';
 
 export function useDoc<T>(path: string | null) {
   const firestore = useFirestore();
-  const [data, setData] = useState<T | null>(null);
+  const [data, setData] = useState<T | null | undefined>(undefined);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Reset state when path changes
-    setLoading(true);
-    setData(null);
-
     if (!path) {
+      setData(null);
       setLoading(false);
       return;
     }
+    
+    setLoading(true);
+    setData(undefined);
 
     const docRef: DocumentReference = doc(firestore, path);
 
