@@ -96,6 +96,7 @@ function ProfilePageContent() {
   const [whatsapp, setWhatsapp] = useState('');
   const [telegram, setTelegram] = useState('');
   const [messenger, setMessenger] = useState('');
+  const [referralLink, setReferralLink] = useState('');
   
   const [isSaving, setIsSaving] = useState(false);
   
@@ -198,10 +199,11 @@ function ProfilePageContent() {
         setWhatsapp(userProfile.whatsapp || '');
         setTelegram(userProfile.telegram || '');
         setMessenger(userProfile.messenger || '');
+        if (typeof window !== 'undefined' && userProfile.referralCode) {
+            setReferralLink(`${window.location.origin}/auth/register?ref=${userProfile.referralCode}`);
+        }
     }
   }, [user, loading, router, userProfile, uidFromQuery]);
-
-  const referralLink = `${process.env.NEXT_PUBLIC_BASE_URL}/auth/register?ref=${userProfile?.referralCode}`;
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(referralLink);
