@@ -19,3 +19,34 @@
 **Identifiers:** ULID/UUID ব্যবহার করে Subscription, Invoice, Payment কে globally unique ও sortable করো।
 
 **Configuration management:** environment secrets, plan catalogs, tax rates, gateway keys—সবকিছু config service বা vault এ রাখো।
+
+## Phase 1: Core subscription lifecycle
+Plan catalog APIs: create/update/delete/list প্ল্যান; price overrides, add‑ons, eligibility rules।
+
+Trials: fixed/variable trial length, trial eligibility rules, trial to paid conversion with notice।
+
+Checkout flow: plan selection → price calc → address/tax → payment auth → subscription create; SSR + client fallback।
+
+Proration: upgrade/downgrade mid‑cycle এ days‑left prorate with credit carryover।
+
+Auto‑renewal: cycle scheduler, renewal windows, pre-authorization, retry logic।
+
+Pause/Resume: entitlement freeze, billing suspend, resume alignment with proration।
+
+Cancelation: end‑of‑term vs immediate cancel, refunds/credits, grace period toggle।
+
+Grace and dunning: failed payment → reminders → soft/hard dunning → suspension policy।
+
+Add‑ons: attach/detach add‑ons mid‑cycle, prorate + entitlement update।
+
+Family/Group plans: seats, invitations, seat limits, seat billing, owner transfers।
+
+Corporate plans: bulk purchase, PO reference, invoice terms (Net‑30/Net‑45), multi‑admin।
+
+Coupons/Promos: percentage/flat, duration (once/forever/first‑3), stackability rules, eligibility।
+
+Gift subscriptions: gift purchase, scheduled activation, recipient claim flow।
+
+Refunds/Credits: partial/full refunds, credit notes, audit trail।
+
+Regional pricing: country/state VAT, FX conversion, display currency vs settlement currency।
