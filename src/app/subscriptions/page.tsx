@@ -1,58 +1,65 @@
-
 'use client';
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Check, CheckCircle } from 'lucide-react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { CheckCircle } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
+import { useCollection } from '@/firebase/firestore/use-collection';
+import { Skeleton } from '@/components/ui/skeleton';
 
-const plans = [
-    {
-        tier: 'Basic',
-        popular: false,
-        monthlyPrice: 9,
-        yearlyPrice: 90,
-        description: 'Get started with our essential features.',
-        features: [
-            'Access to all free content',
-            'Basic AI Tool usage',
-            'Community forum access',
-            'Email support',
-        ]
-    },
-    {
-        tier: 'Standard',
-        popular: true,
-        monthlyPrice: 19,
-        yearlyPrice: 190,
-        description: 'Unlock more features and increase your limits.',
-        features: [
-            'Everything in Basic',
-            'Extended AI Tool usage',
-            'Access to premium articles',
-            'Priority email support',
-        ]
-    },
-    {
-        tier: 'Premium',
-        popular: false,
-        monthlyPrice: 49,
-        yearlyPrice: 490,
-        description: 'Get the full experience with all features unlocked.',
-        features: [
-            'Everything in Standard',
-            'Unlimited AI Tool usage',
-            'Access to all eBooks',
-            '1-on-1 mentorship session (1/year)',
-        ]
-    }
-]
+interface Plan {
+  id: string;
+  name: string;
+  description: string;
+  tier: 'Basic' | 'Standard' | 'Premium' | 'Enterprise';
+  active: boolean;
+  features: string[];
+  // Assuming monthly and yearly prices would be stored in a separate 'prices' collection
+  // For now, we'll use placeholder prices.
+}
+
+const placeholderPrices: { [key: string]: { monthly: number; yearly: number } } = {
+    'Basic': { monthly: 9, yearly: 90 },
+    'Standard': { monthly: 19, yearly: 190 },
+    'Premium': { monthly: 49, yearly: 490 },
+    'Enterprise': { monthly: 99, yearly: 990 },
+};
+
+function PlanSkeleton() {
+    return (
+        <Card className="flex flex-col">
+            <CardHeader>
+                <Skeleton className="h-8 w-2/3" />
+                <Skeleton className="h-4 w-full mt-2" />
+            </CardHeader>
+            <CardContent className="flex-grow space-y-6">
+                 <Skeleton className="h-10 w-1/2" />
+                 <div className="space-y-3">
+                    <Skeleton className="h-5 w-full" />
+                    <Skeleton className="h-5 w-5/6" />
+                    <Skeleton className="h-5 w-full" />
+                 </div>
+            </CardContent>
+            <CardFooter>
+                <Skeleton className="h-12 w-full" />
+            </CardFooter>
+        </Card>
+    )
+}
 
 export default function SubscriptionsPage() {
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
+  const { data: plans, loading } = useCollection<Plan>('plans', undefined, undefined, undefined, undefined, [['active', '==', true]]);
 
   return (
     <div className="max-w-5xl mx-auto space-y-12">
@@ -84,37 +91,45 @@ export default function SubscriptionsPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {plans.map((plan) => (
-            <Card key={plan.tier} className={cn("flex flex-col", plan.popular && "border-primary border-2 shadow-primary/20 shadow-lg")}>
-                <CardHeader>
-                    {plan.popular && <div className="text-center mb-2"><span className="text-xs font-bold uppercase text-primary tracking-wider">Most Popular</span></div>}
-                    <CardTitle className="font-headline text-3xl">{plan.tier}</CardTitle>
-                    <CardDescription>{plan.description}</CardDescription>
-                </CardHeader>
-                <CardContent className="flex-grow space-y-6">
-                    <div>
-                        <span className="text-4xl font-extrabold">৳{billingCycle === 'monthly' ? plan.monthlyPrice : plan.yearlyPrice}</span>
-                        <span className="text-muted-foreground">/{billingCycle === 'monthly' ? 'month' : 'year'}</span>
-                    </div>
-                    <ul className="space-y-3 text-sm">
-                        {plan.features.map(feature => (
-                            <li key={feature} className="flex items-start gap-3">
-                                <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
-                                <span>{feature}</span>
-                            </li>
-                        ))}
-                    </ul>
-                </CardContent>
-                <CardFooter>
-                    <Button size="lg" className="w-full" variant={plan.popular ? 'default' : 'outline'}>
-                        Choose {plan.tier}
-                    </Button>
-                </CardFooter>
-            </Card>
-        ))}
+        {loading ? (
+             Array.from({ length: 3 }).map((_, i) => <PlanSkeleton key={i} />)
+        ) : (
+            plans.map((plan) => {
+                const isPopular = plan.tier === 'Standard';
+                const prices = placeholderPrices[plan.tier] || { monthly: 0, yearly: 0 };
+                const displayPrice = billingCycle === 'monthly' ? prices.monthly : prices.yearly;
+
+                return (
+                    <Card key={plan.id} className={cn("flex flex-col", isPopular && "border-primary border-2 shadow-primary/20 shadow-lg")}>
+                        <CardHeader>
+                            {isPopular && <div className="text-center mb-2"><span className="text-xs font-bold uppercase text-primary tracking-wider">Most Popular</span></div>}
+                            <CardTitle className="font-headline text-3xl">{plan.name}</CardTitle>
+                            <CardDescription>{plan.description}</CardDescription>
+                        </CardHeader>
+                        <CardContent className="flex-grow space-y-6">
+                            <div>
+                                <span className="text-4xl font-extrabold">৳{displayPrice}</span>
+                                <span className="text-muted-foreground">/{billingCycle === 'monthly' ? 'month' : 'year'}</span>
+                            </div>
+                            <ul className="space-y-3 text-sm">
+                                {plan.features.map(feature => (
+                                    <li key={feature} className="flex items-start gap-3">
+                                        <CheckCircle className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
+                                        <span>{feature}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </CardContent>
+                        <CardFooter>
+                            <Button size="lg" className="w-full" variant={isPopular ? 'default' : 'outline'}>
+                                Choose {plan.name}
+                            </Button>
+                        </CardFooter>
+                    </Card>
+                )
+            })
+        )}
       </div>
     </div>
   );
 }
-
-    
