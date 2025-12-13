@@ -13,7 +13,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useUser } from '@/firebase/auth/use-user';
-import { Copy, Gift, Loader2, Droplets, User as UserIcon, MapPin, Calendar as CalendarIcon, HeartPulse, AlertCircle, CheckCircle, Award, MessageSquare } from 'lucide-react';
+import { Loader2, Droplets, User as UserIcon, MapPin, Calendar as CalendarIcon, HeartPulse, AlertCircle, CheckCircle, Award, MessageSquare } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState, Suspense, useMemo } from 'react';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -96,7 +96,6 @@ function ProfilePageContent() {
   const [whatsapp, setWhatsapp] = useState('');
   const [telegram, setTelegram] = useState('');
   const [messenger, setMessenger] = useState('');
-  const [referralLink, setReferralLink] = useState('');
   
   const [isSaving, setIsSaving] = useState(false);
   
@@ -199,19 +198,9 @@ function ProfilePageContent() {
         setWhatsapp(userProfile.whatsapp || '');
         setTelegram(userProfile.telegram || '');
         setMessenger(userProfile.messenger || '');
-        if (typeof window !== 'undefined' && userProfile.referralCode) {
-            setReferralLink(`${window.location.origin}/auth/register?ref=${userProfile.referralCode}`);
-        }
     }
   }, [user, loading, router, userProfile, uidFromQuery]);
 
-  const copyToClipboard = () => {
-    navigator.clipboard.writeText(referralLink);
-    toast({
-      title: 'Link Copied!',
-      description: 'Your referral link has been copied to the clipboard.',
-    });
-  };
 
   const handleSaveChanges = async () => {
     if (!user || !isOwnProfile) return;
@@ -605,35 +594,6 @@ function ProfilePageContent() {
                 Save All Changes
             </Button>
         </div>
-      )}
-      
-       {isOwnProfile && userProfile?.referralCode && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="font-headline flex items-center gap-2">
-                <Gift className="h-6 w-6" />
-                Referral Information
-            </CardTitle>
-            <CardDescription>
-              Invite friends to earn rewards. Share your unique link below.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label>Your Referral Code</Label>
-              <p className="font-mono text-lg font-semibold bg-muted px-3 py-2 rounded-md">{userProfile.referralCode}</p>
-            </div>
-            <div>
-              <Label>Your Referral Link</Label>
-              <div className="flex gap-2">
-                <Input readOnly value={referralLink} className="bg-muted/50" />
-                <Button variant="outline" size="icon" onClick={copyToClipboard} aria-label="Copy referral link">
-                  <Copy className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       )}
 
     </div>
