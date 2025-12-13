@@ -252,7 +252,7 @@ export default function UserDashboard() {
                 <p className="text-sm font-medium text-muted-foreground">Shareable Link</p>
                 <div className="flex gap-2">
                   <Input readOnly value={referralLink} className="bg-muted/50" />
-                  <Button variant="outline" size="icon" onClick={copyToClipboard}>
+                  <Button variant="outline" size="icon" onClick={copyToClipboard} aria-label="Copy referral link">
                     <Copy className="h-4 w-4" />
                   </Button>
                 </div>

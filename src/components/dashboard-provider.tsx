@@ -75,7 +75,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
 
     if (userProfile) {
       const { role, status, profile_status } = userProfile;
-      const isPrivilegedRole = ![ROLES.USER, ROLES.ADMIN, ROLES.VOLUNTEER].includes(role);
+      const isPrivilegedRole = ![ROLES.USER, ROLES.ADMIN].includes(role);
 
       // Step 1: Check for incomplete profiles for privileged roles
       if (isPrivilegedRole && profile_status === 'incomplete' && pathname !== '/auth/update-profile') {
