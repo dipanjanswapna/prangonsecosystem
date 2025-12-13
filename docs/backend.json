@@ -272,12 +272,12 @@
       "properties": {
         "userId": { "type": "string", "description": "The ID of the user who owns the subscription." },
         "planId": { "type": "string", "description": "The ID of the subscribed plan." },
-        "planName": { "type": "string", "description": "The name of the subscribed plan." },
+        "planName": { "type": "string", "description": "The name of the subscribed plan at the time of subscription." },
         "priceId": { "type": "string", "description": "The ID of the price used for this subscription." },
         "status": {
           "type": "string",
           "enum": ["pending", "trialing", "active", "past_due", "canceled", "expired"],
-          "description": "The current status of the subscription."
+          "description": "The current status of the subscription (e.g., active, past_due, canceled)."
         },
         "currentPeriodStart": { "type": "string", "format": "date-time", "description": "Start of the current billing period." },
         "currentPeriodEnd": { "type": "string", "format": "date-time", "description": "End of the current billing period." },
