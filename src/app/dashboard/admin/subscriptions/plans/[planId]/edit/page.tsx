@@ -11,6 +11,7 @@ import {
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -115,7 +116,7 @@ export default function EditPlanPage() {
       });
       router.push('/dashboard/admin/subscriptions');
       router.refresh();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating plan:', error);
       toast({
         variant: 'destructive',
