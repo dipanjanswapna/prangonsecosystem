@@ -9,9 +9,12 @@ export function useDoc<T>(path: string | null) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Reset state when path changes
+    setLoading(true);
+    setData(null);
+
     if (!path) {
       setLoading(false);
-      setData(null);
       return;
     }
 
@@ -24,6 +27,10 @@ export function useDoc<T>(path: string | null) {
         setData(null);
       }
       setLoading(false);
+    }, (error) => {
+        console.error(`Error fetching doc from ${path}:`, error);
+        setData(null);
+        setLoading(false);
     });
 
     return () => unsubscribe();
