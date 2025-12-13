@@ -63,7 +63,7 @@ export function HeroCarousel() {
               <CarouselItem
                 key={index}
                 className={cn(
-                  'pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-3/5 transition-transform duration-300 ease-in-out'
+                  'pl-2 md:pl-4 basis-full md:basis-1/2 lg:basis-full transition-transform duration-300 ease-in-out'
                 )}
               >
                 <div className="p-1">
