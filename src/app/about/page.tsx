@@ -1,8 +1,10 @@
+
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
+  CardDescription,
 } from '@/components/ui/card';
 import {
   BookOpen,
@@ -11,6 +13,8 @@ import {
   Briefcase,
   Users,
   Check,
+  Rocket,
+  Sparkles,
 } from 'lucide-react';
 
 export default function AboutPage() {
@@ -66,28 +70,37 @@ export default function AboutPage() {
     },
   ];
 
+  const uniquePoints = [
+      "Founded and run by a student for students",
+      "Blends education + technology + creativity + service",
+      "Focuses on practical skills, not just theory",
+      "Uses free & open-source tools to stay accessible",
+      "Designed for long-term national impact",
+  ];
+
   return (
     <div className="max-w-4xl mx-auto space-y-12">
       <div className="text-center">
-        <p className="font-headline text-primary">Prangon’s Ecosystem</p>
-        <h1 className="font-headline text-4xl md:text-5xl font-extrabold tracking-tight">
-          About Us
+        <p className="font-headline text-sm font-medium uppercase tracking-widest text-primary">
+          🌱 What is Prangon’s Ecosystem?
+        </p>
+        <h1 className="font-headline text-4xl md:text-5xl font-extrabold tracking-tight mt-2">
+          Prangon’s Ecosystem
         </h1>
         <p className="mt-4 text-lg text-muted-foreground max-w-3xl mx-auto">
           A youth-led, innovation-driven ecosystem founded by Dipanjan Swapna
-          Prangon. It is designed to connect education, technology, creativity,
-          and social impact under one integrated platform.
+          Prangon. It’s not a single project—it’s a network of initiatives that work together to empower students, creators, and young entrepreneurs, especially in Bangladesh.
         </p>
       </div>
 
-      <Card className="bg-muted/50">
+      <Card className="bg-muted/50 text-center">
         <CardHeader>
-          <CardTitle className="font-headline text-center">
-            Our Core Vision
+          <CardTitle className="font-headline text-center flex items-center justify-center gap-2">
+             🎯 Core Vision
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-center text-lg">
+          <p className="text-lg">
             To build future-ready learners and creators by providing quality
             education, practical digital skills, creative platforms, and a
             strong sense of ethical and social responsibility.
@@ -97,14 +110,14 @@ export default function AboutPage() {
 
       <div>
         <h2 className="text-3xl font-bold text-center mb-8 font-headline">
-          Key Pillars of the Ecosystem
+          🧩 Key Pillars of the Ecosystem
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {pillars.map((pillar) => (
             <Card key={pillar.title} className="flex flex-col">
               <CardHeader>
-                <CardTitle className="flex items-center gap-3">
-                  <pillar.icon className="h-8 w-8 text-primary" />
+                <CardTitle className="flex items-center gap-3 text-lg">
+                  <pillar.icon className="h-6 w-6 text-primary" />
                   <span>{pillar.title}</span>
                 </CardTitle>
               </CardHeader>
@@ -124,13 +137,31 @@ export default function AboutPage() {
       </div>
       
        <Card>
+            <CardHeader>
+                <CardTitle className="font-headline text-center flex items-center justify-center gap-2">
+                    <Rocket className="h-6 w-6" /> Why It's Unique
+                </CardTitle>
+            </CardHeader>
+            <CardContent>
+                <ul className="space-y-3 text-center text-muted-foreground">
+                    {uniquePoints.map((point, index) => (
+                        <li key={index} className="flex items-center justify-center gap-2">
+                           <Sparkles className="h-4 w-4 text-primary" />
+                           <span className="font-medium text-foreground">{point}</span>
+                        </li>
+                    ))}
+                </ul>
+            </CardContent>
+        </Card>
+      
+       <Card className="bg-gradient-to-r from-primary/10 to-accent/10">
         <CardHeader>
-          <CardTitle className="font-headline text-center">
-            In One Line
+          <CardTitle className="font-headline text-center flex items-center justify-center gap-2">
+            🧠 In One Line
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-center text-lg font-semibold italic">
+          <p className="text-center text-xl font-semibold italic">
            Prangon’s Ecosystem is a unified platform where learning, technology, creativity, and social responsibility grow together to shape future leaders.
           </p>
         </CardContent>
