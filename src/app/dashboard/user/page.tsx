@@ -166,7 +166,7 @@ export default function UserDashboard() {
             </CardContent>
         </Card>
 
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-3 gap-6">
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -192,6 +192,20 @@ export default function UserDashboard() {
                 <CardContent>
                     <Button asChild>
                         <Link href="/dashboard/user/blood-requests">View Blood Requests</Link>
+                    </Button>
+                </CardContent>
+            </Card>
+             <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                        <Users className="h-5 w-5" />
+                        My Referrals
+                    </CardTitle>
+                    <CardDescription>Track who you've invited and see your referral rewards.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Button asChild>
+                        <Link href="/dashboard/user/referrals">View My Referrals</Link>
                     </Button>
                 </CardContent>
             </Card>
