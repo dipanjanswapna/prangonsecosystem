@@ -77,7 +77,7 @@ function ConfirmationPageContent() {
     )
   }
   
-  if (subscription === null) {
+  if (!loading && !subscription) {
     notFound();
   }
 
