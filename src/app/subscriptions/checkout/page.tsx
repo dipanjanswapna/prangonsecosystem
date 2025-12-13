@@ -59,10 +59,10 @@ function CheckoutPageContent() {
   
   const priceId = searchParams.get('priceId');
   
-  const { data: prices, loading: priceLoading } = useCollection<Price>('prices', undefined, undefined, undefined, undefined, [['__name__', '==', priceId]]);
+  const { data: prices, loading: priceLoading } = useCollection<Price>('prices', undefined, undefined, undefined, undefined, priceId ? [['__name__', '==', priceId]] : undefined);
   const price = prices[0];
   
-  const { data: plans, loading: planLoading } = useCollection<Plan>('plans', undefined, undefined, undefined, undefined, [['__name__', '==', price?.planId || ' ']]);
+  const { data: plans, loading: planLoading } = useCollection<Plan>('plans', undefined, undefined, undefined, undefined, price?.planId ? [['__name__', '==', price.planId]] : undefined);
   const plan = plans[0];
 
 
