@@ -49,7 +49,7 @@ const rewardReferrer = async (refCode: string) => {
         
         const batch = writeBatch(firestore);
         batch.update(referrerRef, {
-            points: increment(50), // Award 50 points for a successful referral
+            points: increment(5), // Reward for successful referral
             badges: arrayUnion('Recruiter') // Award a "Recruiter" badge
         });
         await batch.commit();
@@ -99,8 +99,8 @@ export const signUp = async (email:string, password:string, fullName:string, rol
     referralCode: nanoid(),
     referredBy: refCode || null,
     level: 'Bronze',
-    points: 0,
-    badges: [],
+    points: 2, // Welcome bonus
+    badges: ['Newbie'], // Welcome badge
     skills: [],
     phone: '',
     whatsapp: '',
@@ -156,8 +156,8 @@ const handleSocialSignIn = async (user: User, refCode?: string | null) => {
       referralCode: nanoid(),
       referredBy: refCode || null,
       level: 'Bronze',
-      points: 0,
-      badges: [],
+      points: 2, // Welcome bonus
+      badges: ['Newbie'], // Welcome badge
       skills: [],
       phone: user.phoneNumber || '',
       whatsapp: '',

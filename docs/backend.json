@@ -47,7 +47,7 @@
         "volunteerStatus": { "type": "string", "description": "The approval status of the user's volunteer application.", "enum": ["none", "pending", "approved", "rejected"], "default": "none" },
         "level": { "type": "string", "description": "User's gamification level based on total points. Bronze: 0+, Silver: 1000+, Gold: 5000+, Platinum: 10000+.", "enum": ["Bronze", "Silver", "Gold", "Platinum"], "default": "Bronze" },
         "points": { "type": "number", "description": "User's engagement points for rewards. (100 BDT = 1 Point, 1 Blood Donation = 10 Points)", "default": 0 },
-        "badges": { "type": "array", "description": "List of badges earned by the user.", "items": { "type": "string" } },
+        "badges": { "type": "array", "description": "List of badges earned by the user (e.g., 'Newbie', 'Recruiter').", "items": { "type": "string" } },
         "createdAt": { "type": "string", "format": "date-time", "description": "The timestamp when the user was created." },
         "lastLogin": { "type": "string", "format": "date-time", "description": "The timestamp of the user's last login." },
         "profileUpdatedAt": { "type": "string", "format": "date-time", "description": "The timestamp when the user last updated their profile information." },
