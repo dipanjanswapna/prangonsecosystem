@@ -14,17 +14,32 @@ import {
 } from '@/components/ui/tabs';
 import { PlansTable } from './plans-table';
 import { PricesTable } from './prices/prices-table';
+import { SubscriptionsTable } from './subscriptions-table';
 
 export default function AdminSubscriptionsPage() {
   return (
-    <Tabs defaultValue="plans">
+    <Tabs defaultValue="subscriptions">
       <div className="flex items-center justify-between">
         <TabsList>
+          <TabsTrigger value="subscriptions">Subscriptions</TabsTrigger>
           <TabsTrigger value="plans">Plans</TabsTrigger>
           <TabsTrigger value="prices">Prices</TabsTrigger>
           <TabsTrigger value="coupons" disabled>Coupons (coming soon)</TabsTrigger>
         </TabsList>
       </div>
+       <TabsContent value="subscriptions">
+        <Card>
+          <CardHeader>
+            <CardTitle>All Subscriptions</CardTitle>
+            <CardDescription>
+              Manage and monitor all user subscriptions.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <SubscriptionsTable />
+          </CardContent>
+        </Card>
+      </TabsContent>
       <TabsContent value="plans">
         <Card>
           <CardHeader>

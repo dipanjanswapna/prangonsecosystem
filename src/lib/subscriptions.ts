@@ -176,6 +176,12 @@ export const deletePrice = async (priceId: string) => {
 
 export const createSubscription = async (data: SubscriptionData): Promise<string> => {
     const userSubscriptionsRef = collection(firestore, 'users', data.userId, 'subscriptions');
+    const planDocRef = doc(firestore, 'plans', data.planId);
+    
+    const planDoc = await getDoc(planDocRef);
+    if (!planDoc.exists()) {
+        throw new Error('Plan not found');
+    }
     
     // Set a grace period of 7 days for the first payment.
     const now = new Date();
@@ -185,6 +191,7 @@ export const createSubscription = async (data: SubscriptionData): Promise<string
 
     const subscriptionDoc = await addDoc(userSubscriptionsRef, {
         ...data,
+        planName: planDoc.data().name, // Add plan name
         createdAt: serverTimestamp(),
         currentPeriodStart: currentPeriodStart,
         currentPeriodEnd: currentPeriodEnd,
@@ -193,3 +200,30 @@ export const createSubscription = async (data: SubscriptionData): Promise<string
     
     return subscriptionDoc.id;
 }
+
+
+export const cancelSubscription = async (userId: string, subscriptionId: string, reason: string) => {
+    const subscriptionRef = doc(firestore, 'users', userId, 'subscriptions', subscriptionId);
+    
+    try {
+        await updateDoc(subscriptionRef, {
+            status: 'canceled',
+            cancellationReason: reason,
+            canceledAt: serverTimestamp(),
+        });
+    } catch (error) {
+        console.error('Error canceling subscription:', error);
+        throw new Error('Could not cancel subscription.');
+    }
+};
+
+
+export const updateSubscriptionStatus = async (userId: string, subscriptionId: string, status: 'active' | 'past_due' | 'canceled') => {
+    const subscriptionRef = doc(firestore, 'users', userId, 'subscriptions', subscriptionId);
+    try {
+        await updateDoc(subscriptionRef, { status });
+    } catch (error) {
+        console.error('Error updating subscription status:', error);
+        throw new Error('Could not update subscription status.');
+    }
+};

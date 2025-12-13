@@ -111,7 +111,7 @@
         "isAnonymous": { "type": "boolean", "default": false },
         "donorName": { "type": "string", "description": "Name of the donor (if not anonymous)." },
         "donorEmail": { "type": "string", "format": "email", "description": "Email of the donor (if not anonymous)." },
-        "frequency": { "type": "string", "enum": ["one-time", "monthly"], "description": "The frequency of the donation.", "default": "one-time" },
+        "frequency": { "type": "string", "default": "one-time" },
         "isCorporateMatch": { "type": "boolean", "default": false, "description": "Indicates if the donation is part of a corporate matching program." },
         "corporateName": { "type": "string", "description": "Name of the matching corporation, if applicable." }
       },
@@ -272,17 +272,20 @@
       "properties": {
         "userId": { "type": "string", "description": "The ID of the user who owns the subscription." },
         "planId": { "type": "string", "description": "The ID of the subscribed plan." },
+        "planName": { "type": "string", "description": "The name of the subscribed plan." },
         "priceId": { "type": "string", "description": "The ID of the price used for this subscription." },
         "status": {
           "type": "string",
-          "enum": ["Trialing", "Active", "PastDue", "Canceled", "Expired"],
+          "enum": ["pending", "trialing", "active", "past_due", "canceled", "expired"],
           "description": "The current status of the subscription."
         },
         "currentPeriodStart": { "type": "string", "format": "date-time", "description": "Start of the current billing period." },
         "currentPeriodEnd": { "type": "string", "format": "date-time", "description": "End of the current billing period." },
         "trialStart": { "type": "string", "format": "date-time", "description": "Start of the trial period." },
         "trialEnd": { "type": "string", "format": "date-time", "description": "End of the trial period." },
-        "cancelAtPeriodEnd": { "type": "boolean", "description": "If true, the subscription will be canceled at the end of the current period." }
+        "cancelAtPeriodEnd": { "type": "boolean", "description": "If true, the subscription will be canceled at the end of the current period." },
+        "canceledAt": { "type": "string", "format": "date-time", "description": "Timestamp of when the subscription was canceled." },
+        "cancellationReason": { "type": "string", "description": "The reason provided for cancellation." }
       },
       "required": ["userId", "planId", "priceId", "status", "currentPeriodStart", "currentPeriodEnd"]
     },
@@ -395,5 +398,3 @@
     }
   }
 }
-
-    
