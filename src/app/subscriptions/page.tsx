@@ -16,6 +16,7 @@ import { Label } from '@/components/ui/label';
 import { cn } from '@/lib/utils';
 import { useCollection } from '@/firebase/firestore/use-collection';
 import { Skeleton } from '@/components/ui/skeleton';
+import Link from 'next/link';
 
 interface Plan {
   id: string;
@@ -72,11 +73,11 @@ export default function SubscriptionsPage() {
       return {
         ...plan,
         prices: {
-          monthly: monthlyPrice?.amount,
-          yearly: yearlyPrice?.amount,
+          monthly: monthlyPrice,
+          yearly: yearlyPrice,
         }
       };
-    });
+    }).sort((a,b) => (a.prices.monthly?.amount || 0) - (b.prices.monthly?.amount || 0)); // Sort by monthly price
   }, [plans, prices]);
 
 
@@ -115,9 +116,12 @@ export default function SubscriptionsPage() {
         ) : (
             plansWithPrices.map((plan) => {
                 const isPopular = plan.tier === 'Standard';
-                const displayPrice = billingCycle === 'monthly' 
+                const price = billingCycle === 'monthly' 
                     ? plan.prices.monthly 
                     : plan.prices.yearly;
+                
+                const displayPrice = price?.amount ?? (billingCycle === 'monthly' ? 19 : 190);
+                const hasPrice = price !== undefined;
 
                 return (
                     <Card key={plan.id} className={cn("flex flex-col", isPopular && "border-primary border-2 shadow-primary/20 shadow-lg")}>
@@ -128,7 +132,7 @@ export default function SubscriptionsPage() {
                         </CardHeader>
                         <CardContent className="flex-grow space-y-6">
                             <div>
-                                <span className="text-4xl font-extrabold">৳{displayPrice !== undefined ? displayPrice : (billingCycle === 'monthly' ? 19 : 190)}</span>
+                                <span className="text-4xl font-extrabold">৳{displayPrice.toLocaleString()}</span>
                                 <span className="text-muted-foreground">/{billingCycle === 'monthly' ? 'month' : 'year'}</span>
                             </div>
                             <ul className="space-y-3 text-sm">
@@ -141,8 +145,10 @@ export default function SubscriptionsPage() {
                             </ul>
                         </CardContent>
                         <CardFooter>
-                            <Button size="lg" className="w-full" variant={isPopular ? 'default' : 'outline'}>
-                                Choose {plan.name}
+                            <Button size="lg" className="w-full" variant={isPopular ? 'default' : 'outline'} disabled={!hasPrice} asChild>
+                                <Link href={hasPrice ? `/subscriptions/checkout?priceId=${price.id}` : '#'}>
+                                    {hasPrice ? `Choose ${plan.name}`: 'Coming Soon'}
+                                </Link>
                             </Button>
                         </CardFooter>
                     </Card>

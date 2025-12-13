@@ -9,6 +9,7 @@ import {
   updateDoc,
   deleteDoc,
   getDoc,
+  type Timestamp,
 } from 'firebase/firestore';
 import { initializeFirebase } from '@/firebase';
 import { customAlphabet } from 'nanoid';
@@ -33,6 +34,13 @@ interface PriceData {
     currency: 'BDT' | 'USD';
     interval: 'month' | 'year' | 'lifetime';
     active: boolean;
+}
+
+interface SubscriptionData {
+    userId: string;
+    planId: string;
+    priceId: string;
+    status: 'pending' | 'trialing' | 'active' | 'past_due' | 'canceled' | 'expired';
 }
 
 export const createPlan = async (data: PlanData) => {
@@ -163,4 +171,25 @@ export const deletePrice = async (priceId: string) => {
         console.error('Error deleting price: ', error);
         throw new Error('Could not delete price.');
     }
+}
+
+
+export const createSubscription = async (data: SubscriptionData): Promise<string> => {
+    const userSubscriptionsRef = collection(firestore, 'users', data.userId, 'subscriptions');
+    
+    // Set a grace period of 7 days for the first payment.
+    const now = new Date();
+    const currentPeriodStart = serverTimestamp();
+    const currentPeriodEnd = new Date(now.setDate(now.getDate() + 7));
+
+
+    const subscriptionDoc = await addDoc(userSubscriptionsRef, {
+        ...data,
+        createdAt: serverTimestamp(),
+        currentPeriodStart: currentPeriodStart,
+        currentPeriodEnd: currentPeriodEnd,
+        cancelAtPeriodEnd: false,
+    });
+    
+    return subscriptionDoc.id;
 }
