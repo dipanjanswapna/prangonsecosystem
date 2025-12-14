@@ -26,7 +26,7 @@ export function AppHeader() {
     setIsMounted(true);
   }, []);
 
-  const hideHeader = pathname.startsWith('/dashboard') || pathname.startsWith('/auth');
+  const hideHeader = pathname.startsWith('/auth');
 
   if (!isMounted || hideHeader) {
     return null;
