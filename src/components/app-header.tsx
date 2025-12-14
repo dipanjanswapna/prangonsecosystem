@@ -29,9 +29,9 @@ export function AppHeader() {
 
   const isDashboardPage = pathname.startsWith('/dashboard');
   const isAuthPage = pathname.startsWith('/auth');
-  const hideHeader = isAuthPage || isDashboardPage;
+  const showHeader = !isDashboardPage && !isAuthPage;
 
-  if (!isMounted || hideHeader) {
+  if (!isMounted || !showHeader) {
     return null;
   }
   
