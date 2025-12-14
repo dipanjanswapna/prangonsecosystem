@@ -184,17 +184,16 @@ export const createSubscription = async (data: SubscriptionData): Promise<string
         throw new Error('Plan not found');
     }
     
-    // Set a grace period of 7 days for the first payment.
     const now = new Date();
     const currentPeriodStart = serverTimestamp();
-    const currentPeriodEnd = new Date(now.setDate(now.getDate() + 7));
+    const currentPeriodEnd = new Date(now.setFullYear(now.getFullYear() + 1));
 
 
     const subscriptionDoc = await addDoc(userSubscriptionsRef, {
         userId: data.userId,
         planId: data.planId,
         priceId: data.priceId,
-        status: data.status || 'pending',
+        status: data.status || 'active',
         planName: planDoc.data().name, // Add plan name
         createdAt: serverTimestamp(),
         currentPeriodStart: currentPeriodStart,
@@ -221,7 +220,6 @@ export const confirmSubscription = async (userId: string, subscriptionId: string
         }
         
         if (subscriptionDoc.data().status !== 'pending') {
-            // It might already be active from a previous attempt, which is fine.
             return;
         }
 
