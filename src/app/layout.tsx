@@ -25,8 +25,10 @@ function RootLayoutContent({ children }: { children: React.ReactNode }) {
   return (
     <>
       {showHeaderFooter && <AppHeader />}
-      <main className={cn("flex-1 container px-4 md:px-6 lg:px-8", !isDashboardPage && "py-8")}>
-        {children}
+      <main className="flex-1 container px-4 md:px-6 lg:px-8">
+        <div className={cn(!isDashboardPage && "py-8")}>
+         {children}
+        </div>
       </main>
       {showHeaderFooter && <AppFooter />}
       <Toaster />
