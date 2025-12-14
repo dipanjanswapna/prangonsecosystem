@@ -172,6 +172,45 @@ function HeroSection() {
   );
 }
 
+function QuoteSection() {
+  const quoteImage = PlaceHolderImages.find(p => p.id === 'founder-portrait');
+
+  return (
+    <section className="grid grid-cols-1 md:grid-cols-5 gap-8 md:gap-12 items-center">
+      <div className="md:col-span-2">
+        {quoteImage && (
+          <Image 
+            src={quoteImage.imageUrl}
+            alt={quoteImage.description}
+            width={400}
+            height={500}
+            className="rounded-lg object-cover w-full h-full"
+            data-ai-hint={quoteImage.imageHint}
+          />
+        )}
+      </div>
+      <div className="md:col-span-3">
+        <div className="relative">
+          <blockquote className="text-xl md:text-2xl font-medium text-foreground relative z-10">
+            "Universities must push the boundaries of research and <span className="font-bold">corporates</span> must push the boundaries of execution. Together, we must create impact — not just in markets but in the very fabric of our own <span className="font-bold">society</span>."
+          </blockquote>
+          {/* Decorative speech bubble tail */}
+          <div className="absolute -bottom-8 left-8 w-20 h-10 border-b-2 border-l-2 border-foreground">
+             <div className="absolute left-0 -top-2.5 w-5 h-5 border-t-2 border-r-2 border-foreground transform -rotate-45"></div>
+          </div>
+        </div>
+        <div className="mt-16">
+          <p className="font-bold text-lg">Dipanjan S. PRANGON</p>
+          <p className="text-muted-foreground">Founder, Prangon's Ecosystem</p>
+          <Button variant="outline" className="mt-4" asChild>
+            <Link href="/about">View Profile</Link>
+          </Button>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 
 export default function HomePage() {
   return (
@@ -209,6 +248,8 @@ export default function HomePage() {
       </div>
       
       <EmergencyBanner />
+
+      <QuoteSection />
 
       <section className="text-center">
         <h2 className="font-headline text-3xl font-bold mb-4 text-center">

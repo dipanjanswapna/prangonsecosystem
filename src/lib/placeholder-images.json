@@ -7,6 +7,12 @@
       "imageHint": "portrait person"
     },
     {
+      "id": "founder-portrait",
+      "description": "Portrait of the founder, Dipanjan S. PRANGON",
+      "imageUrl": "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?q=80&w=2070&auto=format&fit=crop",
+      "imageHint": "male portrait"
+    },
+    {
       "id": "project-1",
       "description": "Placeholder for project 1",
       "imageUrl": "https://images.unsplash.com/photo-1644325349124-d1756b79dd42?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHx0ZWNobm9sb2d5JTIwYWJzdHJhY3R8ZW58MHx8fHwxNzY1MjcyMzMxfDA&ixlib=rb-4.1.0&q=80&w=1080",
@@ -69,7 +75,7 @@
     {
       "id": "donor-1",
       "description": "Donor avatar 1",
-      "imageUrl": "https://images.unsplash.com/photo-1635131902146-6957477a4ff4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxwZXJzb24lMjBzbWlsaW5nfGVufDB8fHx8MTc2NTIyODY0NXww&ixlibrb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1635131902146-6957477a4ff4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxwZXJzb24lMjBzbWlsaW5nfGVufDB8fHx8MTc2NTIyODY0NXww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "person smiling"
     },
     {
@@ -81,13 +87,13 @@
     {
       "id": "donor-3",
       "description": "Donor avatar 3",
-      "imageUrl": "https://images.unsplash.com/photo-1735415977319-030fb3ee6466?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxwZXJzb24lMjBoYXBweXxlbnwwfHx8fDE3NjUyNDY1NTF8MA&ixlibrb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1735415977319-030fb3ee6466?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxwZXJzb24lMjBoYXBweXxlbnwwfHx8fDE3NjUyNDY1NTF8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "person happy"
     },
     {
       "id": "donor-4",
       "description": "Donor avatar 4",
-      "imageUrl": "https://images.unsplash.com/photo-1724435811349-32d27f4d5806?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cGVyc29uJTIwcHJvZmlsZXxlbnwwfHx8fDE3NjUyNjUyMDZ8MA&ixlibrb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1724435811349-32d27f4d5806?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cGVyc29uJTIwcHJvZmlsZXxlbnwwfHx8fDE3NjUyNjUyMDZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "person profile"
     },
     {
