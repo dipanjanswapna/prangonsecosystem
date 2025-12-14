@@ -1,7 +1,8 @@
 'use client';
+
 import { FirebaseProvider } from './provider';
 
-export function FirebaseClientProvider({
+export function FirebaseClientProviderWrapper({
   children,
 }: {
   children: React.ReactNode;

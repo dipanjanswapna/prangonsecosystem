@@ -50,7 +50,7 @@ const navItems = [
 
 export function MainNav({ isMobile = false }: { isMobile?: boolean }) {
   const pathname = usePathname();
-  const { user, loading } = useUser();
+  const { user } = useUser();
   const { data: userProfile } = useDoc<{ role: Role }>(user ? `users/${user.uid}` : null);
   const [isClient, setIsClient] = useState(false);
 
@@ -119,7 +119,7 @@ export function MainNav({ isMobile = false }: { isMobile?: boolean }) {
     );
   };
 
-  const dashboardUrl = userProfile?.role ? `/dashboard/${userProfile.role}` : '/dashboard/user';
+  const dashboardUrl = userProfile?.role ? `/dashboard/${userProfile.role}` : '/dashboard';
 
   return (
     <nav
@@ -128,9 +128,28 @@ export function MainNav({ isMobile = false }: { isMobile?: boolean }) {
         isMobile ? 'flex-col items-start gap-y-2' : 'text-foreground'
       )}
     >
+      {isClient && user && (
+         <Link
+            href={dashboardUrl}
+            className={cn(
+              'group relative flex items-center gap-1 px-3 py-2 text-sm font-medium transition-colors hover:text-primary',
+              pathname.startsWith('/dashboard') ? 'text-primary' : 'text-foreground/80',
+              isMobile ? 'w-full text-base' : ''
+            )}
+          >
+            <LayoutDashboard className="h-4 w-4" />
+            Dashboard
+            {!isMobile && (
+            <span
+                className={cn(
+                'absolute bottom-0 left-1/2 h-0.5 -translate-x-1/2 rounded-full bg-primary transition-all duration-300',
+                pathname.startsWith('/dashboard') ? 'w-4' : 'w-0 group-hover:w-4'
+                )}
+            ></span>
+            )}
+        </Link>
+      )}
       {navItems.map(renderNavItem)}
     </nav>
   );
 }
-
-    
