@@ -3,11 +3,10 @@
 
 import { executePayment, queryPayment } from '@/lib/bkash';
 import { NextResponse, type NextRequest } from 'next/server';
-import { getFirestore, doc, runTransaction, increment } from 'firebase/firestore';
-import { initializeFirebase } from '@/firebase';
+import { doc, runTransaction, increment } from 'firebase-admin/firestore';
+import { adminFirestore } from '@/lib/firebase-admin';
 
-const { firebaseApp } = initializeFirebase();
-const firestore = getFirestore(firebaseApp);
+const firestore = adminFirestore;
 
 const getDonorLevel = (points: number): 'Bronze' | 'Silver' | 'Gold' | 'Platinum' => {
     if (points >= 10000) return 'Platinum';
@@ -32,12 +31,12 @@ export async function POST(request: NextRequest) {
             const donationRef = doc(firestore, 'donations', ongon_donation_id);
             const donationDoc = await transaction.get(donationRef);
 
-            if (!donationDoc.exists() || donationDoc.data().status === 'success') {
+            if (!donationDoc.exists() || donationDoc.data()?.status === 'success') {
                 // Already processed or does not exist
                 return;
             }
 
-            const { campaignId, amount, userId, isAnonymous } = donationDoc.data();
+            const { campaignId, amount, userId, isAnonymous } = donationDoc.data()!;
 
             // 1. Update donation status
             transaction.update(donationRef, {
@@ -92,7 +91,7 @@ export async function POST(request: NextRequest) {
         const donationRef = doc(firestore, 'donations', ongon_donation_id);
         await runTransaction(firestore, async (transaction) => {
             const donationDoc = await transaction.get(donationRef);
-            if (donationDoc.exists() && donationDoc.data().status !== 'failed') {
+            if (donationDoc.exists() && donationDoc.data()?.status !== 'failed') {
                transaction.update(donationRef, { status: 'failed' });
             }
         });
