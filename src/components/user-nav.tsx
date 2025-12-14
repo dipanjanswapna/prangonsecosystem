@@ -39,11 +39,13 @@ import { logOut } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from './ui/skeleton';
+import { useDynamicStatus } from '@/hooks/use-dynamic-status';
 
 export function UserNav() {
   const { user, loading } = useUser();
   const router = useRouter();
   const { toast } = useToast();
+  const { showStatus } = useDynamicStatus();
 
   const handleLogout = async () => {
     try {
@@ -62,6 +64,13 @@ export function UserNav() {
       });
     }
   };
+  
+  const handleHelpCenterHover = () => {
+    showStatus('Find answers and get help.', {
+        icon: LifeBuoy,
+        duration: 3000
+    });
+  }
 
   if (loading) {
     return <Skeleton className="h-10 w-10 rounded-full" />;
@@ -155,7 +164,7 @@ export function UserNav() {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
            <DropdownMenuLabel>Help &amp; Support</DropdownMenuLabel>
-          <DropdownMenuItem asChild>
+          <DropdownMenuItem asChild onMouseEnter={handleHelpCenterHover}>
             <a href="/help-center" target="_blank" rel="noopener noreferrer">
               <LifeBuoy />
               <span>Help Center</span>

@@ -1,7 +1,6 @@
 
 'use client';
 
-import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { ThemeProvider } from '@/context/theme-provider';
@@ -10,6 +9,8 @@ import { AppFooter } from '@/components/app-footer';
 import { FirebaseClientProviderWrapper } from '@/firebase/client-provider-wrapper';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { useState, useEffect } from 'react';
+import { DynamicStatusBar } from '@/components/dynamic-status-bar';
 
 // export const metadata: Metadata = {
 //   title: 'Prangons Ecosystem',
@@ -18,12 +19,23 @@ import { cn } from '@/lib/utils';
 
 function RootLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const [isClient, setIsClient] = useState(false);
+  
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  if (!isClient) {
+    return null; // Or a loading skeleton
+  }
+
   const isDashboardPage = pathname.startsWith('/dashboard');
   const isAuthPage = pathname.startsWith('/auth');
   const showHeaderFooter = !isDashboardPage && !isAuthPage;
 
   return (
     <>
+      <DynamicStatusBar />
       {showHeaderFooter && <AppHeader />}
       <main className="flex-1 container px-4 md:px-6 lg:px-8">
         <div className={cn(!isDashboardPage && "py-8")}>
