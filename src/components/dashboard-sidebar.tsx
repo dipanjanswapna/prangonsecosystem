@@ -1,26 +1,30 @@
 'use client';
 
 import Link from 'next/link';
-import { HandHeart, Settings, Tooltip } from 'lucide-react';
+import { HandHeart, Settings } from 'lucide-react';
 import { useUser } from '@/firebase/auth/use-user';
 import { useDoc } from '@/firebase/firestore/use-doc';
 import { ROLES, type Role } from '@/lib/roles';
 import { cn } from '@/lib/utils';
 import { navItems } from './dashboard-bottom-nav';
 import { usePathname } from 'next/navigation';
-import { Button } from './ui/button';
 import {
+  Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from './ui/tooltip';
+import { ScrollArea } from './ui/scroll-area';
 
 interface SidebarProps {
   isMobile?: boolean;
   onLinkClick?: () => void;
 }
 
-export function DashboardSidebar({ isMobile = false, onLinkClick }: SidebarProps) {
+export function DashboardSidebar({
+  isMobile = false,
+  onLinkClick,
+}: SidebarProps) {
   const pathname = usePathname();
   const { user } = useUser();
   const { data: userProfile } = useDoc<{ role: Role }>(
@@ -34,86 +38,96 @@ export function DashboardSidebar({ isMobile = false, onLinkClick }: SidebarProps
       'flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8',
       isActive && 'bg-accent text-accent-foreground'
     );
-    
+
   const content = (
-     <TooltipProvider>
-      <nav className="flex flex-col items-center gap-4 px-2 sm:py-5">
-        <Link
-          href="/"
-          className="group flex h-9 w-9 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:h-8 md:w-8 md:text-base"
-        >
-          <HandHeart className="h-4 w-4 transition-all group-hover:scale-110" />
-          <span className="sr-only">ONGON</span>
-        </Link>
-        {items.map((item) => {
-          const isActive =
-            pathname.startsWith(item.href) &&
-            (item.href !== '/dashboard' || pathname === '/dashboard');
-          return (
-            <Tooltip key={item.label}>
-              <TooltipTrigger asChild>
-                <Link
-                  href={item.href}
-                  className={linkClasses(isActive)}
-                  onClick={onLinkClick}
-                >
-                  <item.icon className="h-5 w-5" />
-                  <span className="sr-only">{item.label}</span>
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right">{item.label}</TooltipContent>
-            </Tooltip>
-          );
-        })}
-      </nav>
-      <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Link
-              href="/settings"
-              className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
-            >
-              <Settings className="h-5 w-5" />
-              <span className="sr-only">Settings</span>
-            </Link>
-          </TooltipTrigger>
-          <TooltipContent side="right">Settings</TooltipContent>
-        </Tooltip>
-      </nav>
+    <TooltipProvider>
+      <div className="flex flex-col h-full">
+        <nav className="flex flex-col items-center gap-4 px-2 sm:py-5">
+          <Link
+            href="/"
+            className="group flex h-9 w-9 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:h-8 md:w-8 md:text-base"
+          >
+            <HandHeart className="h-4 w-4 transition-all group-hover:scale-110" />
+            <span className="sr-only">ONGON</span>
+          </Link>
+        </nav>
+
+        <ScrollArea className="flex-1">
+          <nav className="flex flex-col items-center gap-4 px-2 sm:py-5">
+            {items.map((item) => {
+              const isActive =
+                pathname.startsWith(item.href) &&
+                (item.href !== '/dashboard' || pathname === '/dashboard');
+              return (
+                <Tooltip key={item.label}>
+                  <TooltipTrigger asChild>
+                    <Link
+                      href={item.href}
+                      className={linkClasses(isActive)}
+                      onClick={onLinkClick}
+                    >
+                      <item.icon className="h-5 w-5" />
+                      <span className="sr-only">{item.label}</span>
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">{item.label}</TooltipContent>
+                </Tooltip>
+              );
+            })}
+          </nav>
+        </ScrollArea>
+
+        <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Link
+                href="/settings"
+                className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
+              >
+                <Settings className="h-5 w-5" />
+                <span className="sr-only">Settings</span>
+              </Link>
+            </TooltipTrigger>
+            <TooltipContent side="right">Settings</TooltipContent>
+          </Tooltip>
+        </nav>
+      </div>
     </TooltipProvider>
-  )
+  );
 
   if (isMobile) {
     return (
-        <div className="flex h-full max-h-screen flex-col gap-2">
-            <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
-                <Link href="/" className="flex items-center gap-2 font-semibold">
-                <HandHeart className="h-6 w-6 text-primary" />
-                <span className="">ONGON</span>
-                </Link>
-            </div>
-            <div className="flex-1 overflow-auto py-2">
-                 <nav className="grid items-start px-4 text-sm font-medium">
-                    {items.map((item) => {
-                    const isActive = pathname.startsWith(item.href) && (item.href !== '/dashboard' || pathname === '/dashboard');
-                    return (
-                        <Link
-                        key={item.label}
-                        href={item.href}
-                        onClick={onLinkClick}
-                        className={cn(
-                          'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
-                          isActive && 'bg-muted text-primary'
-                        )}
-                        >
-                        <item.icon className="h-4 w-4" />
-                        {item.label}
-                        </Link>
-                    );
-                    })}
-                </nav>
-            </div>
+      <div className="flex h-full max-h-screen flex-col gap-2">
+        <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
+          <Link href="/" className="flex items-center gap-2 font-semibold">
+            <HandHeart className="h-6 w-6 text-primary" />
+            <span className="">ONGON</span>
+          </Link>
         </div>
+        <div className="flex-1 overflow-auto py-2">
+          <nav className="grid items-start px-4 text-sm font-medium">
+            {items.map((item) => {
+              const isActive =
+                pathname.startsWith(item.href) &&
+                (item.href !== '/dashboard' || pathname === '/dashboard');
+              return (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  onClick={onLinkClick}
+                  className={cn(
+                    'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
+                    isActive && 'bg-muted text-primary'
+                  )}
+                >
+                  <item.icon className="h-4 w-4" />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+      </div>
     );
   }
 
