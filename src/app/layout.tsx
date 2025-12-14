@@ -1,3 +1,6 @@
+
+'use client';
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
@@ -5,11 +8,31 @@ import { ThemeProvider } from '@/context/theme-provider';
 import { AppHeader } from '@/components/app-header';
 import { AppFooter } from '@/components/app-footer';
 import { FirebaseClientProviderWrapper } from '@/firebase/client-provider-wrapper';
+import { usePathname } from 'next/navigation';
 
-export const metadata: Metadata = {
-  title: 'Prangons Ecosystem',
-  description: "Dipanjan's personal ecosystem for work, thoughts, and creativity.",
-};
+// export const metadata: Metadata = {
+//   title: 'Prangons Ecosystem',
+//   description: "Dipanjan's personal ecosystem for work, thoughts, and creativity.",
+// };
+
+function RootLayoutContent({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  const isDashboardPage = pathname.startsWith('/dashboard');
+  const isAuthPage = pathname.startsWith('/auth');
+  const showHeaderFooter = !isDashboardPage && !isAuthPage;
+
+  return (
+    <>
+      {showHeaderFooter && <AppHeader />}
+      <main className="flex-1 container px-4 md:px-6 lg:px-8 py-8">
+        {children}
+      </main>
+      {showHeaderFooter && <AppFooter />}
+      <Toaster />
+    </>
+  );
+}
+
 
 export default function RootLayout({
   children,
@@ -19,6 +42,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+         <title>Prangons Ecosystem</title>
+        <meta name="description" content="Dipanjan's personal ecosystem for work, thoughts, and creativity." />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"
@@ -42,12 +67,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <FirebaseClientProviderWrapper>
-              <AppHeader />
-              <main className="flex-1 container px-4 md:px-6 lg:px-8 py-8">
-                {children}
-              </main>
-              <AppFooter />
-            <Toaster />
+            <RootLayoutContent>{children}</RootLayoutContent>
           </FirebaseClientProviderWrapper>
         </ThemeProvider>
       </body>
