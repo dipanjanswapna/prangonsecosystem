@@ -42,15 +42,11 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <FirebaseClientProviderWrapper>
-            <div className="flex min-h-screen flex-col animated-gradient">
               <AppHeader />
               <main className="flex-1">
-                <div className={'container py-8 md:py-12'}>
-                  {children}
-                </div>
+                {children}
               </main>
               <AppFooter />
-            </div>
             <Toaster />
           </FirebaseClientProviderWrapper>
         </ThemeProvider>
