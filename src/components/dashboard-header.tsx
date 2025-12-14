@@ -17,14 +17,20 @@ function getBreadcrumb(pathname: string) {
     if (pathname.includes('/dashboard/admin/campaigns')) return 'Campaigns';
     if (pathname.includes('/dashboard/admin/reports')) return 'Reports';
     if (pathname.includes('/dashboard/admin/donations')) return 'Donations';
+    if (pathname.includes('/dashboard/admin/subscriptions')) return 'Subscriptions';
     if (pathname.includes('/dashboard/admin')) return 'Admin';
     if (pathname.includes('/dashboard/all-users')) return 'All Users';
     if (pathname.includes('/dashboard/moderator')) return 'Moderator';
     if (pathname.includes('/dashboard/manager')) return 'Manager';
     if (pathname.includes('/dashboard/collaborator')) return 'Collaborator';
     if (pathname.includes('/dashboard/user/donations')) return 'My Donations';
+    if (pathname.includes('/dashboard/user/subscriptions')) return 'My Subscriptions';
+    if (pathname.includes('/dashboard/user/blood-requests')) return 'My Blood Requests';
+    if (pathname.includes('/dashboard/user/referrals')) return 'My Referrals';
+    if (pathname.includes('/dashboard/user/responses')) return 'My Responses';
     if (pathname.includes('/dashboard/user')) return 'My Dashboard';
     if (pathname.includes('/auth/profile')) return 'Profile';
+    if (pathname.includes('/auth/update-profile')) return 'Update Profile';
     return 'Overview'
 }
 
