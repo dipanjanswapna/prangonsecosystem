@@ -43,7 +43,7 @@ export default function RootLayout({
         >
           <FirebaseClientProviderWrapper>
               <AppHeader />
-              <main className="flex-1">
+              <main className="flex-1 container px-4 md:px-6 lg:px-8 py-8">
                 {children}
               </main>
               <AppFooter />
