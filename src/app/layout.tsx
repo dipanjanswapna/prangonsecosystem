@@ -9,6 +9,7 @@ import { AppHeader } from '@/components/app-header';
 import { AppFooter } from '@/components/app-footer';
 import { FirebaseClientProviderWrapper } from '@/firebase/client-provider-wrapper';
 import { usePathname } from 'next/navigation';
+import { cn } from '@/lib/utils';
 
 // export const metadata: Metadata = {
 //   title: 'Prangons Ecosystem',
@@ -24,7 +25,7 @@ function RootLayoutContent({ children }: { children: React.ReactNode }) {
   return (
     <>
       {showHeaderFooter && <AppHeader />}
-      <main className="flex-1 container px-4 md:px-6 lg:px-8 py-8">
+      <main className={cn("flex-1 container px-4 md:px-6 lg:px-8", !isDashboardPage && "py-8")}>
         {children}
       </main>
       {showHeaderFooter && <AppFooter />}
