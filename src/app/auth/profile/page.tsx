@@ -241,7 +241,7 @@ function ProfilePageContent() {
 
   if (loading || profileLoading || !profileId) {
     return (
-      <div className="max-w-4xl mx-auto space-y-8">
+      <div className="max-w-4xl mx-auto space-y-8 pt-8">
         <div className="text-center">
           <Skeleton className="h-10 w-48 mx-auto" />
           <Skeleton className="h-6 w-80 mx-auto mt-2" />
@@ -266,7 +266,7 @@ function ProfilePageContent() {
 
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-4xl mx-auto space-y-8 pt-8">
       <div className="text-center">
         <h1 className="font-headline text-4xl font-bold tracking-tight">
           {isOwnProfile ? "My Profile" : `${userProfile?.name}'s Profile`}
@@ -588,7 +588,7 @@ function ProfilePageContent() {
       </Card>
       
       {isOwnProfile && (
-        <div className="flex justify-end">
+        <div className="flex justify-end pb-8">
             <Button onClick={handleSaveChanges} disabled={isSaving} size="lg">
                 {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Save All Changes
