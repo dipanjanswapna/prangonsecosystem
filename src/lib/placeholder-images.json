@@ -131,6 +131,12 @@
       "description": "Placeholder for advertisement on auth pages",
       "imageUrl": "https://images.unsplash.com/photo-1711779186295-8209afd337df?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cHJvZHVjdCUyMGFkdmVydGlzZW1lbnR8ZW58MHx8fHwxNzY1MjA2NzYwfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "product advertisement"
+    },
+    {
+      "id": "solar-panels-hero",
+      "description": "A vast field of solar panels under a clear sky.",
+      "imageUrl": "https://images.unsplash.com/photo-1558221843-9599a3c39328?q=80&w=2070&auto=format&fit=crop",
+      "imageHint": "solar panels"
     }
   ]
 }

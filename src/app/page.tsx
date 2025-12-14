@@ -8,6 +8,8 @@ import Link from 'next/link';
 import { HeroCarousel } from '@/components/hero-carousel';
 import { useCollection } from '@/firebase/firestore/use-collection';
 import { Skeleton } from '@/components/ui/skeleton';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
+import Image from 'next/image';
 
 interface BloodRequest {
   id: string;
@@ -138,10 +140,43 @@ function EmergencyBanner() {
     );
 }
 
+function HeroSection() {
+  const heroImage = PlaceHolderImages.find(p => p.id === 'solar-panels-hero');
+  return (
+    <section className="relative h-[60vh] md:h-[80vh] w-full flex items-center justify-center text-white rounded-2xl overflow-hidden mb-16">
+      {heroImage && (
+        <Image
+          src={heroImage.imageUrl}
+          alt={heroImage.description}
+          fill
+          className="object-cover"
+          data-ai-hint={heroImage.imageHint}
+          priority
+        />
+      )}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent" />
+      <div className="relative z-10 text-center p-4">
+        <h1 className="font-headline text-4xl md:text-6xl font-extrabold tracking-tight">
+          Driving Innovation for a Better Tomorrow
+        </h1>
+        <p className="mt-4 text-lg md:text-xl max-w-3xl mx-auto">
+          Prangon's Ecosystem
+        </p>
+        <div className="mt-8">
+          <Button size="lg" variant="secondary">
+            Know More
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 
 export default function HomePage() {
   return (
     <div className="space-y-16 md:space-y-24">
+      <HeroSection />
       <div className="grid grid-cols-1 items-start gap-8 md:gap-12 lg:grid-cols-2">
         <section className="flex flex-col items-center text-center lg:items-start lg:text-left space-y-4">
           <h1 className="font-headline text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tighter">
