@@ -1,12 +1,11 @@
 'use server';
 
 import { NextResponse, type NextRequest } from 'next/server';
-import { getFirestore, doc, updateDoc, runTransaction, increment } from 'firebase/firestore';
-import { initializeFirebase } from '@/firebase';
+import { adminFirestore } from '@/lib/firebase-admin';
+import { doc, updateDoc, runTransaction, increment } from 'firebase-admin/firestore';
 import crypto from 'crypto';
 
-const { firebaseApp } = initializeFirebase();
-const firestore = getFirestore(firebaseApp);
+const firestore = adminFirestore;
 
 const isProduction = process.env.NODE_ENV === 'production';
 
