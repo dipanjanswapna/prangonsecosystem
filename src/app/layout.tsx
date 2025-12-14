@@ -11,6 +11,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { useState, useEffect } from 'react';
 import { DynamicStatusBar } from '@/components/dynamic-status-bar';
+import { HeroSection } from './page';
 
 // export const metadata: Metadata = {
 //   title: 'Prangons Ecosystem',
@@ -27,6 +28,7 @@ function RootLayoutContent({ children }: { children: React.ReactNode }) {
 
   const isDashboardPage = pathname.startsWith('/dashboard');
   const isAuthPage = pathname.startsWith('/auth');
+  const isHomePage = pathname === '/';
   const showHeaderFooter = !isDashboardPage && !isAuthPage;
 
   if (!isClient) {
@@ -38,8 +40,9 @@ function RootLayoutContent({ children }: { children: React.ReactNode }) {
     <>
       <DynamicStatusBar />
       {showHeaderFooter && <AppHeader />}
+      {isHomePage && <HeroSection />}
       <main className="flex-1 container px-4 md:px-6 lg:px-8">
-        <div className={cn(!isDashboardPage && !isAuthPage && "py-8")}>
+        <div className={cn(!isDashboardPage && !isAuthPage && !isHomePage && "py-8")}>
          {children}
         </div>
       </main>

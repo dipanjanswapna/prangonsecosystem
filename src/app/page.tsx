@@ -140,10 +140,10 @@ function EmergencyBanner() {
     );
 }
 
-function HeroSection() {
+export function HeroSection() {
   const heroImage = PlaceHolderImages.find(p => p.id === 'solar-panels-hero');
   return (
-    <section className="relative h-screen w-screen flex items-center justify-center text-white overflow-hidden left-1/2 -translate-x-1/2">
+    <section className="relative h-screen w-screen flex items-center justify-center text-white overflow-hidden left-1/2 -translate-x-1/2 -mt-14">
       {heroImage && (
         <Image
           src={heroImage.imageUrl}
@@ -215,7 +215,6 @@ function QuoteSection() {
 export default function HomePage() {
   return (
     <div className="space-y-16 md:space-y-24">
-      <HeroSection />
       <div className="grid grid-cols-1 items-start gap-8 md:gap-12 lg:grid-cols-2">
         <section className="flex flex-col items-center text-center lg:items-start lg:text-left space-y-4">
           <h1 className="font-headline text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tighter">
