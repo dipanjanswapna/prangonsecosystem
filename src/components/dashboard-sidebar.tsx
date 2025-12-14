@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { HandHeart, Settings } from 'lucide-react';
+import { HandHeart, Settings, Tooltip } from 'lucide-react';
 import { useUser } from '@/firebase/auth/use-user';
 import { useDoc } from '@/firebase/firestore/use-doc';
 import { ROLES, type Role } from '@/lib/roles';
@@ -9,10 +9,18 @@ import { cn } from '@/lib/utils';
 import { navItems } from './dashboard-bottom-nav';
 import { usePathname } from 'next/navigation';
 import { Button } from './ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
-import { ScrollArea } from './ui/scroll-area';
+import {
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from './ui/tooltip';
 
-export function DashboardSidebar({ isMobile = false }: { isMobile?: boolean }) {
+interface SidebarProps {
+  isMobile?: boolean;
+  onLinkClick?: () => void;
+}
+
+export function DashboardSidebar({ isMobile = false, onLinkClick }: SidebarProps) {
   const pathname = usePathname();
   const { user } = useUser();
   const { data: userProfile } = useDoc<{ role: Role }>(
@@ -23,53 +31,57 @@ export function DashboardSidebar({ isMobile = false }: { isMobile?: boolean }) {
 
   const linkClasses = (isActive: boolean) =>
     cn(
-      'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
-      isActive && 'bg-muted text-primary'
+      'flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8',
+      isActive && 'bg-accent text-accent-foreground'
     );
-
+    
   const content = (
-    <div className="flex h-full max-h-screen flex-col gap-2">
-      <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
-        <Link href="/" className="flex items-center gap-2 font-semibold">
-          <HandHeart className="h-6 w-6 text-primary" />
-          <span>ONGON</span>
+     <TooltipProvider>
+      <nav className="flex flex-col items-center gap-4 px-2 sm:py-5">
+        <Link
+          href="/"
+          className="group flex h-9 w-9 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:h-8 md:w-8 md:text-base"
+        >
+          <HandHeart className="h-4 w-4 transition-all group-hover:scale-110" />
+          <span className="sr-only">ONGON</span>
         </Link>
-      </div>
-      <ScrollArea className="flex-1">
-        <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
-          {items.map((item) => {
-            const isActive = pathname.startsWith(item.href) && (item.href !== '/dashboard' || pathname === '/dashboard');
-            return (
-              <Link
-                key={item.label}
-                href={item.href}
-                className={linkClasses(isActive)}
-              >
-                <item.icon className="h-4 w-4" />
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-      </ScrollArea>
-      <div className="mt-auto p-4">
-        <Card>
-          <CardHeader className="p-2 pt-0 md:p-4">
-            <CardTitle>Upgrade to Pro</CardTitle>
-            <CardDescription>
-              Unlock all features and get unlimited access to our support
-              team.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-2 pt-0 md:p-4 md:pt-0">
-            <Button size="sm" className="w-full">
-              Upgrade
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  );
+        {items.map((item) => {
+          const isActive =
+            pathname.startsWith(item.href) &&
+            (item.href !== '/dashboard' || pathname === '/dashboard');
+          return (
+            <Tooltip key={item.label}>
+              <TooltipTrigger asChild>
+                <Link
+                  href={item.href}
+                  className={linkClasses(isActive)}
+                  onClick={onLinkClick}
+                >
+                  <item.icon className="h-5 w-5" />
+                  <span className="sr-only">{item.label}</span>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="right">{item.label}</TooltipContent>
+            </Tooltip>
+          );
+        })}
+      </nav>
+      <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Link
+              href="/settings"
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:text-foreground md:h-8 md:w-8"
+            >
+              <Settings className="h-5 w-5" />
+              <span className="sr-only">Settings</span>
+            </Link>
+          </TooltipTrigger>
+          <TooltipContent side="right">Settings</TooltipContent>
+        </Tooltip>
+      </nav>
+    </TooltipProvider>
+  )
 
   if (isMobile) {
     return (
@@ -80,15 +92,19 @@ export function DashboardSidebar({ isMobile = false }: { isMobile?: boolean }) {
                 <span className="">ONGON</span>
                 </Link>
             </div>
-            <ScrollArea className="flex-1">
-                 <nav className="grid items-start px-2 text-sm font-medium lg:px-4 py-4">
+            <div className="flex-1 overflow-auto py-2">
+                 <nav className="grid items-start px-4 text-sm font-medium">
                     {items.map((item) => {
                     const isActive = pathname.startsWith(item.href) && (item.href !== '/dashboard' || pathname === '/dashboard');
                     return (
                         <Link
                         key={item.label}
                         href={item.href}
-                        className={linkClasses(isActive)}
+                        onClick={onLinkClick}
+                        className={cn(
+                          'flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary',
+                          isActive && 'bg-muted text-primary'
+                        )}
                         >
                         <item.icon className="h-4 w-4" />
                         {item.label}
@@ -96,14 +112,14 @@ export function DashboardSidebar({ isMobile = false }: { isMobile?: boolean }) {
                     );
                     })}
                 </nav>
-            </ScrollArea>
+            </div>
         </div>
     );
   }
 
   return (
-    <div className="hidden border-r bg-muted/40 md:block">
+    <aside className="fixed inset-y-0 left-0 z-10 hidden w-14 flex-col border-r bg-background sm:flex">
       {content}
-    </div>
+    </aside>
   );
 }
