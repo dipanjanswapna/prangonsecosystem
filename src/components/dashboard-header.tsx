@@ -5,14 +5,6 @@ import {
   Search,
 } from 'lucide-react';
 import Link from 'next/link';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from './ui/breadcrumb';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { UserNav } from './user-nav';
@@ -40,20 +32,10 @@ export function DashboardHeader() {
     const pathname = usePathname();
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:px-6">
-      <Breadcrumb>
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href="/dashboard">Dashboard</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>{getBreadcrumb(pathname)}</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
-      <div className="relative ml-auto flex-1 md:grow-0">
+      <div className="relative flex-1">
+        <h1 className="text-xl font-semibold">{getBreadcrumb(pathname)}</h1>
+      </div>
+      <div className="relative ml-auto">
         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
           type="search"
