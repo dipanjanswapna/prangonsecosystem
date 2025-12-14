@@ -10,6 +10,7 @@ import { navItems } from './dashboard-bottom-nav';
 import { usePathname } from 'next/navigation';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from './ui/card';
+import { ScrollArea } from './ui/scroll-area';
 
 export function DashboardSidebar({ isMobile = false }: { isMobile?: boolean }) {
   const pathname = usePathname();
@@ -26,11 +27,6 @@ export function DashboardSidebar({ isMobile = false }: { isMobile?: boolean }) {
       isActive && 'bg-muted text-primary'
     );
 
-  const mobileLinkClasses = (isActive: boolean) => cn(
-    'flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground',
-    isActive && 'bg-muted text-foreground'
-  );
-
   const content = (
     <div className="flex h-full max-h-screen flex-col gap-2">
       <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
@@ -39,7 +35,7 @@ export function DashboardSidebar({ isMobile = false }: { isMobile?: boolean }) {
           <span>ONGON</span>
         </Link>
       </div>
-      <div className="flex-1">
+      <ScrollArea className="flex-1">
         <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
           {items.map((item) => {
             const isActive = pathname.startsWith(item.href) && (item.href !== '/dashboard' || pathname === '/dashboard');
@@ -55,7 +51,7 @@ export function DashboardSidebar({ isMobile = false }: { isMobile?: boolean }) {
             );
           })}
         </nav>
-      </div>
+      </ScrollArea>
       <div className="mt-auto p-4">
         <Card>
           <CardHeader className="p-2 pt-0 md:p-4">
@@ -84,7 +80,7 @@ export function DashboardSidebar({ isMobile = false }: { isMobile?: boolean }) {
                 <span className="">ONGON</span>
                 </Link>
             </div>
-            <div className="flex-1 overflow-y-auto">
+            <ScrollArea className="flex-1">
                  <nav className="grid items-start px-2 text-sm font-medium lg:px-4 py-4">
                     {items.map((item) => {
                     const isActive = pathname.startsWith(item.href) && (item.href !== '/dashboard' || pathname === '/dashboard');
@@ -100,7 +96,7 @@ export function DashboardSidebar({ isMobile = false }: { isMobile?: boolean }) {
                     );
                     })}
                 </nav>
-            </div>
+            </ScrollArea>
         </div>
     );
   }
