@@ -2,7 +2,6 @@
 
 import type { FC, ReactNode } from 'react';
 import { DashboardProvider } from '@/components/dashboard-provider';
-import { DashboardBottomNav } from '@/components/dashboard-bottom-nav';
 import { AppHeader } from '@/components/app-header';
 
 interface DashboardLayoutProps {
@@ -17,7 +16,6 @@ const DashboardLayout: FC<DashboardLayoutProps> = ({ children }) => {
         <main className="flex-1 flex flex-col gap-4 p-4 md:gap-8 md:p-8 overflow-auto">
           {children}
         </main>
-        <DashboardBottomNav />
       </div>
     </DashboardProvider>
   );
