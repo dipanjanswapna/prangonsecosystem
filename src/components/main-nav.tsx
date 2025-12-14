@@ -28,11 +28,11 @@ import type { Role } from '@/lib/roles';
 const navItems = [
   { href: '/', label: 'Home' },
   { href: '/about', label: 'About Us' },
-  { href: '/donations', label: 'Donations' },
-  { href: '/subscriptions', label: 'Subscriptions', icon: Ticket },
   {
     label: 'More',
     children: [
+      { href: '/donations', label: 'Donations', icon: HeartHandshake },
+      { href: '/subscriptions', label: 'Subscriptions', icon: Ticket },
       { href: '/blood-donation', label: 'Blood Donation', icon: Droplets },
       { href: '/leaderboard', label: 'Leaderboard', icon: Trophy },
       { href: '/donor-wall', label: 'Donor Wall', icon: Gift },
@@ -51,7 +51,6 @@ const navItems = [
 export function MainNav({ isMobile = false }: { isMobile?: boolean }) {
   const pathname = usePathname();
   const { user } = useUser();
-  const { data: userProfile } = useDoc<{ role: Role }>(user ? `users/${user.uid}` : null);
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
@@ -119,8 +118,6 @@ export function MainNav({ isMobile = false }: { isMobile?: boolean }) {
     );
   };
 
-  const dashboardUrl = userProfile?.role ? `/dashboard/${userProfile.role}` : '/dashboard';
-
   return (
     <nav
       className={cn(
@@ -130,7 +127,7 @@ export function MainNav({ isMobile = false }: { isMobile?: boolean }) {
     >
       {isClient && user && (
          <Link
-            href={dashboardUrl}
+            href="/dashboard"
             className={cn(
               'group relative flex items-center gap-1 px-3 py-2 text-sm font-medium transition-colors hover:text-primary',
               pathname.startsWith('/dashboard') ? 'text-primary' : 'text-foreground/80',
