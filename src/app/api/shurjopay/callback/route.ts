@@ -1,11 +1,9 @@
 'use server';
 
 import { NextResponse, type NextRequest } from 'next/server';
-import { getFirestore, doc, updateDoc } from 'firebase/firestore';
-import { initializeFirebase } from '@/firebase';
+import { adminFirestore } from '@/lib/firebase-admin';
+import { doc, updateDoc } from 'firebase-admin/firestore';
 
-const { firebaseApp } = initializeFirebase();
-const firestore = getFirestore(firebaseApp);
 
 const SHURJOPAY_API_BASE = 'https://sandbox.shurjopayment.com/api';
 const SHURJOPAY_USERNAME = process.env.SHURJOPAY_USERNAME || 'sp_sandbox';
@@ -65,7 +63,7 @@ export async function POST(request: NextRequest) {
 
     // Update the donation document in Firestore only if the status is not pending
     if (finalStatus !== 'pending') {
-      const donationRef = doc(firestore, 'donations', ongon_donation_id);
+      const donationRef = doc(adminFirestore, 'donations', ongon_donation_id);
       await updateDoc(donationRef, {
           status: finalStatus,
           transactionId: verificationDetails.bank_trx_id || sp_order_id,
