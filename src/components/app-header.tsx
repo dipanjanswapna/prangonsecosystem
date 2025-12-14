@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -26,7 +27,9 @@ export function AppHeader() {
     setIsMounted(true);
   }, []);
 
-  const hideHeader = pathname.startsWith('/auth');
+  const isDashboardPage = pathname.startsWith('/dashboard');
+  const isAuthPage = pathname.startsWith('/auth');
+  const hideHeader = isAuthPage || isDashboardPage;
 
   if (!isMounted || hideHeader) {
     return null;
@@ -35,7 +38,7 @@ export function AppHeader() {
   return (
     <header
       className={cn(
-        'sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'
+        'sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/50'
       )}
     >
       <div className="container flex h-14 items-center">
