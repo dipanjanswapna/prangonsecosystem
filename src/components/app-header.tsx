@@ -12,17 +12,30 @@ import {
 import { Button } from './ui/button';
 import { Menu } from 'lucide-react';
 import { ThemeToggle } from './theme-toggle';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { UserNav } from './user-nav';
 import { cn } from '@/lib/utils';
+import { usePathname } from 'next/navigation';
 
 export function AppHeader() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const hideHeader = pathname.startsWith('/dashboard') || pathname.startsWith('/auth');
+
+  if (!isMounted || hideHeader) {
+    return null;
+  }
+  
   return (
     <header
       className={cn(
-        'sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60',
-        'hide-on-dashboard hide-on-auth'
+        'sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'
       )}
     >
       <div className="container flex h-14 items-center">
