@@ -38,6 +38,7 @@ import { useUser } from '@/firebase/auth/use-user';
 import { logOut } from '@/lib/auth';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
+import { Skeleton } from './ui/skeleton';
 
 export function UserNav() {
   const { user, loading } = useUser();
@@ -63,17 +64,27 @@ export function UserNav() {
   };
 
   if (loading) {
-    return <div className="h-10 w-10 rounded-full bg-muted animate-pulse" />;
+    return <Skeleton className="h-10 w-10 rounded-full" />;
   }
 
   if (!user) {
     return (
-      <Button asChild>
-        <Link href="/auth/login">
-          <LogIn className="mr-2 h-4 w-4" />
-          Login
-        </Link>
-      </Button>
+      <>
+        {/* Desktop Button */}
+        <Button asChild className="hidden md:inline-flex">
+            <Link href="/auth/login">
+            <LogIn className="mr-2 h-4 w-4" />
+            Login
+            </Link>
+        </Button>
+         {/* Mobile Icon Button */}
+        <Button asChild variant="ghost" size="icon" className="md:hidden">
+            <Link href="/auth/login">
+                <LogIn className="h-5 w-5" />
+                <span className="sr-only">Login</span>
+            </Link>
+        </Button>
+      </>
     );
   }
 
