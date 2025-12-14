@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useUser } from '@/firebase/auth/use-user';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -59,15 +59,18 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   );
   const router = useRouter();
   const pathname = usePathname();
+  const [isProtectedRoute, setIsProtectedRoute] = useState(false);
+
 
   const isLoading = userLoading || profileLoading;
-  const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
 
   useEffect(() => {
+    setIsProtectedRoute(protectedRoutes.some((route) => pathname.startsWith(route)));
+    
     if (isLoading) return;
 
     if (!user) {
-      if (isProtectedRoute) {
+      if (protectedRoutes.some((route) => pathname.startsWith(route))) {
         router.replace('/auth/login');
       }
       return;
@@ -108,7 +111,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
         }
       }
     }
-  }, [user, userProfile, isLoading, router, pathname, isProtectedRoute]);
+  }, [user, userProfile, isLoading, router, pathname]);
 
   const handleLogout = async () => {
     await logOut();
