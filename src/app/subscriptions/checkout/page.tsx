@@ -17,7 +17,7 @@ import Image from 'next/image';
 import { useState, useEffect, Suspense, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { createSubscription } from '@/lib/subscriptions';
+import { createSubscription, confirmSubscription } from '@/lib/subscriptions';
 import { useUser } from '@/firebase/auth/use-user';
 import { useCollection } from '@/firebase/firestore/use-collection';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -144,18 +144,22 @@ function CheckoutPageContent() {
     setIsLoading(true);
 
     try {
+      // Step 1: Create the 'pending' subscription
       const subscriptionData = {
         userId: user.uid,
         planId: plan.id,
         priceId: price.id,
-        status: 'pending' as const,
       };
 
       const newSubscriptionId = await createSubscription(subscriptionData);
       
-      toast({ title: "Redirecting to confirmation...", description: "Please confirm your payment on the next page."});
+      // Step 2: Immediately confirm it (demo system)
+      await confirmSubscription(user.uid, newSubscriptionId, plan.id);
 
-      router.push(`/subscriptions/checkout/confirm?subscriptionId=${newSubscriptionId}`);
+      toast({ title: "Subscription Activated!", description: `Your ${plan.name} plan is now active.`});
+
+      // Step 3: Redirect to the subscriptions dashboard
+      router.push('/dashboard/user/subscriptions');
 
     } catch (error: any) {
       console.error("Subscription initiation failed:", error);
@@ -209,7 +213,7 @@ function CheckoutPageContent() {
           <div className="space-y-4">
              <Label className="text-lg font-medium">Select Payment Method</Label>
              <div className="grid grid-cols-3 md:grid-cols-5 gap-4 items-center justify-items-center rounded-lg bg-muted/50 p-4">
-                {gateways.map(gateway => (
+                {gateways.map((gateway) => (
                     <GatewayIcon key={gateway.name} name={gateway.name} src={gateway.src} isSelected={selectedGateway === gateway.name} onClick={() => setSelectedGateway(gateway.name)} />
                 ))}
              </div>
@@ -223,7 +227,7 @@ function CheckoutPageContent() {
             ) : (
                 <HandHeart className="mr-2 h-5 w-5" />
             )}
-            {isLoading ? 'Processing...' : `Pay ৳${price.amount.toLocaleString()}`}
+            {isLoading ? 'Processing...' : `Complete Purchase (Demo) - ৳${price.amount.toLocaleString()}`}
           </Button>
         </CardFooter>
       </Card>

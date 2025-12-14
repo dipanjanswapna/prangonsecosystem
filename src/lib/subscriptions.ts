@@ -41,7 +41,7 @@ interface SubscriptionData {
     userId: string;
     planId: string;
     priceId: string;
-    status: 'pending' | 'trialing' | 'active' | 'past_due' | 'canceled' | 'expired';
+    status?: 'pending' | 'trialing' | 'active' | 'past_due' | 'canceled' | 'expired';
 }
 
 export const createPlan = async (data: PlanData) => {
@@ -191,7 +191,10 @@ export const createSubscription = async (data: SubscriptionData): Promise<string
 
 
     const subscriptionDoc = await addDoc(userSubscriptionsRef, {
-        ...data,
+        userId: data.userId,
+        planId: data.planId,
+        priceId: data.priceId,
+        status: data.status || 'pending',
         planName: planDoc.data().name, // Add plan name
         createdAt: serverTimestamp(),
         currentPeriodStart: currentPeriodStart,
@@ -218,7 +221,8 @@ export const confirmSubscription = async (userId: string, subscriptionId: string
         }
         
         if (subscriptionDoc.data().status !== 'pending') {
-            throw new Error("This subscription is not pending confirmation.");
+            // It might already be active from a previous attempt, which is fine.
+            return;
         }
 
         const priceId = subscriptionDoc.data().priceId;

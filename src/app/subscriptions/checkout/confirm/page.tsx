@@ -92,7 +92,7 @@ function ConfirmationPageContent() {
                  </CardDescription>
             </CardHeader>
             <CardFooter>
-                <Button className="w-full" onClick={() => router.push('/dashboard')}>Go to Dashboard</Button>
+                <Button className="w-full" onClick={() => router.push('/dashboard/user/subscriptions')}>Go to My Subscriptions</Button>
             </CardFooter>
         </Card>
     )
