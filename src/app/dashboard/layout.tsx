@@ -14,7 +14,7 @@ const DashboardLayout: FC<DashboardLayoutProps> = ({ children }) => {
     <DashboardProvider>
       <div className="relative flex min-h-screen w-full flex-col">
         <AppHeader />
-        <main className="flex-1 overflow-auto p-4 md:gap-8 md:p-8">
+        <main className="flex-1 overflow-auto p-4 md:p-8 pb-16">
           {children}
         </main>
         <DashboardBottomNav />
