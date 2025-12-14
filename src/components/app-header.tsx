@@ -29,16 +29,16 @@ export function AppHeader() {
 
   const isDashboardPage = pathname.startsWith('/dashboard');
   const isAuthPage = pathname.startsWith('/auth');
-  const showHeader = !isDashboardPage && !isAuthPage;
 
-  if (!isMounted || !showHeader) {
+  if (!isMounted) {
     return null;
   }
   
   return (
     <header
       className={cn(
-        'sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/50'
+        'sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/50',
+        (isDashboardPage || isAuthPage) && 'hide-on-dashboard hide-on-auth'
       )}
     >
       <div className="container flex h-14 items-center">

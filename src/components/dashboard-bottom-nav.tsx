@@ -57,19 +57,19 @@ export function DashboardBottomNav() {
   const items = navItems[userRole] || navItems[ROLES.USER];
   
   return (
-      <div className="fixed bottom-0 left-0 z-50 w-full h-16 bg-background border-t">
+      <div className="fixed bottom-0 left-0 z-50 w-full h-16 bg-background border-t md:hidden">
         <div className="w-full h-full overflow-x-auto whitespace-nowrap">
-          <div className="flex justify-center items-center h-full max-w-lg mx-auto px-2">
+          <div className="flex justify-around items-center h-full max-w-lg mx-auto px-2">
               {items.map((item) => {
-              const isActive = pathname.startsWith(item.href) && (item.href !== '/dashboard/admin' || pathname === '/dashboard/admin') && (item.href !== '/dashboard/user' || pathname === '/dashboard/user');
+              const isActive = pathname.startsWith(item.href) && (item.href !== '/dashboard' || pathname === '/dashboard');
               return (
                   <Link
                   key={item.label}
                   href={item.href}
                   className={cn(
                       buttonVariants({ variant: 'ghost', size: 'lg' }),
-                      'flex flex-col items-center justify-center h-full rounded-none group text-muted-foreground pt-2 px-2 w-20',
-                      isActive && 'text-primary'
+                      'flex flex-col items-center justify-center h-full rounded-none group text-muted-foreground pt-2 px-2 w-full',
+                      isActive && 'text-primary bg-muted'
                   )}
                   >
                   <item.icon className={cn('h-5 w-5 mb-1', isActive ? 'text-primary' : 'group-hover:text-foreground')} />

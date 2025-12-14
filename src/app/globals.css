@@ -79,4 +79,11 @@
   .auth-button {
     background-image: linear-gradient(to right, #ec4899, #8b5cf6);
   }
+  
+  .dashboard-page-active .hide-on-dashboard {
+      display: none;
+  }
+  .auth-page-active .hide-on-auth {
+      display: none;
+  }
 }

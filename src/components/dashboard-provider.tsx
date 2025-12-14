@@ -23,7 +23,7 @@ interface UserProfile {
 function AccessDenied({ status, onLogout }: { status: 'pending' | 'rejected', onLogout: () => void }) {
   const isPendingProfile = status === 'pending';
   return (
-    <div className="flex items-center justify-center min-h-[calc(100vh-10rem)]">
+    <div className="flex items-center justify-center min-h-[calc(100vh-10rem)] p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="mx-auto bg-muted rounded-full p-3 w-fit">
@@ -78,22 +78,18 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
 
     if (userProfile) {
       const { role, status, profile_status } = userProfile;
-      const isPrivilegedRole = ![ROLES.USER, ROLES.ADMIN].includes(role);
+      const isPrivilegedRole = ![ROLES.USER, ROLES.ADMIN, ROLES.VOLUNTEER].includes(role);
 
-      // Step 1: Check for incomplete profiles for privileged roles
       if (isPrivilegedRole && profile_status === 'incomplete' && pathname !== '/auth/update-profile') {
         router.replace('/auth/update-profile');
-        return; // Halt further checks
+        return;
       }
       
-      // Step 2: Check for overall account status or pending profile review
       if (status !== 'approved' || (isPrivilegedRole && profile_status === 'pending_review')) {
-        // Allow access to profile page even if pending
         if(pathname.startsWith('/auth/profile')) return;
-        return; // Render AccessDenied/Pending component
+        return;
       }
 
-      // Step 3: Role-based dashboard routing for approved users
       const userRole = role || ROLES.USER;
       const expectedDashboardPath = `/dashboard/${userRole.toLowerCase()}`;
       
@@ -104,7 +100,6 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
       
       const isDashboardPage = pathname.startsWith('/dashboard/');
       if (isDashboardPage && !pathname.startsWith(expectedDashboardPath)) {
-        // Allow admin to access special pages
         const allowedAdminPaths = ['/dashboard/all-users', '/dashboard/admin/donations', '/dashboard/admin/reports', '/dashboard/admin/campaigns', '/dashboard/admin/volunteers', '/dashboard/admin/blood-requests', '/dashboard/admin/subscriptions'];
         if(!(userRole === ROLES.ADMIN && allowedAdminPaths.some(p => pathname.startsWith(p)))) {
            router.replace(expectedDashboardPath);
@@ -120,7 +115,7 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
 
   if (isLoading && isProtectedRoute) {
     return (
-      <div className="space-y-6 p-4 sm:px-6 sm:py-4">
+      <div className="flex flex-col flex-1 gap-4 p-4 lg:gap-6 lg:p-6">
         <Skeleton className="h-16 w-full" />
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           <Skeleton className="h-32 w-full" />
@@ -136,7 +131,6 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
   if (isProtectedRoute && user && userProfile) {
     const isPrivilegedRole = ![ROLES.USER, ROLES.ADMIN, ROLES.VOLUNTEER].includes(userProfile.role);
 
-     // Don't show access denied on profile page
     if (pathname.startsWith('/auth/profile')) {
         return <>{children}</>;
     }

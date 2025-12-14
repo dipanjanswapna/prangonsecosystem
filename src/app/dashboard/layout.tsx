@@ -1,23 +1,32 @@
 'use client';
 
 import type { FC, ReactNode } from 'react';
-import { AppHeader } from '@/components/app-header';
 import { DashboardProvider } from '@/components/dashboard-provider';
-import { DashboardBottomNav } from '@/components/dashboard-bottom-nav';
+import { DashboardSidebar } from '@/components/dashboard-sidebar';
+import { DashboardHeader } from '@/components/dashboard-header';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Button } from '@/components/ui/button';
+import { Menu } from 'lucide-react';
+import { useState } from 'react';
 
-interface DashboardLayoutProps {
-  children: ReactNode;
-}
+const DashboardLayout: FC<{ children: ReactNode }> = ({ children }) => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-const DashboardLayout: FC<DashboardLayoutProps> = ({ children }) => {
   return (
     <DashboardProvider>
-      <div className="relative flex min-h-screen w-full flex-col">
-        <AppHeader />
-        <main className="flex-1 overflow-auto p-4 md:p-8 pb-16">
-          {children}
-        </main>
-        <DashboardBottomNav />
+      <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr] dashboard-page-active">
+        <DashboardSidebar />
+        <div className="flex flex-col">
+           <DashboardHeader onMobileMenuClick={() => setIsMobileMenuOpen(true)} />
+          <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
+            {children}
+          </main>
+        </div>
+        <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+            <SheetContent side="left" className="p-0">
+                <DashboardSidebar isMobile={true} />
+            </SheetContent>
+        </Sheet>
       </div>
     </DashboardProvider>
   );
