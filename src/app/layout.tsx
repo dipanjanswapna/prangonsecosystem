@@ -25,20 +25,21 @@ function RootLayoutContent({ children }: { children: React.ReactNode }) {
     setIsClient(true);
   }, []);
 
-  if (!isClient) {
-    return null; // Or a loading skeleton
-  }
-
   const isDashboardPage = pathname.startsWith('/dashboard');
   const isAuthPage = pathname.startsWith('/auth');
   const showHeaderFooter = !isDashboardPage && !isAuthPage;
+
+  if (!isClient) {
+    // You can return a loading skeleton here if you want
+    return null; 
+  }
 
   return (
     <>
       <DynamicStatusBar />
       {showHeaderFooter && <AppHeader />}
       <main className="flex-1 container px-4 md:px-6 lg:px-8">
-        <div className={cn(!isDashboardPage && "py-8")}>
+        <div className={cn(!isDashboardPage && !isAuthPage && "py-8")}>
          {children}
         </div>
       </main>
