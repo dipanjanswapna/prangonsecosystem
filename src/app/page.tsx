@@ -144,7 +144,7 @@ function EmergencyBanner() {
 export function HeroSection() {
   const heroImage = PlaceHolderImages.find(p => p.id === 'solar-panels-hero');
   return (
-    <section className="relative h-screen w-screen flex items-center justify-center text-white overflow-hidden left-1/2 -translate-x-1/2 -mt-14">
+    <section className="relative h-screen w-full flex items-center justify-center text-white overflow-hidden -mt-14">
       {heroImage && (
         <Image
           src={heroImage.imageUrl}
